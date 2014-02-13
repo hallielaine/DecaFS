@@ -1,2 +1,3 @@
-CP-slo-pi-project
+DecaFS
+  Distributed educational component adaptable File System
 =================
