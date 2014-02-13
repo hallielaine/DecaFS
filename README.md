@@ -1,3 +1,3 @@
 DecaFS
-  Distributed educational component adaptable File System
 =================
+Distributed educational component adaptable File System
