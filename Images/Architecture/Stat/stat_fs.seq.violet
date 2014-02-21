@@ -5,7 +5,9 @@
    <object id="LifelineNode0" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
-      <string>Barista Core Module
+      <string>Barista 
+Core 
+Module
 </string>
      </void>
     </void>
@@ -25,7 +27,9 @@
        <object id="LifelineNode1" class="com.horstmann.violet.ImplicitParameterNode">
         <void property="name">
          <void property="text">
-          <string>Metadata Module</string>
+          <string>Persistent
+Metadata 
+Module</string>
          </void>
         </void>
        </object>

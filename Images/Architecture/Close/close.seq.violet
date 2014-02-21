@@ -64,7 +64,8 @@
        <object id="LifelineNode4" class="com.horstmann.violet.ImplicitParameterNode">
         <void property="name">
          <void property="text">
-          <string>Metadata Module</string>
+          <string>Volatile 
+Metadata Module</string>
          </void>
         </void>
        </object>
@@ -237,7 +238,7 @@
   <void method="connect">
    <object class="com.horstmann.violet.CallEdge">
     <void property="middleLabel">
-     <string>update file metadata</string>
+     <string>close_file_cursor()</string>
     </void>
    </object>
    <object idref="ActivationBarNode0"/>
@@ -291,7 +292,7 @@
   <void method="connect">
    <object class="com.horstmann.violet.CallEdge">
     <void property="middleLabel">
-     <string>write_stripe()</string>
+     <string>write_chunk()</string>
     </void>
    </object>
    <object idref="ActivationBarNode2"/>

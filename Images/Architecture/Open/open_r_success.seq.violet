@@ -5,7 +5,8 @@
    <object id="LifelineNode0" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
-      <string>Barista Core</string>
+      <string>Barista 
+Core</string>
      </void>
     </void>
    </object>
@@ -20,7 +21,8 @@
    <object id="LifelineNode1" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
-      <string>Locking Strategy</string>
+      <string>Locking 
+Strategy</string>
      </void>
     </void>
    </object>
@@ -35,7 +37,9 @@
    <object id="LifelineNode2" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
-      <string>Metadata Module</string>
+      <string>Volatile 
+Metadata
+Module</string>
      </void>
     </void>
    </object>
@@ -143,7 +147,7 @@
   <void method="connect">
    <object class="com.horstmann.violet.CallEdge">
     <void property="middleLabel">
-     <string>store file metadata</string>
+     <string>new_file_cursor()</string>
     </void>
    </object>
    <object idref="ActivationBarNode0"/>
@@ -152,7 +156,7 @@
   <void method="connect">
    <object class="com.horstmann.violet.ReturnEdge">
     <void property="middleLabel">
-     <string>success</string>
+     <string>fd</string>
     </void>
    </object>
    <object idref="ActivationBarNode2"/>

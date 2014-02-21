@@ -5,7 +5,9 @@
    <object id="LifelineNode0" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
-      <string>Barista Core Module</string>
+      <string>Barista 
+Core 
+Module</string>
      </void>
     </void>
    </object>
@@ -26,7 +28,10 @@
          <object id="LifelineNode1" class="com.horstmann.violet.ImplicitParameterNode">
           <void property="name">
            <void property="text">
-            <string>Distribution Strategy</string>
+            <string>I/O 
+Manager 
+Module
+</string>
            </void>
           </void>
          </object>
@@ -36,21 +41,17 @@
       <void method="addChild">
        <object id="ActivationBarNode3" class="com.horstmann.violet.CallNode">
         <void property="implicitParameter">
-         <object id="LifelineNode2" class="com.horstmann.violet.ImplicitParameterNode">
-          <void property="name">
-           <void property="text">
-            <string>Replication Strategy</string>
-           </void>
-          </void>
-         </object>
+         <object idref="LifelineNode1"/>
         </void>
        </object>
       </void>
       <void property="implicitParameter">
-       <object id="LifelineNode3" class="com.horstmann.violet.ImplicitParameterNode">
+       <object id="LifelineNode2" class="com.horstmann.violet.ImplicitParameterNode">
         <void property="name">
          <void property="text">
-          <string>Metadata Module</string>
+          <string>Persistent
+Metadata 
+Module</string>
          </void>
         </void>
        </object>
@@ -69,7 +70,7 @@
    </object>
   </void>
   <void method="addNode">
-   <object id="LifelineNode4" class="com.horstmann.violet.ImplicitParameterNode">
+   <object id="LifelineNode3" class="com.horstmann.violet.ImplicitParameterNode">
     <void property="name">
      <void property="text">
       <string>Client</string>
@@ -89,7 +90,7 @@
      <object idref="ActivationBarNode0"/>
     </void>
     <void property="implicitParameter">
-     <object idref="LifelineNode4"/>
+     <object idref="LifelineNode3"/>
     </void>
    </object>
    <object class="java.awt.geom.Point2D$Double">
@@ -100,7 +101,7 @@
    </object>
   </void>
   <void method="addNode">
-   <object idref="LifelineNode3"/>
+   <object idref="LifelineNode2"/>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
      <double>334.0</double>
@@ -136,19 +137,10 @@
    </object>
   </void>
   <void method="addNode">
-   <object idref="LifelineNode2"/>
-   <object class="java.awt.geom.Point2D$Double">
-    <void method="setLocation">
-     <double>607.0</double>
-     <double>0.0</double>
-    </void>
-   </object>
-  </void>
-  <void method="addNode">
    <object idref="ActivationBarNode3"/>
    <object class="java.awt.geom.Point2D$Double">
     <void method="setLocation">
-     <double>639.0</double>
+     <double>531.0</double>
      <double>202.0</double>
     </void>
    </object>
