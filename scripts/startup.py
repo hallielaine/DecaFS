@@ -37,10 +37,12 @@ for node in data["nodes"]["espresso"]:
 # deal with handling incorrecly formatted config files here
 
 #subprocess.check_output(["ssh", "pi@" + barista_ip, "touch testfile"])
-barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "echo Barista is: `cat /etc/hostname`"], stdout=sys.stdout)
+#barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "echo Barista is: `cat /etc/hostname`"], stdout=sys.stdout)
+barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista"], stdout=sys.stdout)
 barista.communicate()
 
 espresso=[]
 for (i, ip) in enumerate(espresso_ips):
-   espresso.append(subprocess.Popen(["ssh", "pi@" + ip, "echo Espresso " + str(i+1) + ": `cat /etc/hostname`"], stdout=sys.stdout))
+   #espresso.append(subprocess.Popen(["ssh", "pi@" + ip, "echo Espresso " + str(i+1) + ": `cat /etc/hostname`"], stdout=sys.stdout))
+   espresso.append(subprocess.Popen(["ssh", "pi@" + ip, "./decafs_espresso"], stdout=sys.stdout))
    espresso[len(espresso)-1].communicate()
