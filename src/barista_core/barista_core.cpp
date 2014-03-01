@@ -22,18 +22,34 @@ int main (int argc, char *argv[]) {
 }
 
 void process_arguments (int argc, char *argv[]) {
+  int ret;
   if (argc < MIN_ARGS) {
     exit_failure (USAGE_ERROR);
   }
   
-  v_meta.set_stripe_size (atoi(argv[STRIPE_SIZE]));
-  v_meta.set_chunk_size (atoi(argv[CHUNK_SIZE]));
+  ret = v_meta.set_stripe_size (atoi(argv[STRIPE_SIZE]));
+  if (ret < 0) {
+    exit_failure (get_size_error_message ("stripe", argv[STRIPE_SIZE]));
+  }
+  ret = v_meta.set_chunk_size (atoi(argv[CHUNK_SIZE]));
+  if (ret < 0) {
+    exit_failure (get_size_error_message ("chunk", argv[CHUNK_SIZE]));
+  }
 
   // Add barista node to v_meta
   // Add all espresso nodes to v_meta
 }
 
+const char *get_size_error_message (const char *type, const char *value) {
+  std::string msg = "Invalid size ";
+  msg += value;
+  msg += " for ";
+  msg += type;
+
+  return msg.c_str();
+}
+
 void exit_failure (const char *message) {
-  perror (message);
+  fprintf (stderr, "%s\n", message);
   exit (EXIT_FAILURE);
 }

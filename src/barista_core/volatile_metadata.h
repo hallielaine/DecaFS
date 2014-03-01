@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#include "limits.h"
+
+#define SIZE_ALREADY_SET -1
+#define SIZE_INVALID -2
+
 using namespace std;
 
 class Volatile_Metadata {
@@ -15,9 +20,10 @@ class Volatile_Metadata {
     Volatile_Metadata();
 
     uint32_t get_chunk_size ();
-    void set_chunk_size (uint32_t size);
+    int set_chunk_size (uint32_t size);
 
     uint32_t get_stripe_size();
-    void set_stripe_size (uint32_t size);
+    int set_stripe_size (uint32_t size);
+
 }; 
 #endif

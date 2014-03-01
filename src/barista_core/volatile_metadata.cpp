@@ -10,22 +10,32 @@ Volatile_Metadata::Volatile_Metadata() {
   stripe_size = 0;
 }
 
-void Volatile_Metadata::set_chunk_size (uint32_t size) {
+int Volatile_Metadata::set_chunk_size (uint32_t size) {
   // Set the chunk size if it hasn't been set before
   if (chunk_size == 0) {
-    chunk_size = size;
+    if (size >= MIN_CHUNK && size <= MAX_CHUNK) {
+      chunk_size = size;
+      return 1;
+    }
+    return SIZE_INVALID;
   }
+  return SIZE_ALREADY_SET;
 }
 
 uint32_t Volatile_Metadata::get_chunk_size() {
   return chunk_size;
 }
 
-void Volatile_Metadata::set_stripe_size (uint32_t size) {
+int Volatile_Metadata::set_stripe_size (uint32_t size) {
   // Set the stripe size if it hasn't been set before
   if (stripe_size == 0) {
-    stripe_size = size;
+    if (size >= MIN_STRIPE && size <= MAX_STRIPE) {
+      stripe_size = size;
+      return 1;
+    }
+    return SIZE_INVALID;
   }
+  return SIZE_ALREADY_SET;
 }
 
 uint32_t Volatile_Metadata::get_stripe_size() {
