@@ -18,6 +18,7 @@ class Volatile_Metadata {
 
   public:
     Volatile_Metadata();
+    std::map<string, int> ip_to_node_map;
 
     uint32_t get_chunk_size ();
     int set_chunk_size (uint32_t size);

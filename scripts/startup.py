@@ -36,24 +36,31 @@ for node in data["nodes"]["espresso"]:
 
 # deal with handling incorrecly formatted config files here
 
+# pull barista config options from config file
+stripe_size = 1
+chunk_size = 1
+barista_config = "config_file"
+
+# configure cmd line args for barista node
+barista_args = str(stripe_size) + " " + str(chunk_size) + " " + barista_config
+barista_args = barista_args + " " + " ".join(espresso_ips)
+print(barista_args)
 # fork barista here
 pids=[]
 
 pid = os.fork()
 if pid == 0: # if in child
-   #barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "echo Barista is: `cat /etc/hostname`"], stdout=sys.stdout)
-   barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista"], stdout=sys.stdout)
+   barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
    barista.communicate()
    exit(0)
 else:
    pids.append(pid)
 
 for (i, ip) in enumerate(espresso_ips):
-   #espresso.append(subprocess.Popen(["ssh", "pi@" + ip, "echo Espresso " + str(i+1) + ": `cat /etc/hostname`"], stdout=sys.stdout))
    pid = os.fork()
 
    if pid == 0:
-      espresso=subprocess.Popen(["ssh", "pi@" + ip, "./decafs_espresso " + ip], stdout=sys.stdout)
+      espresso=subprocess.Popen(["ssh", "pi@" + ip, "./decafs_espresso"], stdout=sys.stdout)
       espresso.communicate()
       exit(0)
    else:

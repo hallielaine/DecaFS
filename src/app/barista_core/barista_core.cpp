@@ -1,9 +1,10 @@
 #include "barista_core.h"
 
-#define MIN_ARGS 4
+#define MIN_ARGS 5
 #define STRIPE_SIZE 1
 #define CHUNK_SIZE 2
 #define BARISTA 3
+#define ESPRESSO 4
 
 Volatile_Metadata v_meta;
 
@@ -37,7 +38,18 @@ void process_arguments (int argc, char *argv[]) {
   }
 
   // Add barista node to v_meta
+  // BARISTA param is log file
+
   // Add all espresso nodes to v_meta
+  for (int i = ESPRESSO; i < argc; i++) {
+    int res = network_add_client(argv[i]);
+    if (res >= 0) {
+      v_meta.ip_to_node_map[argv[i]] = res;
+    }
+    else {
+      fprintf(stderr, "Failed to connect to espresso node: %sn", argv[i]);
+    }
+  }
 }
 
 const char *get_size_error_message (const char *type, const char *value) {

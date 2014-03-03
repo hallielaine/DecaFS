@@ -62,7 +62,7 @@ ssize_t network_read_chunk(int fd, int file_id, int node_id, int stripe_id,
 }
 
 ssize_t network_write_chunk(int fd, int file_id, int node_id, int stripe_id, 
-                            int chunk_num, int offset, void* buf, int count) {
+                            int chunk_num, int offset, const void* buf, int count) {
 
   write_params data;
 

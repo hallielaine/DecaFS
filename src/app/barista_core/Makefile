@@ -2,12 +2,13 @@
 .SUFFIXES: .cpp .o
 BARISTA = decafs_barista
 CFLAGS = -g -Wall
+INCDIR = ../../lib
 LIBDIRS = ../../lib/network_core
 LIBS = -lnetcore
 
 OBJS = barista_core.o volatile_metadata.o 
 
-.cpp.o:; g++ -c -o $@ $(CFLAGS) $<
+.cpp.o:; g++ -c -o $@ $(CFLAGS) -I$(INCDIR) $<
 
 default: $(BARISTA)
 
