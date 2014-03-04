@@ -94,10 +94,43 @@ uint32_t Volatile_Metadata::get_active_nodes (char ***nodes) {
   return count;
 }
 
+int Volatile_Metadata::new_file_cursor (struct file_instance inst) {
+  if (!file_cursors_contains (inst)) {
+    file_cursors[inst] = 0;
+  }
+  return file_cursors[inst];
+}
+
+int Volatile_Metadata::close_file_cursor (struct file_instance inst) {
+  if (file_cursors_contains (inst)) {
+    file_cursors.erase(inst);
+  }
+  return V_META_SUCCESS;
+}
+
+int Volatile_Metadata::get_file_cursor (struct file_instance inst) {
+  if (file_cursors_contains (inst)) {
+    return file_cursors[inst];
+  }
+  return INSTANCE_NOT_FOUND;
+}
+
+int Volatile_Metadata::set_file_cursor (struct file_instance inst, uint32_t offset) {
+  if (file_cursors_contains (inst)) {
+    // TODO: Add error checking to ensure that only valid offsets can be set
+    file_cursors[inst] = offset;
+  }
+  return INSTANCE_NOT_FOUND;
+}
+
 bool Volatile_Metadata::ip_to_node_map_contains (char *ip) {
   return (ip_to_node_map.find (ip) != ip_to_node_map.end());
 }
 
 bool Volatile_Metadata::up_nodes_contains (char *ip) {
   return (std::find (up_nodes.begin(), up_nodes.end(), ip) != up_nodes.end());
+}
+
+bool Volatile_Metadata::file_cursors_contains (struct file_instance inst) {
+  return (file_cursors.find (inst) != file_cursors.end());
 }

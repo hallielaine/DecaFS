@@ -15,24 +15,51 @@
 #define SIZE_ALREADY_SET -1
 #define SIZE_INVALID -2
 
-// Map Errors
+// IP Map Errors
 #define IP_EXISTS -1
 #define IP_NOT_FOUND -2
+
+// Cursor Errors
+#define INSTANCE_NOT_FOUND -1
+
+struct file_instance {
+  uint32_t client_id;
+  uint32_t process_id;
+  uint32_t file_id;
+  uint32_t fd_number;
+
+  bool operator ==(const file_instance & other) const {
+    return (this->client_id == other.client_id &&
+            this->process_id == other.process_id &&
+            this->file_id == other.file_id &&
+            this->fd_number == other.fd_number);
+  }
+  
+  bool operator <(const file_instance &other) const {
+    return ((this->client_id < other.client_id) ? true :
+               (this->process_id < other.process_id) ? true :
+                  (this->file_id < other.file_id) ? true :
+                     (this->fd_number < other.fd_number) ? 
+                        true : false);
+  }
+};
 
 using namespace std;
 
 class Volatile_Metadata {
   private:
+    
     // Variables
     uint32_t chunk_size;
     uint32_t stripe_size;
     std::map<string, int> ip_to_node_map;
     std::list<string> up_nodes;
-    // TODO: add file cursors and node map
+    std::map<struct file_instance, int> file_cursors;
 
     // Helper Functions
     bool ip_to_node_map_contains (char *ip);
     bool up_nodes_contains (char *ip);
+    bool file_cursors_contains (struct file_instance inst);
 
   public:
     Volatile_Metadata();
@@ -101,5 +128,31 @@ class Volatile_Metadata {
      * The number of active nodes in the system is returned.
      */
     uint32_t get_active_nodes (char ***nodes);
+
+    /*
+     *   Start a new file cursor if one doesn’t exist already.
+     *  @return the current byte offset for a given fd
+     */
+    int new_file_cursor (struct file_instance inst);
+
+    /*
+     *   Remove a file cursor for an open instance of a file.
+     */
+    int close_file_cursor (struct file_instance inst);
+
+    /*
+     * Provides information about the cursor for an instance of an open
+     *   file.
+     *  @return the current byte offset for a given fd
+     *          if the fd does not exist, INSTANCE_NOT_FOUND is returned.
+     */
+    int get_file_cursor (struct file_instance inst);
+
+    /*
+     *   Set the cursor for an instance of an open file.
+     *  @return the current byte offset for a given fd
+     *          if the fd does not exist, INSTANCE_NOT_FOUND is returned.
+     */
+    int set_file_cursor (struct file_instance inst, uint32_t offset);
 }; 
 #endif

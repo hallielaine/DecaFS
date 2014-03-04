@@ -13,10 +13,15 @@
 #define ESPRESSO_1_NODE_NUM 2
 #define ESPRESSO_2_NODE_NUM 3
 
+#define CURSOR_VAL 32
+
 const char barista[] = "192.168.1.100";
 const char espresso_1[] = "192.168.1.101";
 const char espresso_2[] = "192.168.1.102";
 const char invalid_ip[] = "0.0.0.0";
+
+struct file_instance inst = {1, 1, 1, 1};
+struct file_instance bad_inst = {1, 1, 1, 2};
 
 TEST (Volatile_Metadata, DefaultConstructor) {
   Volatile_Metadata v_meta;
@@ -167,4 +172,38 @@ TEST (Volatile_Metadata, NodeUpDoesNotExist) {
   v_meta.set_node_up ((char *)invalid_ip);
 
   EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
+}
+
+TEST (Volatile_Metadata, FileCursorCreation) {
+  Volatile_Metadata v_meta;
+
+  v_meta.new_file_cursor (inst);
+
+  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
+}
+
+TEST (Volatile_Metadata, FileCursorBadCursor) {
+  Volatile_Metadata v_meta;
+
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
+  v_meta.new_file_cursor (inst);
+  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (bad_inst));
+}
+
+TEST (Volatile_Metadata, FileCursorSet) {
+  Volatile_Metadata v_meta;
+  
+  v_meta.new_file_cursor (inst);
+  v_meta.set_file_cursor (inst, CURSOR_VAL);
+  EXPECT_EQ (CURSOR_VAL, v_meta.get_file_cursor (inst));
+}
+
+TEST (Volatile_Metadata, FileCursorDelete) {
+  Volatile_Metadata v_meta;
+  
+  v_meta.new_file_cursor (inst);
+  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
+  v_meta.close_file_cursor (inst);
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
 }
