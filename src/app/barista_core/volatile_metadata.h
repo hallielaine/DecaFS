@@ -3,11 +3,12 @@
 
 #include <stdint.h>
 
+#include <algorithm>
 #include <list>
 
 #include "limits.h"
 
-#define SUCCESS 0
+#define V_META_SUCCESS 0
 
 // Chunk and Stripe Size Errors
 #define SIZE_ALREADY_SET -1

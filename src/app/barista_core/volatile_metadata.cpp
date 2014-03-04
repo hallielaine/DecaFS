@@ -50,8 +50,8 @@ uint32_t Volatile_Metadata::get_node_number (char *ip) {
 int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
   if (!ip_to_node_map_contains (ip)) {
     ip_to_node_map[ip] = node_number;
-    up_nodes.insert (ip);
-    return SUCCESS;
+    up_nodes.push_front (std::string(ip));
+    return V_META_SUCCESS;
   }
   return IP_EXISTS;
 }
@@ -59,19 +59,19 @@ int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
 uint32_t Volatile_Metadata::set_node_down (char *ip) {
   if (up_nodes_contains (ip)) {
     up_nodes.remove (ip);
-    return SUCCESS;
+    return V_META_SUCCESS;
   }
   return IP_NOT_FOUND;
 }
 
 uint32_t Volatile_Metadata::get_active_nodes (char **nodes) {
   int count = 0;
-  *nodes = realloc (up_nodes.size());
+  nodes = (char **)(realloc (nodes, up_nodes.size()));
 
-  for (std::list<string>::iterator it = up_nodes.being(); 
+  for (std::list<string>::iterator it = up_nodes.begin(); 
        it != up_nodes.end(); it++) {
-    nodes[count] = malloc (*it.length());
-    memcpy (nodes[count++], (*it.c_str()), *it.length());
+    nodes[count] = (char *)(malloc ((*it).length()));
+    memcpy (nodes[count++], ((*it).c_str()), (*it).length());
   }
 
   return count;

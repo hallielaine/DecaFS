@@ -44,7 +44,7 @@ void process_arguments (int argc, char *argv[]) {
   for (int i = ESPRESSO; i < argc; i++) {
     int res = network_add_client(argv[i]);
     if (res >= 0) {
-      v_meta.ip_to_node_map[argv[i]] = res;
+      v_meta.add_node(argv[i], res);
       network_write_chunk(1, 1, res, 1, 1, 1, argv[i], 2);
     }
     else {
