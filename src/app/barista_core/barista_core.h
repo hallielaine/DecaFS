@@ -10,7 +10,7 @@
 #include "limits.h"
 #include "messages.h"
 #include "volatile_metadata.h"
-#include "network_core/bar_clnt.h"
+#include "../../lib/network_core/bar_clnt.h"
 
 void process_arguments (int argc, char *argv[]);
 void exit_failure (const char *message);
