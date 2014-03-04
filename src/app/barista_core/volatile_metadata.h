@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <list>
+#include <cstring>
 
 #include "limits.h"
 
@@ -88,12 +89,17 @@ class Volatile_Metadata {
      */
     uint32_t set_node_up (char *ip);
     /*
+     * Returns the number of active nodes.
+     */
+    int get_active_node_count();
+    /*
      * Give the "state" of the system.
-     * nodes is filled in with the ip addresses fo the active nodes (nodes
+     * nodes is filled in with the ip addresses for the active nodes (nodes
      *   that were not set to "down").
+     * IP addresses of each node will be returned in sorted order.
      * nodes will be reallocated to support the number of nodes that are up.
      * The number of active nodes in the system is returned.
      */
-    uint32_t get_active_nodes (char **nodes);
+    uint32_t get_active_nodes (char ***nodes);
 }; 
 #endif
