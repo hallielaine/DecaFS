@@ -37,8 +37,8 @@ for node in data["nodes"]["espresso"]:
 # deal with handling incorrecly formatted config files here
 
 # pull barista config options from config file
-stripe_size = 1
-chunk_size = 1
+stripe_size = 1024
+chunk_size = 1024
 barista_config = "config_file"
 
 # configure cmd line args for barista node
@@ -47,14 +47,6 @@ barista_args = barista_args + " " + " ".join(espresso_ips)
 print(barista_args)
 # fork barista here
 pids=[]
-
-pid = os.fork()
-if pid == 0: # if in child
-   barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
-   barista.communicate()
-   exit(0)
-else:
-   pids.append(pid)
 
 for (i, ip) in enumerate(espresso_ips):
    pid = os.fork()
@@ -65,6 +57,14 @@ for (i, ip) in enumerate(espresso_ips):
       exit(0)
    else:
       pids.append(pid)
+
+pid = os.fork()
+if pid == 0: # if in child
+   barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
+   barista.communicate()
+   exit(0)
+else:
+   pids.append(pid)
 
 count = 0
 while (count < len(pids)):
