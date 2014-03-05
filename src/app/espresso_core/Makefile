@@ -1,21 +1,21 @@
-.SUFFIXES:
-.SUFFIXES: .cpp .o
-ESPRESSO = decafs_espresso
-CFLAGS = -g -Wall
-INCDIRS = ../../lib
-LIBDIRS = ../../lib/network_core
-LIBS = -lnetcore
+CXX := g++
+CXXFLAGS := -std=c++11 -g -O3 -Wall -Wextra -Weffc++ -Werror
 
-OBJS = espresso_core.o 
+.PHONY: all clean
 
-.cpp.o:; g++ -c -o $@ $(CFLAGS) -I$(INCDIRS) $<
+BINS := espresso_storage.a
 
-default: $(ESPRESSO)
+OBJS := espresso_data.o \
+        espresso_state.o
 
-$(ESPRESSO): $(OBJS)
-	g++ -o $(ESPRESSO) $(OBJS) -L$(LIBDIRS) $(LIBS)
+all : $(BINS)
+
+espresso_storage.a: $(OBJS)
+	ar rcs $@ $^
 
 clean:
-	rm *.o $(ESPRESSO)
-	rm -i *~
-	rm core
+	rm -f $(BINS) $(OBJS)
+
+espresso_data.o: espresso_data.cc espresso_data.h espresso_types.h \
+  espresso_state.h
+espresso_state.o: espresso_state.cc espresso_state.h espresso_types.h
