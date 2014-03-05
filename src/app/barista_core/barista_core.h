@@ -4,9 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <string>
-#include <map>
-
 #include "limits.h"
 #include "messages.h"
 #include "volatile_metadata.h"

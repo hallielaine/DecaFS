@@ -1,4 +1,4 @@
-#include "../../../src/app/barista_core/barista_core.h"
+#include "../../../src/app/barista_core/volatile_metadata.h"
 #include "gtest/gtest.h"
 
 #define VALID_CHUNK_SIZE 2048

@@ -4,8 +4,10 @@
 #include <stdint.h>
 
 #include <algorithm>
-#include <list>
 #include <cstring>
+#include <list>
+#include <map>
+#include <string>
 
 #include "limits.h"
 

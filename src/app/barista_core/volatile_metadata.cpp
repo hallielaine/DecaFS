@@ -1,4 +1,4 @@
-#include "barista_core.h"
+#include "volatile_metadata.h"
 
 Volatile_Metadata::Volatile_Metadata() {
   // initialize volatile metadata map for file cursor
