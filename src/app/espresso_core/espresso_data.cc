@@ -12,6 +12,9 @@
 extern "C"
 ssize_t read_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
         int offset, void *buf, int count) {
+    if (count < 0)
+        return -1;
+
     data_descriptor d = { .file_id = file_id,
                           .stripe_id = stripe_id,
                           .chunk_num = chunk_num };
@@ -22,11 +25,8 @@ ssize_t read_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
     if (a == espresso_global_data.metadata.end())
         return -1;
 
-    // read no more than the data available in the chunk
-    const int len = std::min(count, a->second.size - offset);
-
-    // check for offset out of bounds, or a negative count
-    if (len < 0)
+    // do not read past the end of the chunk
+    if (count > a->second.size - offset)
         return -1;
 
     // seek to chunk at offset
@@ -34,12 +34,15 @@ ssize_t read_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
         return -1;
 
     // read len bytes of chunk starting from offset
-    return read(espresso_global_data.fd, buf, len);
+    return read(espresso_global_data.fd, buf, count);
 }
 
 extern "C"
 ssize_t write_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
         int offset, void *buf, int count) {
+    if (count < 0)
+        return -1;
+
     data_descriptor d = { .file_id = file_id,
                           .stripe_id = stripe_id,
                           .chunk_num = chunk_num };
@@ -50,11 +53,8 @@ ssize_t write_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
     if (a == espresso_global_data.metadata.end())
         return -1;
 
-    // write no more than the data available in the chunk
-    const int len = std::min(count, a->second.size - offset);
-
-    // check for offset out of bounds, or a negative count
-    if (len < 0)
+    // do not write past the end of the chunk
+    if (count > a->second.size - offset)
         return -1;
 
     // seek to chunk at offset
@@ -62,6 +62,5 @@ ssize_t write_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
         return -1;
 
     // write len bytes of chunk starting from offset
-    return write(espresso_global_data.fd, buf, len);
+    return write(espresso_global_data.fd, buf, count);
 }
-

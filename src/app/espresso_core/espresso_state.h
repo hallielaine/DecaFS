@@ -12,7 +12,7 @@ struct espresso_global_data_t {
     std::set<data_address> free_extents;
 };
 
-void espresso_global_data_init(int fd);
+void espresso_global_data_init(int fd, int max_size);
 
 inline bool operator< (const data_descriptor &d1, const data_descriptor &d2) {
     if (d1.file_id != d2.file_id)
