@@ -6,6 +6,7 @@
 #include "espresso_state.h"
 #include "espresso_data.h"
 
+
 #define UNUSED __attribute__((unused))
 
 static int allocate_chunk(data_address *a, int size) {
@@ -80,10 +81,8 @@ ssize_t write_chunk(int fd, int file_id, int stripe_id, int chunk_num,
     data_address new_a;
     if (allocate_chunk(&new_a, offset + count) == -1)
       return -1;
-    a = espresso_global_data.metadata.insert(std::make_pair(d, new_a)).first;
-  }
-
-  if (offset + count > a->second.size) {
+    espresso_global_data.metadata.insert(std::make_pair(d, new_a));
+  } else if (offset + count > a->second.size) {
     uint8_t *old_chunk = new uint8_t[a->second.size];
 
     if (read_data(fd, file_id, stripe_id, chunk_num, 0, old_chunk,
