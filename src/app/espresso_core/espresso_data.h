@@ -8,10 +8,10 @@ extern "C" {
 #endif
 
 ssize_t read_data(int fd, int file_id, int stripe_id, int chunk_num,
-        int offset, void *buf, int count);
+    int offset, void *buf, int count);
 
 ssize_t write_data(int fd, int file_id, int stripe_id, int chunk_num,
-        int offset, void *buf, int count);
+    int offset, void *buf, int count);
 
 #ifdef __cplusplus
 } // extern "C"
