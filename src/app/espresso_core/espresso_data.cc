@@ -40,7 +40,6 @@ ssize_t read_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
 extern "C"
 ssize_t write_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
         int offset, void *buf, int count) {
-
     data_descriptor d = { .file_id = file_id,
                           .stripe_id = stripe_id,
                           .chunk_num = chunk_num };

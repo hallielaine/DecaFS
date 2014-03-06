@@ -10,16 +10,18 @@ TESTS := espresso_storage_unittest
 GTEST_HEADERS := $(GTEST_DIR)/include/gtest/*.h \
                  $(GTEST_DIR)/include/gtest/internal/*.h
 
-.PHONY: all clean
+.PHONY: all clean fullclean
 
 all : $(TESTS)
 
 GTEST_OBJS := gtest-all.o gtest_main.o
 USER_OBJS := espresso_storage_unittest.o
-OBJS := $(GTEST_OBJS) $(USER_OBJS)
 
 clean :
-	rm -f $(TESTS) $(OBJS) gtest_main.a
+	rm -f $(TESTS) $(USER_OBJS)
+
+fullclean : clean
+	rm -f $(GTEST_OBJS) gtest_main.a
 
 
 gtest_main.a : $(GTEST_OBJS)
@@ -35,7 +37,7 @@ gtest_main.o : $(GTEST_SRCS)
 
 
 espresso_storage_unittest.o : espresso_storage_unittest.cc \
-                              $(USER_DIR)/espresso_storage.h \
+                              $(USER_DIR)/*.h \
                               $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -I$(USER_DIR) -c $< -o $@
 
