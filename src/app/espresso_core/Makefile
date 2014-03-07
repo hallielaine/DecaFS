@@ -15,7 +15,7 @@ espresso_storage.a: $(OBJS)
 	ar rcs $@ $^
 
 clean:
-	rm -f $(BINS) $(OBJS)
+	rm -f $(BINS) $(OBJS) *.gcno *.gcda *.gcov
 
 espresso_data.o: espresso_data.cc espresso_data.h espresso_types.h \
   espresso_state.h
