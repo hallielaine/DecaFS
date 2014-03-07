@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++11 -g -O3 -Wall -Wextra -Weffc++ -Werror
+CXXFLAGS := -std=c++11 -g -O3 -Wall -Wextra -Weffc++ -Werror --coverage
 
 .PHONY: all clean
 

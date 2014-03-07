@@ -47,5 +47,5 @@ $(USER_DIR)/espresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
 
 espresso_storage_unittest : $(USER_DIR)/espresso_storage.a \
                             espresso_storage_unittest.o gtest_main.a
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) --coverage $^ -o $@
 
