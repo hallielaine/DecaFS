@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include <cstdlib>
 #include <algorithm>
 #include <cstring>
 #include <list>
