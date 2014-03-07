@@ -2,10 +2,10 @@
 #include <cstring>
 #include <unistd.h>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-#include <espresso_storage.h>
-#include <espresso_state.h>
+#include "espresso_storage.h"
+#include "espresso_state.h"
 
 // MUST be greater than 4096 for some tests.
 const int TEST_FILE_SIZE = 50 * 1024;
@@ -336,6 +336,12 @@ TEST_F (StorageTest, DeleteMergesBothSides) {
   EXPECT_EQ(2, espresso_global_data.free_extents.size());
   EXPECT_EQ(0, delete_chunk(0, 0, 3, 0));
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
+}
+
+TEST_F (StorageTest, ReallocInFullFile) {
+  // this test will fail once written because a reallocation that fails causes
+  // the chunk to have a dangling address.
+  ASSERT_TRUE(false);
 }
 
 // TODO explicitly test underlying _data functions for bounds checking
