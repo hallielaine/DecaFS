@@ -280,6 +280,7 @@ TEST_F (StorageTest, FillDataFile) {
   delete[] buf;
 }
 
+// This test assumes the allocator always picks the lowest possible address.
 TEST_F (StorageTest, DeleteMergesPriorExtent) {
   char buf[] = "test buffer";
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
@@ -297,6 +298,7 @@ TEST_F (StorageTest, DeleteMergesPriorExtent) {
   EXPECT_EQ(2, espresso_global_data.free_extents.size());
 }
 
+// This test assumes the allocator always picks the lowest possible address.
 TEST_F (StorageTest, DeleteMergesLaterExtent) {
   char buf[] = "test buffer";
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
@@ -314,6 +316,7 @@ TEST_F (StorageTest, DeleteMergesLaterExtent) {
   EXPECT_EQ(2, espresso_global_data.free_extents.size());
 }
 
+// This test assumes the allocator always picks the lowest possible address.
 TEST_F (StorageTest, DeleteMergesBothSides) {
   char buf[] = "test buffer";
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
@@ -338,21 +341,167 @@ TEST_F (StorageTest, DeleteMergesBothSides) {
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
 }
 
+// This test assumes the allocator always picks the lowest possible address.
 TEST_F (StorageTest, ReallocSafeInFullFile) {
   char *bigbuf = new char[TEST_FILE_SIZE - 11];
-  char goodbuf[] = "goodbuffer";
-  char badbuf[] = "bufferbad!";
+  memset(bigbuf, 0, TEST_FILE_SIZE - 11);
+  char buf1[] = "1111111111";
 
-  EXPECT_EQ(TEST_FILE_SIZE - 11,
-      write_chunk(0, 1, 3, 0, 0, bigbuf, TEST_FILE_SIZE - 11));
-  EXPECT_EQ(11, write_chunk(0, 2, 1, 0, 0, goodbuf, 11));
-  EXPECT_EQ(-1, write_chunk(0, 2, 1, 0, 11, badbuf, 11))
+
+  EXPECT_EQ(TEST_FILE_SIZE - 11,                        // |*********_|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 11));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |**********|
+  EXPECT_EQ(-1, write_chunk(0, 2, 2, 2, 0, bigbuf, 22)) // |**********|
     << "realloc should fail since data file is full";
-  EXPECT_EQ(-1, write_chunk(0, 2, 2, 0, 0, badbuf, 11))
+  EXPECT_EQ(-1, write_chunk(0, 3, 3, 3, 0, bigbuf, 11)) // |**********|
     << "data file should still be full";
 
-  EXPECT_EQ(11, read_chunk(0, 2, 1, 0, 0, goodbuf, 11));
-  EXPECT_STREQ("goodbuffer", goodbuf);
+  EXPECT_EQ(11, read_chunk(0, 2, 2, 2, 0, buf1, 11));
+  EXPECT_STREQ("1111111111", buf1);
+}
+
+// This test assumes the allocator always picks the lowest possible address.
+TEST_F (StorageTest, ReallocWhenFreeMergesAfter) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 22];
+  memset(bigbuf, 0, TEST_FILE_SIZE - 22);
+  char buf1[] = "1111111111";
+  char buf2[] = "2222222222";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 22,                        // |********__|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 22));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |*********_|
+  EXPECT_EQ(-1, write_chunk(0, 2, 2, 2, 0, bigbuf, 33)) // |*********_|
+    << "realloc should fail, doesn't have this much space";
+  EXPECT_EQ(11, write_chunk(0, 3, 3, 3, 0, buf2, 11))   // |**********|
+    << "data file should still have this much space";
+  EXPECT_EQ(-1, write_chunk(0, 4, 4, 4, 0, bigbuf, 11)) // |**********|
+    << "data file should be full now";
+
+  EXPECT_EQ(11, read_chunk(0, 2, 2, 2, 0, buf1, 11));
+  EXPECT_STREQ("1111111111", buf1);
+  EXPECT_EQ(11, read_chunk(0, 3, 3, 3, 0, buf2, 11));
+  EXPECT_STREQ("2222222222", buf2);
+}
+
+// This test assumes the allocator always picks the lowest possible address.
+TEST_F (StorageTest, ReallocWhenFreeMergesBefore) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 22];
+  memset(bigbuf, 0, TEST_FILE_SIZE - 22);
+  char buf1[] = "1111111111";
+  char buf2[] = "2222222222";
+  char buf3[] = "3333333333";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 22,                        // |********__|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 22));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |*********_|
+  EXPECT_EQ(11, write_chunk(0, 3, 3, 3, 0, buf2, 11));  // |**********|
+  EXPECT_EQ(0, delete_chunk(0, 2, 2, 2));               // |********_*|
+  EXPECT_EQ(-1, write_chunk(0, 3, 3, 3, 0, bigbuf, 33)) // |********_*|
+    << "realloc should fail, doesn't have this much space";
+  EXPECT_EQ(11, write_chunk(0, 4, 4, 4, 0, buf3, 11))   // |**********|
+    << "data file should still have this much space";
+  EXPECT_EQ(-1, write_chunk(0, 5, 5, 5, 0, bigbuf, 11)) // |**********|
+    << "data file should be full now";
+
+  EXPECT_EQ(11, read_chunk(0, 3, 3, 3, 0, buf2, 11));
+  EXPECT_STREQ("2222222222", buf2);
+  EXPECT_EQ(11, read_chunk(0, 4, 4, 4, 0, buf3, 11));
+  EXPECT_STREQ("3333333333", buf3);
+}
+
+// This test assumes the allocator always picks the lowest possible address.
+TEST_F (StorageTest, ReallocWhenFreeMergesBoth) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 33];
+  memset(bigbuf, 0, TEST_FILE_SIZE - 33);
+  char buf1[] = "1111111111";
+  char buf2[] = "2222222222";
+  char buf3[] = "3333333333";
+  char buf4[] = "4444444444";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 33,                        // |*******___|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 33));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |********__|
+  EXPECT_EQ(11, write_chunk(0, 3, 3, 3, 0, buf2, 11));  // |*********_|
+  EXPECT_EQ(0, delete_chunk(0, 2, 2, 2));               // |*******_*_|
+  EXPECT_EQ(-1, write_chunk(0, 3, 3, 3, 0, bigbuf, 44)) // |*******_*_|
+    << "realloc should fail, doesn't have this much space";
+  EXPECT_EQ(11, write_chunk(0, 4, 4, 4, 0, buf3, 11))   // |*********_|
+    << "data file should still have this much space";
+  EXPECT_EQ(11, write_chunk(0, 5, 5, 5, 0, buf4, 11))   // |**********|
+    << "data file should still have this much space";
+  EXPECT_EQ(-1, write_chunk(0, 6, 6, 6, 0, bigbuf, 11)) // |**********|
+    << "data file should be full now";
+
+  EXPECT_EQ(11, read_chunk(0, 3, 3, 3, 0, buf2, 11));
+  EXPECT_STREQ("2222222222", buf2);
+  EXPECT_EQ(11, read_chunk(0, 4, 4, 4, 0, buf3, 11));
+  EXPECT_STREQ("3333333333", buf3);
+  EXPECT_EQ(11, read_chunk(0, 5, 5, 5, 0, buf4, 11));
+  EXPECT_STREQ("4444444444", buf4);
+}
+
+// This test assumes the allocator always picks the lowest possible address.
+TEST_F (StorageTest, ReallocWhenFreeMergesAfterNotAtEnd) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 33];
+  memset(bigbuf, 0, TEST_FILE_SIZE - 33);
+  char buf1[] = "1111111111";
+  char buf2[] = "2222222222";
+  char buf3[] = "3333333333";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 33,                        // |*******___|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 33));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |********__|
+  EXPECT_EQ(-1, write_chunk(0, 2, 2, 2, 0, bigbuf, 44)) // |********__|
+    << "realloc should fail, doesn't have this much space";
+  EXPECT_EQ(11, write_chunk(0, 3, 3, 3, 0, buf2, 11))   // |*********_|
+    << "data file should still have this much space";
+  EXPECT_EQ(11, write_chunk(0, 4, 4, 4, 0, buf3, 11))   // |**********|
+    << "data file should still have this much space";
+  EXPECT_EQ(-1, write_chunk(0, 5, 5, 5, 0, bigbuf, 11)) // |**********|
+    << "data file should be full now";
+
+  EXPECT_EQ(11, read_chunk(0, 2, 2, 2, 0, buf1, 11));
+  EXPECT_STREQ("1111111111", buf1);
+  EXPECT_EQ(11, read_chunk(0, 3, 3, 3, 0, buf2, 11));
+  EXPECT_STREQ("2222222222", buf2);
+  EXPECT_EQ(11, read_chunk(0, 4, 4, 4, 0, buf3, 11));
+  EXPECT_STREQ("3333333333", buf3);
+}
+
+// This test assumes the allocator always picks the lowest possible address.
+TEST_F (StorageTest, ReallocWhenFreeMergesBothNotAtEnd) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 44];
+  memset(bigbuf, 0, TEST_FILE_SIZE - 44);
+  char buf1[] = "1111111111";
+  char buf2[] = "2222222222";
+  char buf3[] = "3333333333";
+  char buf4[] = "4444444444";
+  char buf5[] = "5555555555";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 44,                        // |******____|
+      write_chunk(0, 1, 1, 1, 0, bigbuf, TEST_FILE_SIZE - 44));
+  EXPECT_EQ(11, write_chunk(0, 2, 2, 2, 0, buf1, 11));  // |*******___|
+  EXPECT_EQ(11, write_chunk(0, 3, 3, 3, 0, buf2, 11));  // |********__|
+  EXPECT_EQ(0, delete_chunk(0, 2, 2, 2));               // |******_*__|
+  EXPECT_EQ(-1, write_chunk(0, 3, 3, 3, 0, bigbuf, 55)) // |******_*__|
+    << "realloc should fail, doesn't have this much space";
+  EXPECT_EQ(11, write_chunk(0, 4, 4, 4, 0, buf3, 11))   // |********__|
+    << "data file should still have this much space";
+  EXPECT_EQ(11, write_chunk(0, 5, 5, 5, 0, buf4, 11))   // |*********_|
+    << "data file should still have this much space";
+  EXPECT_EQ(11, write_chunk(0, 6, 6, 6, 0, buf5, 11))   // |**********|
+    << "data file should still have this much space";
+  EXPECT_EQ(-1, write_chunk(0, 7, 7, 7, 0, bigbuf, 11)) // |**********|
+    << "data file should be full now";
+
+  EXPECT_EQ(11, read_chunk(0, 3, 3, 3, 0, buf2, 11));
+  EXPECT_STREQ("2222222222", buf2);
+  EXPECT_EQ(11, read_chunk(0, 4, 4, 4, 0, buf3, 11));
+  EXPECT_STREQ("3333333333", buf3);
+  EXPECT_EQ(11, read_chunk(0, 5, 5, 5, 0, buf4, 11));
+  EXPECT_STREQ("4444444444", buf4);
+  EXPECT_EQ(11, read_chunk(0, 6, 6, 6, 0, buf5, 11));
+  EXPECT_STREQ("5555555555", buf5);
 }
 
 // TODO explicitly test underlying _data functions for bounds checking
