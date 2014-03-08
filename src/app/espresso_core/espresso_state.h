@@ -18,7 +18,9 @@ struct espresso_global_data_t {
 extern espresso_global_data_t espresso_global_data;
 
 /*
- * Initialize the Espresso storage module global data.
+ * Initialize the Espresso storage module global data. The storage
+ * module will use *fd* as the file descriptor for the data file, and
+ * will not allow it to grow beyond *max_size* bytes.
  *
  * TODO: Once metadata is persistent, this will need to be split into
  * two functions, one for initializing an new file, and one for
