@@ -338,10 +338,21 @@ TEST_F (StorageTest, DeleteMergesBothSides) {
   EXPECT_EQ(1, espresso_global_data.free_extents.size());
 }
 
-TEST_F (StorageTest, ReallocInFullFile) {
-  // this test will fail once written because a reallocation that fails causes
-  // the chunk to have a dangling address.
-  ASSERT_TRUE(false);
+TEST_F (StorageTest, ReallocSafeInFullFile) {
+  char *bigbuf = new char[TEST_FILE_SIZE - 11];
+  char goodbuf[] = "goodbuffer";
+  char badbuf[] = "bufferbad!";
+
+  EXPECT_EQ(TEST_FILE_SIZE - 11,
+      write_chunk(0, 1, 3, 0, 0, bigbuf, TEST_FILE_SIZE - 11));
+  EXPECT_EQ(11, write_chunk(0, 2, 1, 0, 0, goodbuf, 11));
+  EXPECT_EQ(-1, write_chunk(0, 2, 1, 0, 11, badbuf, 11))
+    << "realloc should fail since data file is full";
+  EXPECT_EQ(-1, write_chunk(0, 2, 2, 0, 0, badbuf, 11))
+    << "data file should still be full";
+
+  EXPECT_EQ(11, read_chunk(0, 2, 1, 0, 0, goodbuf, 11));
+  EXPECT_STREQ("goodbuffer", goodbuf);
 }
 
 // TODO explicitly test underlying _data functions for bounds checking
