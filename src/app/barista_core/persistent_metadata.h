@@ -2,6 +2,7 @@
 #define __PERSISTENT_METADATA_H__
 
 #include <stdint.h>
+#include <stdio.h>
 #include <sys/statvfs.h>
 
 #include <cstring>
@@ -82,7 +83,7 @@ class Persistent_Metadata {
      *          FILENAME_INVALID if filename is too long
      */
     int add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
-                  uint32_t chunk_size, uint32_t replica_size);
+                  uint32_t chunk_size, uint32_t replica_size, struct timeval time);
     
     /*
      * Removes a file from DecaFS metadata.

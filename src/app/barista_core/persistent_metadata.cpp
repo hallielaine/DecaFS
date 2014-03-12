@@ -55,7 +55,7 @@ int Persistent_Metadata::set_access_time (file_instance inst, struct timeval tim
 }
     
 int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
-                                   uint32_t chunk_size, uint32_t replica_size) {
+                                   uint32_t chunk_size, uint32_t replica_size, struct timeval time) {
   if (metadata_contains (pathname)) {
     return FILE_EXISTS;
   }
@@ -65,7 +65,7 @@ int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t st
   }
  
   string name(pathname);
-  struct persistent_metadata_info info = {file_id, 0, stripe_size, chunk_size, replica_size};
+  struct persistent_metadata_info info = {file_id, 0, stripe_size, chunk_size, replica_size, time};
   metadata[name] = info;
   file_id_to_pathname[file_id] = name;
   return P_META_SUCCESS;
@@ -88,7 +88,7 @@ int Persistent_Metadata::update_file_size (uint32_t file_id, int size_delta) {
   if (get_file_name (file_id, pathname)) {
     struct persistent_metadata_info info = metadata[pathname];
     
-    if (info.size + size_delta < 0) {
+    if ((int)info.size + size_delta < 0) {
       info.size = 0;
     }
     else {
