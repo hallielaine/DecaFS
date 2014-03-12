@@ -11,6 +11,7 @@
 #include <string>
 
 #include "limits.h"
+#include "file_types.h"
 
 #define V_META_SUCCESS 0
 
@@ -24,28 +25,6 @@
 
 // Cursor Errors
 #define INSTANCE_NOT_FOUND -1
-
-struct file_instance {
-  uint32_t client_id;
-  uint32_t process_id;
-  uint32_t file_id;
-  uint32_t fd_number;
-
-  bool operator ==(const file_instance & other) const {
-    return (this->client_id == other.client_id &&
-            this->process_id == other.process_id &&
-            this->file_id == other.file_id &&
-            this->fd_number == other.fd_number);
-  }
-  
-  bool operator <(const file_instance &other) const {
-    return ((this->client_id < other.client_id) ? true :
-               (this->process_id < other.process_id) ? true :
-                  (this->file_id < other.file_id) ? true :
-                     (this->fd_number < other.fd_number) ? 
-                        true : false);
-  }
-};
 
 using namespace std;
 

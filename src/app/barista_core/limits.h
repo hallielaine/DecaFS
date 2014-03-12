@@ -7,4 +7,5 @@
 #define MIN_CHUNK 1024
 #define MAX_CHUNK 65536
 
+#define MAX_FILENAME_LENGTH 100
 #endif
