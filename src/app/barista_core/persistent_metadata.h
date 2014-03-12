@@ -15,6 +15,9 @@
 
 #define FILE_NOT_FOUND -1
 
+#define FILE_EXISTS -2
+#define FILENAME_INVALID -3
+
 struct persistent_metadata_info {
   uint32_t file_id;
   uint32_t size;
@@ -33,6 +36,7 @@ class Persistent_Metadata {
     std::map<string, struct persistent_metadata_info> metadata;
     
     // Helper Functions
+    bool get_file_name (uint32_t file_id, string name);
     bool metadata_contains (char *pathname);
     bool file_id_exists (int id);
 
@@ -70,6 +74,29 @@ class Persistent_Metadata {
      *  Updates the access time of the file.
      */
     int set_access_time (file_instance inst, struct timeval time);
+
+    /*
+     *  Add a file to the DecaFS metadata.
+     *  @return 0 on success
+     *          FILE_EXISTS if filename already exists in DecaFS
+     *          FILENAME_INVALID if filename is too long
+     */
+    int add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
+                  uint32_t chunk_size, uint32_t replica_size);
+    
+    /*
+     * Removes a file from DecaFS metadata.
+     * @ return 0 on success
+     *          FILE_NOT_FOUND on error
+     */
+    int delete_file (uint32_t file_id);
+
+    /*
+     *  Update the size (add or remove bytes to a file) of an existing file.
+     *  @return the size of the new file on success
+     *          FILE_NOT_FOUND on failure
+     */
+     int update_file_size (uint32_t file_id, int size_delta); 
 };
 
 #endif

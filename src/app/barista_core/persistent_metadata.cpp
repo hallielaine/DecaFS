@@ -45,19 +45,69 @@ int Persistent_Metadata::decafs_stat (char *pathname, struct statvfs *buf) {
 }
 
 int Persistent_Metadata::set_access_time (file_instance inst, struct timeval time) {
-  if (!file_id_exists (inst.file_id)) {
-    return FILE_NOT_FOUND;
-  }
+  string pathname;
   
-  string pathname = file_id_to_pathname[inst.file_id];
-
-  if (!metadata_contains ((char *)pathname.c_str())) {
-    return FILE_NOT_FOUND;
+  if (get_file_name (inst.file_id, pathname)) {
+    metadata[pathname].last_access_time = time;
+    return P_META_SUCCESS;
+  }
+  return FILE_NOT_FOUND;
+}
+    
+int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
+                                   uint32_t chunk_size, uint32_t replica_size) {
+  if (metadata_contains (pathname)) {
+    return FILE_EXISTS;
   }
 
-  metadata[pathname].last_access_time = time;
-  
+  if (strlen (pathname) > MAX_FILENAME_LENGTH) {
+    return FILENAME_INVALID;
+  }
+ 
+  string name(pathname);
+  struct persistent_metadata_info info = {file_id, 0, stripe_size, chunk_size, replica_size};
+  metadata[name] = info;
+  file_id_to_pathname[file_id] = name;
   return P_META_SUCCESS;
+}
+
+int Persistent_Metadata::delete_file (uint32_t file_id) {
+  string pathname;
+
+  if (get_file_name (file_id, pathname)) {
+    metadata.erase (pathname);
+    file_id_to_pathname.erase (file_id);
+    return P_META_SUCCESS;
+  }
+  return FILE_NOT_FOUND;
+}
+
+int Persistent_Metadata::update_file_size (uint32_t file_id, int size_delta) {
+  string pathname;
+
+  if (get_file_name (file_id, pathname)) {
+    struct persistent_metadata_info info = metadata[pathname];
+    
+    if (info.size + size_delta < 0) {
+      info.size = 0;
+    }
+    else {
+      info.size = info.size + size_delta;
+    }
+    return info.size;
+  }
+  return FILE_NOT_FOUND;
+}
+
+bool Persistent_Metadata::get_file_name (uint32_t file_id, string name) {
+  if (!file_id_exists (file_id)) {
+    return false;
+  }
+  name = file_id_to_pathname[file_id];
+  if (!metadata_contains ((char *)name.c_str())) {
+    return false;
+  }
+  return true;
 }
 
 bool Persistent_Metadata::metadata_contains (char *pathname) {
