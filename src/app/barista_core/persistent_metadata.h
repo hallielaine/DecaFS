@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <sys/statvfs.h>
 
+#include <cstring>
 #include <map>
 #include <string>
 
@@ -12,12 +13,15 @@
 
 #define P_META_SUCCESS 0
 
-struct peristent_metadata_knowledge {
+#define FILE_NOT_FOUND -1
+
+struct persistent_metadata_info {
   uint32_t file_id;
   uint32_t size;
   uint32_t stripe_size;
   uint32_t chunk_size;
   uint32_t replica_size;
+  struct timeval last_access_time;
 };
 
 using namespace std;
@@ -25,9 +29,12 @@ using namespace std;
 class Persistent_Metadata {
   private:
     // Variables
-    std::map<string, struct peristent_metadata_knowledge> metadata;
+    std::map<int, string> file_id_to_pathname;
+    std::map<string, struct persistent_metadata_info> metadata;
     
     // Helper Functions
+    bool metadata_contains (char *pathname);
+    bool file_id_exists (int id);
 
   public:
     Persistent_Metadata();
@@ -62,7 +69,7 @@ class Persistent_Metadata {
     /*
      *  Updates the access time of the file.
      */
-    int set_access_time (file_instance inst, struct timeval);
+    int set_access_time (file_instance inst, struct timeval time);
 };
 
 #endif
