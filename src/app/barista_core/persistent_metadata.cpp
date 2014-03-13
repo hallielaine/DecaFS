@@ -75,7 +75,7 @@ int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t st
 
 int Persistent_Metadata::delete_file (uint32_t file_id) {
   string pathname;
-
+  
   if (get_file_name (file_id, &pathname)) {
     metadata.erase (pathname);
     file_id_to_pathname.erase (file_id);
