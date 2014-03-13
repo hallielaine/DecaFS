@@ -1,5 +1,5 @@
-#ifndef _NETWORK_CORE_H
-#define _NETWORK_CORE_H
+#ifndef _BAR_CLNT_H
+#define _BAR_CLNT_H
 
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +19,7 @@ extern ssize_t network_write_chunk(int fd, int file_id, int node_id, int stripe_
 extern int network_delete_chunk(int node_id, int file_id, int stripe_id, int chunk_num);
 
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
-#endif
+#endif // _BAR_CLNT_H
