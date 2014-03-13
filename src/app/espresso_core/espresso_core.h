@@ -5,7 +5,7 @@
 
 #include "network_core/network.h"
 #include "network_core/esp_svc.h"
-#include "espresso_storage.h"
+#include "espresso_storage/espresso_storage.h"
 
 #define NUM_EXPECTED_ARGS 3
 #define NAME_ID 1
@@ -27,6 +27,6 @@ ssize_t write_data (int fd, int file_id, int stripe_id, int chunk_num, int offse
 /*
  *	Delete a chunk with given file_id and stripe_id.
  */
-int delete_data (int file_id, int stripe_id, int chunk_num);
+int delete_data (int fd, int file_id, int stripe_id, int chunk_num);
 
 #endif

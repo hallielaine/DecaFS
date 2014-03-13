@@ -5,7 +5,7 @@ CFLAGS = -g -Wall
 
 OBJS = esp_svc.o network_svc.o network_xdr.o network_clnt.o bar_clnt.o
 
-.c.o:; gcc -c -o $@ $(CFLAGS) $<
+.c.o:; g++ -c -o $@ $(CFLAGS) $<
 
 default: $(NETWORK)
 

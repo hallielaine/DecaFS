@@ -18,6 +18,7 @@ struct write_params {
 };
 
 struct delete_params {
+   int fd;
    int file_id;
    int stripe_id;
    int chunk_num;

@@ -22,16 +22,20 @@ int main(int argc, char** argv) {
 }
 
 ssize_t read_data (int fd, int file_id, int stripe_id, int chunk_num, int offset, void *buf, int count) {
+
+  printf("read_data called, espresso_core\n");
   return read_chunk(fd, file_id, stripe_id, chunk_num, offset, buf, count);
 }
 
 ssize_t write_data (int fd, int file_id, int stripe_id, int chunk_num, int offset, void *buf, int count) {
+
   return write_chunk(fd, file_id, stripe_id, chunk_num, offset, buf, count);
 }
 
-int delete_data (int file_id, int stripe_id, int chunk_num) {
-  // design does not have fd, only peters implementation
-  return delete_chunk(0, file_id, stripe_id, chunk_num);
+int delete_data (int fd, int file_id, int stripe_id, int chunk_num) {
+
+   printf("delete_data called, espresso_core\n");
+  return delete_chunk(fd, file_id, stripe_id, chunk_num);
 }
 
 void load_persistent_metadata(char* metadata_path) {

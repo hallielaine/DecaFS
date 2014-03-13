@@ -1,6 +1,7 @@
 #include <cassert>
 #include <memory>
 #include <utility>
+#include <cstdint>
 
 #include "espresso_storage.h"
 

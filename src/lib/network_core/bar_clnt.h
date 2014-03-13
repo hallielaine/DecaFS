@@ -16,7 +16,7 @@ extern ssize_t network_read_chunk(int fd, int file_id, int node_id, int stripe_i
                            int offset, void* buf, int count);
 extern ssize_t network_write_chunk(int fd, int file_id, int node_id, int stripe_id, int chunk_num, 
                            int offset, const void* buf, int count);
-extern int network_delete_chunk(int node_id, int file_id, int stripe_id, int chunk_num);
+extern int network_delete_chunk(int fd, int file_id, int node_id, int stripe_id, int chunk_num);
 
 #ifdef __cplusplus
 } // extern "C"

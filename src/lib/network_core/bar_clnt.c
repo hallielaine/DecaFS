@@ -51,7 +51,11 @@ ssize_t network_read_chunk(int fd, int file_id, int node_id, int stripe_id,
 
   if (node_id >= 0 && node_id < num_clients) {
     read_rtn *ret = rpc_read_data_1(&data, g_clients[node_id]);
-    strncpy(buf, ret->buf, ret->length);
+    
+    if (ret->length > 0) {
+      strncpy((char*)buf, ret->buf, ret->length);
+    }
+
     return ret->length;
   }  
   else {
@@ -65,27 +69,52 @@ ssize_t network_write_chunk(int fd, int file_id, int node_id, int stripe_id,
                             int chunk_num, int offset, const void* buf, int count) {
 
   write_params data;
+  int return_val = 0;
 
   data.fd = fd;
   data.file_id = file_id;
   data.stripe_id = stripe_id;
   data.chunk_num = chunk_num;
   data.offset = offset;
-  data.buf = buf;
   data.count = count;
+
+  data.buf = (char*)malloc(count*sizeof(char));
+  strncpy(data.buf, (const char*)buf, count);
 
   if (node_id >= 0 && node_id < num_clients) {
     int *ret = rpc_write_data_1(&data, g_clients[node_id]);
-    return *ret;
+    return_val = *ret;
   }  
   else {
     fprintf(stderr, "node_id %d does not exist\n", node_id); 
-    return -1; // node_id does not exist
+    return_val = -1; // node_id does not exist
     // this may conflict with an error message from READ
   }
+
+  free(data.buf);
+  
+  return return_val;
 }
 
-int network_delete_chunk(int node_id, int file_id, int stripe_id, int chunk_num) {
+int network_delete_chunk(int fd, int file_id, int node_id, int stripe_id, int chunk_num) {
 
-  return 1;
+  int return_val;
+  delete_params data;
+
+  data.fd = fd;
+  data.file_id = file_id;
+  data.stripe_id = stripe_id;
+  data.chunk_num = chunk_num;
+    
+  if (node_id >= 0 && node_id < num_clients) {
+    int* ret = rpc_delete_data_1(&data, g_clients[node_id]);
+    return_val = *ret;
+  }
+  else {
+    fprintf(stderr, "node_id %d does not exist\n", node_id); 
+    return_val = -1; // node_id does not exist
+    // this may conflict with an error message from READ
+  }
+ 
+  return return_val;
 }

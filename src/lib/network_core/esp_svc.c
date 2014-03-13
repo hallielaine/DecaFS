@@ -1,6 +1,11 @@
 #include "esp_svc.h"
 
+read_data_callback read_cb = NULL;
+write_data_callback write_cb = NULL;
+delete_data_callback delete_cb = NULL;
+
 int result;
+read_rtn read_result;
 
 void register_read_data_callback(read_data_callback callback) {
   read_cb = callback;
@@ -16,30 +21,48 @@ void register_delete_data_callback(delete_data_callback callback) {
 
 read_rtn* rpc_read_data_1_svc(read_params *info, struct svc_req *req) {
 
-   printf("read data called\n");
-   read_rtn result;
+   if (read_result.buf == NULL) { // hasnt been mallocd
+      read_result.buf = (char*)malloc(65536*sizeof(char));
+   }
 
-   result.buf = "this is the read data";
-   result.length = strlen(result.buf);
+   if (read_cb != NULL) {
+      read_result.length = read_cb(info->fd, info->file_id, info->stripe_id,
+       info->chunk_num, info->offset, read_result.buf, info->count);
+   }
+   else {
+      fprintf(stderr, "a read call has been received, but a read_data callback has not been registered\n");
+      fprintf(stderr, "failing ");
+      read_result.length = -1;
+   }
 
-   read_cb(1, 1, 1, 1, 1, NULL, 1);
-
-   return &result;
+   return &read_result;
 }
 
 int* rpc_write_data_1_svc(write_params *info, struct svc_req *req) {
 
-   printf("write data called: %s\n", info->buf);
+   if (write_cb != NULL) {
+      result = write_cb(info->fd, info->file_id, info->stripe_id, info->chunk_num,
+       info->offset, info->buf, info->count);
+   }
+   else {
+      fprintf(stderr, "a write call has been received, but a write_data callback has not been registered\n");
+      fprintf(stderr, "failing ");
+      result = -1;
+   }
 
-   result = 1;
    return &result;
 }
 
 int* rpc_delete_data_1_svc(delete_params *info, struct svc_req *req) {
 
-   printf("delete data called\n");
-   result = 1;
+   if (delete_cb != NULL) {
+      result = delete_cb(info->fd, info->file_id, info->stripe_id, info->chunk_num);
+   }
+   else {
+      fprintf(stderr, "a delete call has been received, but a delete_data callback has not been registered\n");
+      fprintf(stderr, "failing ");
+      result = -1;
+   }
 
    return &result;
 }
-

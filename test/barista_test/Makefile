@@ -33,7 +33,7 @@ CXXFLAGS += -g -Wall -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = volatile_metadata_unittest
+TESTS = volatile_metadata_unittest persistent_metadata_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -83,4 +83,14 @@ volatile_metadata_unittest.o : $(TEST_DIR)/volatile_metadata_unittest.cpp \
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp
 
 volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gtest_main.a $(LIBS)/libnetcore.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+persistent_metadata.o : $(USER_DIR)/persistent_metadata.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/persistent_metadata.cpp
+
+persistent_metadata_unittest.o : $(TEST_DIR)/persistent_metadata_unittest.cpp \
+                     $(USER_DIR)/persistent_metadata.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp
+
+persistent_metadata_unittest : persistent_metadata.o persistent_metadata_unittest.o gtest_main.a $(LIBS)/libnetcore.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

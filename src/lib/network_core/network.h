@@ -36,6 +36,7 @@ struct write_params {
 typedef struct write_params write_params;
 
 struct delete_params {
+	int fd;
 	int file_id;
 	int stripe_id;
 	int chunk_num;
@@ -54,7 +55,7 @@ typedef struct read_rtn read_rtn;
 // manually added line to change server main
 // to a loop that can be called so this can
 // be compiled as a library
-extern int svc_main_loop(int argc, char** argv); 
+extern int svc_main_loop(int argc, char** argv);
 
 #if defined(__STDC__) || defined(__cplusplus)
 #define RPC_READ_DATA 1

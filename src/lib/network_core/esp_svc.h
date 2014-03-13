@@ -6,8 +6,8 @@
 
 #include "network.h"
 
-int result;
-
+extern int result;
+extern read_rtn read_result;
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,11 +15,11 @@ extern "C" {
 
 typedef ssize_t (*read_data_callback)(int, int, int, int, int, void*, int);
 typedef ssize_t (*write_data_callback)(int, int, int, int, int, void*, int);
-typedef int (*delete_data_callback)(int, int, int);
+typedef int (*delete_data_callback)(int, int, int, int);
 
-read_data_callback read_cb;
-write_data_callback write_cb;
-delete_data_callback delete_cb;
+extern read_data_callback read_cb;
+extern write_data_callback write_cb;
+extern delete_data_callback delete_cb;
 
 extern void register_read_data_callback(read_data_callback callback);
 extern void register_write_data_callback(write_data_callback callback);

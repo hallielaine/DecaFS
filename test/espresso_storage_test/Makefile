@@ -1,5 +1,5 @@
 GTEST_DIR := ../gtest
-USER_DIR := ../../src/app/espresso_core
+USER_DIR := ../../src/lib/espresso_storage
 
 CXX := g++
 CXXFLAGS := -g -O3 -pthread -Wall -Wextra -Weffc++ \
@@ -41,11 +41,11 @@ espresso_storage_unittest.o : espresso_storage_unittest.cc \
                               $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -I$(USER_DIR) -c $< -o $@
 
-$(USER_DIR)/espresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
+$(USER_DIR)/libespresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
                                  $(USER_DIR)/Makefile
-	make -C $(USER_DIR) espresso_storage.a
+	make -C $(USER_DIR) libespresso_storage.a
 
-espresso_storage_unittest : $(USER_DIR)/espresso_storage.a \
+espresso_storage_unittest : $(USER_DIR)/libespresso_storage.a \
                             espresso_storage_unittest.o gtest_main.a
 	$(CXX) $(CXXFLAGS) --coverage $^ -o $@
 

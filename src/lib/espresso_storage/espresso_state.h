@@ -13,6 +13,8 @@ struct espresso_global_data_t {
   int fd;
   std::map<data_descriptor, data_address> metadata;
   std::set<data_address> free_extents;
+
+  espresso_global_data_t(): fd(-1), metadata(), free_extents() {}
 };
 
 extern espresso_global_data_t espresso_global_data;

@@ -41,12 +41,13 @@ void process_arguments (int argc, char *argv[]) {
   // Add barista node to volatile_metadata
   // BARISTA param is log file
 
+  char bufer[100];
+
   // Add all espresso nodes to volatile_metadata
   for (int i = ESPRESSO; i < argc; i++) {
     int res = network_add_client(argv[i]);
     if (res >= 0) {
       volatile_metadata.add_node(argv[i], res);
-      network_write_chunk(1, 1, res, 1, 1, 1, argv[i], 2);
     }
     else {
       fprintf(stderr, "Failed to connect to espresso node: %sn", argv[i]);
