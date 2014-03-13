@@ -12,7 +12,7 @@ OBJS := espresso_data.o \
 
 all : $(BINS)
 
-libespresso_storage.a: espresso_storage.o espresso_data.o espresso_state.o
+libespresso_storage.a: $(OBJS)
 	ar rcs $@ $^
 
 clean:
