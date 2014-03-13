@@ -41,7 +41,7 @@ espresso_storage_unittest.o : espresso_storage_unittest.cc \
                               $(GTEST_HEADERS)
 	$(CXX) $(CXXFLAGS) -I$(USER_DIR) -c $< -o $@
 
-$(USER_DIR)/espresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
+$(USER_DIR)/libespresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
                                  $(USER_DIR)/Makefile
 	make -C $(USER_DIR) libespresso_storage.a
 
