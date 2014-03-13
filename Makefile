@@ -1,5 +1,6 @@
 lib_network := src/lib/network_core
-libraries := $(lib_network)
+lib_espresso_storage := src/lib/espresso_storage
+libraries := $(lib_network) $(lib_espresso_storage)
 
 decafs_barista := src/app/barista_core
 decafs_espresso := src/app/espresso_core
