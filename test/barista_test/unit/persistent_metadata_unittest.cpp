@@ -11,6 +11,8 @@ const char *file_2 = "file 2";
 const int file_1_id = 1;
 const int file_2_id = 2;
 
+struct file_instance inst = {1, 1, 1, 1};
+
 TEST (Persistent_Metadata, AddFile) {
   Persistent_Metadata p_meta;
   struct timeval time;
@@ -39,3 +41,78 @@ TEST (Persistent_Metadata, GetNumFiles) {
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (2, p_meta.get_num_files());
 }
+
+TEST (Persistent_Metadata, Filenames) {
+  Persistent_Metadata p_meta;
+  struct timeval time;
+  
+  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  EXPECT_EQ (0, p_meta.add_file ((char *)file_2, file_2_id, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  
+  char **filenames = (char **)malloc(2);
+  filenames[0] = (char *)malloc (MAX_FILENAME_LENGTH);
+  filenames[1] = (char *)malloc (MAX_FILENAME_LENGTH);
+
+  EXPECT_EQ (2, p_meta.get_filenames(filenames, 2));
+  ASSERT_STREQ (file_1, filenames[0]);
+  ASSERT_STREQ (file_2, filenames[1]);
+
+  free (filenames[0]);
+  free (filenames[1]);
+  free (filenames);
+}
+
+TEST (Persistent_Metadata, decafs_file_stat) {
+  Persistent_Metadata p_meta;
+  struct timeval time;
+  struct decafs_file_stat stat;
+
+  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  EXPECT_EQ (FILE_NOT_FOUND, p_meta.decafs_file_stat((char *)"junk", &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (file_1_id, stat.file_id);
+  EXPECT_EQ (0, stat.size);
+  EXPECT_EQ (STRIPE_SIZE, stat.stripe_size);
+  EXPECT_EQ (CHUNK_SIZE, stat.chunk_size);
+  EXPECT_EQ (REPLICA_SIZE, stat.replica_size);
+}
+
+TEST (Persistent_Metadata, set_access_time) {
+  Persistent_Metadata p_meta;
+  struct timeval time;
+  struct decafs_file_stat stat;
+  
+  time.tv_sec = 0;
+  time.tv_usec = 0;
+
+  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (0, stat.last_access_time.tv_sec); 
+  EXPECT_EQ (0, stat.last_access_time.tv_usec);
+
+  time.tv_sec = 100;
+  time.tv_usec = 100;
+
+  EXPECT_EQ (0, p_meta.set_access_time (inst, time));
+  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (100, stat.last_access_time.tv_sec); 
+  EXPECT_EQ (100, stat.last_access_time.tv_usec);
+}
+
+TEST (Persistent_Metadata, update_file_size) {
+  Persistent_Metadata p_meta;
+  struct timeval time;
+  struct decafs_file_stat stat;
+  
+  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  EXPECT_EQ (FILE_NOT_FOUND, p_meta.update_file_size (file_2_id, 100));
+  EXPECT_EQ (100, p_meta.update_file_size (file_1_id, 100));
+  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (100, stat.size); 
+}
+

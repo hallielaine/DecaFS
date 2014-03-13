@@ -37,7 +37,7 @@ class Persistent_Metadata {
     std::map<string, struct persistent_metadata_info> metadata;
     
     // Helper Functions
-    bool get_file_name (uint32_t file_id, string name);
+    bool get_file_name (uint32_t file_id, string *name);
     bool metadata_contains (char *pathname);
     bool file_id_exists (int id);
 
@@ -55,13 +55,16 @@ class Persistent_Metadata {
      *  returned by get_num_files().
      *  @param size number of file names of length MAX_FILENAME_LENGTH
      *      that fit in filenames.
-     *  @return the number of files stored in filenames array
+     *  @return the number of files stored in filenames array in
+     *      alphabetical order
      */
     int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size);
     
     /*
      *  Fill in system stat structure with information 
      *  about one file.
+     *  @ return 0 on success
+     *           FILE_NOT_FOUND on failure
      */
     
     int decafs_file_stat (char *pathname, struct decafs_file_stat *buf);
@@ -73,6 +76,8 @@ class Persistent_Metadata {
     
     /*
      *  Updates the access time of the file.
+     *  @ return 0 on success
+                 FILE_NOT_FOUND on error
      */
     int set_access_time (file_instance inst, struct timeval time);
 
