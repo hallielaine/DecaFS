@@ -3,5 +3,6 @@
 
 #include <stdio.h>
 #include "network_core/network.h"
+#include "espresso_storage/espresso_storage.h"
 
 #endif
