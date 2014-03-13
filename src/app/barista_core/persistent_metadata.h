@@ -61,7 +61,7 @@ class Persistent_Metadata {
     int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size);
     
     /*
-     *  Fill in system stat structure with information 
+      *  Fill in system stat structure with information 
      *  about one file.
      *  @ return 0 on success
      *           FILE_NOT_FOUND on failure
