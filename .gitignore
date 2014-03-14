@@ -1,4 +1,7 @@
 *.a
 *.o
 *.gcno
+*.gcda
+*.gcov
 bin/*
+test/gtest
