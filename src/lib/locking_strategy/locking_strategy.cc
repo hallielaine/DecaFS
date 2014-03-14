@@ -47,10 +47,12 @@ inline int ex_lock(file_lock &fl, int user_id, int proc_id, int timeout) {
     if (user_id != fl.owner) {
       // wait for the owner to release the file or another process of this
       // user_id to acquire it
-      fl.ex_intent++;
-      fl.ex_cv.wait(lk, [&fl, user_id]{ return fl.owner == -1 ||
-                                               fl.owner == user_id; });
-      fl.ex_intent--;
+      if (fl.owner != -1) {
+        fl.ex_intent++;
+        fl.ex_cv.wait(lk, [&fl, user_id]{ return fl.owner == -1 ||
+                                                 fl.owner == user_id; });
+        fl.ex_intent--;
+      }
 
       if (fl.owner == -1) {
         // an unowned file should not have active locks...
@@ -83,23 +85,40 @@ inline int sh_lock(file_lock &fl, int user_id, int proc_id, int timeout) {
     // acquire mutation lock for this file_lock
     std::unique_lock<std::mutex> lk(fl.m);
 
+    printf("starting sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
     if (user_id != fl.owner) {
+      printf("owner mismatch sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+          user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
       // wait for the owner to release the file or another process of this
       // user_id to acquire it
-      fl.sh_intent++;
-      fl.sh_cv.wait(lk, [&fl, user_id]{ return fl.owner == -1 ||
-                                               fl.owner == user_id; });
-      fl.sh_intent--;
+      if (fl.owner != -1) {
+        fl.sh_intent++;
+        fl.sh_cv.wait(lk, [&fl, user_id]{ return fl.owner == -1 ||
+                                                 fl.owner == user_id; });
+        fl.sh_intent--;
+      }
+      printf("owner match sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+          user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
 
       if (fl.owner == -1) {
         // an unowned file should not have active locks...
+        printf("claiming ownership sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+            user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
         assert(fl.ex_proc == -1);
         assert(fl.sh_procs.size() == 0);
 
         // acquire ownership
         fl.owner = user_id;
+        printf("have ownership sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+            user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
       }
     }
+
+    // acquire shared lock
+    auto r = fl.sh_procs.insert(proc_id);
+    if (!r.second)
+      return -1;
 
     if (fl.ex_proc != -1) {
       // wait for the exclusive lock to be released
@@ -108,9 +127,9 @@ inline int sh_lock(file_lock &fl, int user_id, int proc_id, int timeout) {
       fl.sh_intent--;
     }
 
-    // acquire shared lock
-    auto r = fl.sh_procs.insert(proc_id);
-    return r.second ? 0 : -1;
+    printf("finishing sh_lock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
+    return 0;
   }
 
 
@@ -119,25 +138,42 @@ inline int sh_lock(file_lock &fl, int user_id, int proc_id, int timeout) {
 
 static int exsh_unlock(file_lock &fl, int user_id, int proc_id) {
   std::unique_lock<std::mutex> lk(fl.m);
-  if (user_id != fl.owner)
+  printf("starting exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+      user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
+  if (user_id != fl.owner) {
+    printf("owner failure exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
     return -1;
+  }
   if (proc_id == fl.ex_proc) {
+    printf("unlocking exclusive exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
     fl.ex_proc = -1;
   } else {
+    printf("unlocking shared exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
     const auto flit = fl.sh_procs.find(proc_id);
-    if (flit == fl.sh_procs.end())
+    if (flit == fl.sh_procs.end()) {
+      printf("no shared lock exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+          user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
       return -1;
+    }
     fl.sh_procs.erase(flit);
   }
 
-  if (fl.ex_intent > 0) {
+  if (fl.ex_proc == -1 && fl.sh_procs.size() == 0) {
+    printf("releasing ownership exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+        user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
+    fl.owner = -1;
+  }
+
+  if (fl.ex_intent > 0 && fl.sh_procs.size() == 0) {
     fl.ex_cv.notify_one();
   } else if (fl.sh_intent > 0) {
     fl.sh_cv.notify_all();
-  } else {
-    // TODO: delete the record instead
-    fl.owner = -1;
   }
+  printf("finishing exsh_unlock user:%d proc:%d owner:%d ex:%d rls:%d\n",
+      user_id, proc_id, fl.owner, fl.ex_proc, (int)fl.sh_procs.size());
   return 0;
 }
 
