@@ -5,9 +5,11 @@
 #include <stdlib.h>
 
 #include "limits.h"
+#include "file_types.h"
 #include "messages.h"
-#include "volatile_metadata.h"
+#include "io_manager.h"
 #include "persistent_metadata.h"
+#include "volatile_metadata.h"
 #include "../../lib/network_core/bar_clnt.h"
 
 void process_arguments (int argc, char *argv[]);

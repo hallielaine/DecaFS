@@ -6,7 +6,7 @@ INCDIR = ../../lib
 LIBDIRS = ../../lib/network_core
 LIBS = -lnetcore
 
-OBJS = barista_core.o volatile_metadata.o persistent_metadata.o
+OBJS = barista_core.o volatile_metadata.o persistent_metadata.o io_manager.o
 
 .cpp.o:; g++ -c -o $@ $(CFLAGS) -I$(INCDIR) $<
 

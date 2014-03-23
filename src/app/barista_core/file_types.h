@@ -1,6 +1,8 @@
 #ifndef __FILE_TYPES_H__
 #define __FILE_TYPES_H__
 
+#include <stdint.h>
+
 #include "limits.h"
 
 /*
