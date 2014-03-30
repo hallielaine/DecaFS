@@ -51,6 +51,7 @@ class Volatile_Metadata {
      * If chunk size has not been set yet, this function returns 0.
      */
     uint32_t get_chunk_size ();
+    
     /*
      * Sets the chunk size for this instance of DecaFS.
      * If chunk size has already been set, SIZE_ALREADY_SET is returned.
@@ -63,6 +64,7 @@ class Volatile_Metadata {
      * If stripe size has not been set yet, this function returns 0.
      */
     uint32_t get_stripe_size ();
+    
     /*
      * Sets the stripe size for this instance of DecaFS.
      * If stripe size has already been set, SIZE_ALREADY_SET is returned.
@@ -76,6 +78,7 @@ class Volatile_Metadata {
      *   is returned.
      */
     uint32_t get_node_number (char *ip);
+    
     /*
      * Add a node ip and node number pairing to the metadata for this instance
      *   of DecaFS.
@@ -83,6 +86,7 @@ class Volatile_Metadata {
      *   is returned.
      */
     int add_node (char *ip, uint32_t node_number);
+    
     /*
      * Set the node with the specific ip address to be "down" 
      *   of DecaFS.
@@ -90,6 +94,7 @@ class Volatile_Metadata {
      *   is returned.
      */
     uint32_t set_node_down (char *ip);
+    
     /*
      * Set the node with the specific ip address to be "up" 
      *   of DecaFS.
@@ -97,10 +102,12 @@ class Volatile_Metadata {
      *   is returned.
      */
     uint32_t set_node_up (char *ip);
+    
     /*
      * Returns the number of active nodes.
      */
     int get_active_node_count();
+    
     /*
      * Give the "state" of the system.
      * nodes is filled in with the ip addresses for the active nodes (nodes
@@ -110,6 +117,12 @@ class Volatile_Metadata {
      * The number of active nodes in the system is returned.
      */
     uint32_t get_active_nodes (char ***nodes);
+
+    /*
+     * Determines whether or not a node exists in the system.
+     * @return true if node exists, else false
+     */
+    bool node_exists (uint32_t node_number);
 
     /*
      *   Start a new file cursor if one doesn’t exist already.
@@ -214,6 +227,12 @@ extern "C" int get_active_node_count();
  * The number of active nodes in the system is returned.
  */
 extern "C" uint32_t get_active_nodes (char ***nodes);
+    
+/*
+ * Determines whether or not a node exists in the system.
+ * @return true if node exists, else false
+ */
+extern "C" bool node_exists (uint32_t node_number);
 
 /*
  *   Start a new file cursor if one doesn’t exist already.

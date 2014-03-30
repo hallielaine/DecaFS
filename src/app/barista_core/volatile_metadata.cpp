@@ -94,6 +94,16 @@ uint32_t Volatile_Metadata::get_active_nodes (char ***nodes) {
   return count;
 }
 
+bool Volatile_Metadata::node_exists (uint32_t node_number) {
+  for (std::map<string, int>::iterator it = ip_to_node_map.begin();
+       it != ip_to_node_map.end(); it++) {
+    if ((it->second) == (int)node_number) {
+      return true;
+    }
+  }
+  return false;
+}
+
 int Volatile_Metadata::new_file_cursor (struct file_instance inst) {
   if (!file_cursors_contains (inst)) {
     file_cursors[inst] = 0;

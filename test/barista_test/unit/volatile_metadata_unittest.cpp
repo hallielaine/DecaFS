@@ -107,6 +107,14 @@ TEST (Volatile_Metadata, GetActiveNodes) {
   ASSERT_STREQ (espresso_1, nodes[1]);
 }
 
+TEST (Volatile_Metadata, NodeExists) {
+  Volatile_Metadata v_meta;
+
+  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
+  EXPECT_FALSE (v_meta.node_exists (ESPRESSO_1_NODE_NUM));
+  EXPECT_TRUE (v_meta.node_exists (BARISTA_NODE_NUM));
+}
+
 TEST (Volatile_Metadata, NodeDown) {
   Volatile_Metadata v_meta;
 

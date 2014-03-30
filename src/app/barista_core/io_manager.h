@@ -9,6 +9,9 @@
 #include "persistent_metadata.h"
 #include "volatile_metadata.h"
 
+#define CHUNK_NOT_FOUND -1
+#define NODE_NOT_FOUND -2
+
 using namespace std;
 
 class IO_Manager {
@@ -17,6 +20,7 @@ class IO_Manager {
     std::map<struct file_chunk, int> chunk_to_node;
     
     // Helper Functions
+    bool chunk_exists (struct file_chunk);
 
   public:
     IO_Manager();
@@ -42,12 +46,15 @@ class IO_Manager {
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
+     *   @return the node id
+     *   @return NODE_NOT_FOUND if the node does not exist
      */
     int set_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
                      uint32_t node_id);
 
     /*
      *	Get the storage location (node id) for a given chunk of a file.
+     *   @return CHUNK_NOT_FOUND if the chunk hasn't been stored <properly>
      */
     int get_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num);
 

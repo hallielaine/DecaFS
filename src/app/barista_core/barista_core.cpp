@@ -194,6 +194,10 @@ extern "C" uint32_t get_active_nodes (char ***nodes) {
   return volatile_metadata.get_active_nodes (nodes);
 }
 
+extern "C" bool node_exists (uint32_t node_number) {
+  return volatile_metadata.node_exists (node_number);
+}
+
 extern "C" int new_file_cursor (struct file_instance inst) {
   return volatile_metadata.new_file_cursor (inst);
 }
