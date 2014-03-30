@@ -12,6 +12,11 @@
 using namespace std;
 
 class IO_Manager {
+  private:
+    // Variables
+    std::map<struct file_chunk, int> chunk_to_node;
+    
+    // Helper Functions
 
   public:
     IO_Manager();
