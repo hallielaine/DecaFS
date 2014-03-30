@@ -6,6 +6,8 @@
 
 #include "limits.h"
 #include "file_types.h"
+#include "persistent_metadata.h"
+#include "volatile_metadata.h"
 
 using namespace std;
 
