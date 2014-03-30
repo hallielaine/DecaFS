@@ -190,6 +190,10 @@ extern "C" uint32_t set_node_up (char *ip) {
   return volatile_metadata.set_node_up (ip);
 }
 
+extern "C" bool is_node_up (char *ip) {
+  return volatile_metadata.is_node_up (ip);
+}
+
 extern "C" int get_active_node_count() {
   return volatile_metadata.get_active_node_count();
 }

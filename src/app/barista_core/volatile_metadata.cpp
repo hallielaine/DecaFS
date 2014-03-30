@@ -89,6 +89,13 @@ uint32_t Volatile_Metadata::set_node_up (char *ip) {
   return IP_NOT_FOUND;
 }
 
+bool Volatile_Metadata::is_node_up (char *ip) {
+  if (up_nodes_contains (ip)) {
+    return true;
+  }
+  return false;
+}
+
 int Volatile_Metadata::get_active_node_count() {
   return up_nodes.size();
 }

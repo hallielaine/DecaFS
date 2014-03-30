@@ -111,6 +111,11 @@ class Volatile_Metadata {
      *   is returned.
      */
     uint32_t set_node_up (char *ip);
+
+    /* 
+     * Determines whether or not a specific node is "up"
+     */
+    bool is_node_up (char *ip);
     
     /*
      * Returns the number of active nodes.
@@ -224,6 +229,11 @@ extern "C" uint32_t set_node_down (char *ip);
  *   is returned.
  */
 extern "C" uint32_t set_node_up (char *ip);
+
+/* 
+ * Determines whether or not a specific node is "up"
+ */
+extern "C" bool is_node_up (char *ip);
 
 /*
  * Give the "state" of the system.

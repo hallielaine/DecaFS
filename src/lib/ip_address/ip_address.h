@@ -19,4 +19,6 @@ struct ip_address {
 
 void init_ip (struct ip_address *ip);
 
+bool is_null (struct ip_address ip);
+
 #endif
