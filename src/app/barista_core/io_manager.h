@@ -8,6 +8,8 @@
 #include "file_types.h"
 #include "persistent_metadata.h"
 #include "volatile_metadata.h"
+#include "distribution_strategy.h"
+#include "replication_strategy.h"
 
 #define CHUNK_NOT_FOUND -1
 #define NODE_NOT_FOUND -2
