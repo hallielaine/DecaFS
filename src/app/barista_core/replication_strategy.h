@@ -1,6 +1,7 @@
 #ifndef __REPLICATION_STRATEGY_H__
 #define __REPLICATION_STRATEGY_H__
 
+#include "../../lib/ip_address/ip_address.h"
 #include "volatile_metadata.h"
 
 #define FIRST_REPLICA 3

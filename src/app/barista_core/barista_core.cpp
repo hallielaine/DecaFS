@@ -174,6 +174,10 @@ extern "C" uint32_t get_node_number (char *ip) {
   return volatile_metadata.get_node_number (ip);
 }
 
+extern "C" struct ip_address get_node_ip (uint32_t node_number) {
+  return volatile_metadata.get_node_ip (node_number);
+}
+
 extern "C" int add_node (char *ip, uint32_t node_number) {
   return volatile_metadata.add_node (ip, node_number);
 }

@@ -12,6 +12,7 @@
 
 #include "limits.h"
 #include "file_types.h"
+#include "../../lib/ip_address/ip_address.h"
 
 #define V_META_SUCCESS 0
 
@@ -79,6 +80,13 @@ class Volatile_Metadata {
      *   is returned.
      */
     uint32_t get_node_number (char *ip);
+
+    /*
+     * Returns the IP address of the node with a given node number.
+     * If the node number is not found, NODE_NUMBER_NOT_FOUND
+     *   is returned.
+     */
+    struct ip_address get_node_ip (uint32_t node_number);
     
     /*
      * Add a node ip and node number pairing to the metadata for this instance
