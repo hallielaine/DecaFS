@@ -3,6 +3,9 @@
 
 #include "volatile_metadata.h"
 
+#define FIRST_REPLICA 3
+#define SECOND_REPLICA 4
+
 /*
  *	Determine which node a given chunk’s replica should be sent to.
  */

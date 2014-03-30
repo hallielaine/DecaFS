@@ -22,6 +22,7 @@
 // IP Map Errors
 #define IP_EXISTS -1
 #define IP_NOT_FOUND -2
+#define NODE_NUMBER_NOT_FOUND -3
 
 // Cursor Errors
 #define INSTANCE_NOT_FOUND -1
@@ -183,6 +184,14 @@ extern "C" int set_stripe_size (uint32_t size);
  *   is returned.
  */
 extern "C" uint32_t get_node_number (char *ip);
+
+/*
+ * Returns the IP address of the node with a given node number.
+ * If the node number is not found, NODE_NUMBER_NOT_FOUND
+ *   is returned.
+ */
+extern "C" struct ip_address get_node_ip (uint32_t node_number);
+
 
 /*
  * Add a node ip and node number pairing to the metadata for this instance

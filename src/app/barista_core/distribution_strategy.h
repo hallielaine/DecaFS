@@ -3,6 +3,9 @@
 
 #include "volatile_metadata.h"
 
+#define FIRST 1
+#define SECOND 2
+
 /*
  *	Determine which node a given chunk from a stripe should be sent to.
  */

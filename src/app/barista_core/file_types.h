@@ -1,9 +1,24 @@
 #ifndef __FILE_TYPES_H__
 #define __FILE_TYPES_H__
 
+#include <string.h>
 #include <stdint.h>
 
 #include "limits.h"
+
+#define IP_LENGTH 16
+
+struct ip_address {
+  char addr[IP_LENGTH];
+
+  bool operator==(const ip_address & other) const {
+    return (strcmp (this->addr, other.addr) == 0);
+  }
+  
+  bool operator<(const ip_address & other) const {
+    return (strcmp (this->addr, other.addr) <= 0);
+  }
+};
 
 /*
  * Stores information about a specific instance of an open file in
