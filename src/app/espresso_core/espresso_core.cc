@@ -4,12 +4,12 @@ int main(int argc, char** argv) {
 
   handle_cmd_args(argc, argv);
 
-  load_persistent_metadata(argv[METADATA_FILE]);
+  load_persistent_metadata(argv[METADATA]);
 
   // TODO: open filesystem data for when you need it
   // filepath is argv[FILESYSTEM]
 
-  printf("persistent metadata on %s has been loaded, ", argv[NAME_ID]);
+  printf("persistent metadata on %s has been loaded, ", argv[NAME]);
   printf("opening espresso node to network connections\n");
 
   // register espresso callback functions in network layer
