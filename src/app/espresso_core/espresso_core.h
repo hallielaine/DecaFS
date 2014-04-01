@@ -7,9 +7,10 @@
 #include "network_core/esp_svc.h"
 #include "espresso_storage/espresso_storage.h"
 
-#define NUM_EXPECTED_ARGS 3
-#define NAME_ID 1
-#define METADATA_FILE 2
+#define NUM_EXPECTED_ARGS 4
+#define NAME 1
+#define METADATA 2
+#define FILESYSTEM 3
 
 void handle_cmd_args(int argc, char** argv);
 void load_persistent_metadata(char* metadata_path);
