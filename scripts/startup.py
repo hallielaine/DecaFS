@@ -52,16 +52,28 @@ for (i, ip) in enumerate(espresso_ips):
    pid = os.fork()
 
    if pid == 0:
-      espresso=subprocess.Popen(["ssh", "pi@" + ip, "./decafs_espresso"], stdout=sys.stdout)
-      espresso.communicate()
+      #espresso=subprocess.Popen(["ssh", "-t", ip, "./decafs_espresso", ip, "path"], stdout=subprocess.PIPE)
+      
+      #for line in iter(espresso.stdout.readline, ''):
+      #   print line
+      #   sys.stdout.flush()
+
+      #espresso.communicate()
+
+      #for line in espresso.stdout.readline():
+      #   print line
+      #   sys.stdout.flush()
+
+      subprocess.call(["ssh", "-t", ip, "./decafs_espresso", ip, "pathtometadata"])
       exit(0)
    else:
       pids.append(pid)
 
 pid = os.fork()
 if pid == 0: # if in child
-   barista = subprocess.Popen(["ssh", "pi@" + barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
-   barista.communicate()
+#   barista = subprocess.Popen(["ssh", barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
+#   barista.communicate()
+   subprocess.call(["ssh", "-t", barista_ip, "./decafs_barista", barista_args], stdout=sys.stdout)
    exit(0)
 else:
    pids.append(pid)
