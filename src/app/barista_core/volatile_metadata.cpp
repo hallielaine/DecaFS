@@ -47,6 +47,20 @@ uint32_t Volatile_Metadata::get_node_number (char *ip) {
   return IP_NOT_FOUND;
 }
 
+struct ip_address Volatile_Metadata::get_node_ip (uint32_t node_number) {
+  struct ip_address ip;
+  init_ip (&ip);
+  
+  for (std::map<string, int>::iterator it = ip_to_node_map.begin();
+       it != ip_to_node_map.end(); it++) {
+    if ((it->second) == (int)node_number) {
+      strcpy (ip.addr, it->first.c_str());
+      break;
+    }
+  }
+  return ip;
+}
+
 int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
   if (!ip_to_node_map_contains (ip)) {
     ip_to_node_map[ip] = node_number;
@@ -75,6 +89,13 @@ uint32_t Volatile_Metadata::set_node_up (char *ip) {
   return IP_NOT_FOUND;
 }
 
+bool Volatile_Metadata::is_node_up (char *ip) {
+  if (up_nodes_contains (ip)) {
+    return true;
+  }
+  return false;
+}
+
 int Volatile_Metadata::get_active_node_count() {
   return up_nodes.size();
 }
@@ -92,6 +113,16 @@ uint32_t Volatile_Metadata::get_active_nodes (char ***nodes) {
   }
 
   return count;
+}
+
+bool Volatile_Metadata::node_exists (uint32_t node_number) {
+  for (std::map<string, int>::iterator it = ip_to_node_map.begin();
+       it != ip_to_node_map.end(); it++) {
+    if ((it->second) == (int)node_number) {
+      return true;
+    }
+  }
+  return false;
 }
 
 int Volatile_Metadata::new_file_cursor (struct file_instance inst) {

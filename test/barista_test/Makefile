@@ -18,7 +18,7 @@ GTEST_DIR = ../gtest
 
 TEST_DIR = unit
 
-LIBS = ../../src/lib/network_core
+LIBS = ../../src/lib
 
 # Where to find user code.
 USER_DIR = ../../src/app/barista_core
@@ -76,13 +76,13 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 volatile_metadata.o : $(USER_DIR)/volatile_metadata.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp $(LIBS)/ip_address/libip_address.a
 
 volatile_metadata_unittest.o : $(TEST_DIR)/volatile_metadata_unittest.cpp \
                      $(USER_DIR)/volatile_metadata.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp $(LIBS)/ip_address/libip_address.a
 
-volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gtest_main.a $(LIBS)/libnetcore.a
+volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a $(LIBS)/ip_address/libip_address.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 persistent_metadata.o : $(USER_DIR)/persistent_metadata.cpp
@@ -92,5 +92,5 @@ persistent_metadata_unittest.o : $(TEST_DIR)/persistent_metadata_unittest.cpp \
                      $(USER_DIR)/persistent_metadata.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp
 
-persistent_metadata_unittest : persistent_metadata.o persistent_metadata_unittest.o gtest_main.a $(LIBS)/libnetcore.a
+persistent_metadata_unittest : persistent_metadata.o persistent_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

@@ -1,15 +1,35 @@
 #ifndef __IO_MANAGER_H__
 #define __IO_MANAGER_H__
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "limits.h"
 #include "file_types.h"
+#include "persistent_metadata.h"
+#include "volatile_metadata.h"
+#include "distribution_strategy.h"
+#include "replication_strategy.h"
+
+#define CHUNK_NOT_FOUND -1
+#define NODE_NOT_FOUND -2
+#define REPLICA_CHUNK_NOT_FOUND -3
+#define REPLICA_NODE_NOT_FOUND -4
+
+#define CHUNK_ID_INIT 1
 
 using namespace std;
 
 class IO_Manager {
+  private:
+    // Variables
+    std::map<struct file_chunk, int> chunk_to_node;
+    std::map<struct file_chunk, int> chunk_to_replica_node;
+    
+    // Helper Functions
+    bool chunk_exists (struct file_chunk);
+    bool chunk_replica_exists (struct file_chunk);
 
   public:
     IO_Manager();
@@ -35,12 +55,15 @@ class IO_Manager {
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
+     *   @return the node id
+     *   @return NODE_NOT_FOUND if the node does not exist
      */
     int set_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
                      uint32_t node_id);
 
     /*
      *	Get the storage location (node id) for a given chunk of a file.
+     *   @return CHUNK_NOT_FOUND if the chunk hasn't been stored <properly>
      */
     int get_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num);
 

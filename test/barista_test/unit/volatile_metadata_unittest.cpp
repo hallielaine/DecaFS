@@ -1,4 +1,6 @@
 #include "../../../src/app/barista_core/volatile_metadata.h"
+#include "../../../src/lib/ip_address/ip_address.h"
+
 #include "gtest/gtest.h"
 
 #define VALID_CHUNK_SIZE 2048
@@ -85,6 +87,19 @@ TEST (Volatile_Metadata, AddNode) {
   EXPECT_EQ (ESPRESSO_1_NODE_NUM, v_meta.get_node_number ((char *)espresso_1));
 }
 
+TEST (Volatile_Metadata, GetNodeIp) {
+  Volatile_Metadata v_meta;
+  struct ip_address addr;
+  init_ip (&addr);
+
+  ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
+
+  strcpy (addr.addr, barista);
+  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
+  
+  ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
+}
+
 TEST (Volatile_Metadata, GetActiveNodeCount) {
   Volatile_Metadata v_meta;
 
@@ -105,6 +120,14 @@ TEST (Volatile_Metadata, GetActiveNodes) {
   EXPECT_EQ (2, v_meta.get_active_nodes(&nodes));
   ASSERT_STREQ (barista, nodes[0]);
   ASSERT_STREQ (espresso_1, nodes[1]);
+}
+
+TEST (Volatile_Metadata, NodeExists) {
+  Volatile_Metadata v_meta;
+
+  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
+  EXPECT_FALSE (v_meta.node_exists (ESPRESSO_1_NODE_NUM));
+  EXPECT_TRUE (v_meta.node_exists (BARISTA_NODE_NUM));
 }
 
 TEST (Volatile_Metadata, NodeDown) {

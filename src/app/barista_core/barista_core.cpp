@@ -174,6 +174,10 @@ extern "C" uint32_t get_node_number (char *ip) {
   return volatile_metadata.get_node_number (ip);
 }
 
+extern "C" struct ip_address get_node_ip (uint32_t node_number) {
+  return volatile_metadata.get_node_ip (node_number);
+}
+
 extern "C" int add_node (char *ip, uint32_t node_number) {
   return volatile_metadata.add_node (ip, node_number);
 }
@@ -186,12 +190,20 @@ extern "C" uint32_t set_node_up (char *ip) {
   return volatile_metadata.set_node_up (ip);
 }
 
+extern "C" bool is_node_up (char *ip) {
+  return volatile_metadata.is_node_up (ip);
+}
+
 extern "C" int get_active_node_count() {
   return volatile_metadata.get_active_node_count();
 }
 
 extern "C" uint32_t get_active_nodes (char ***nodes) {
   return volatile_metadata.get_active_nodes (nodes);
+}
+
+extern "C" bool node_exists (uint32_t node_number) {
+  return volatile_metadata.node_exists (node_number);
 }
 
 extern "C" int new_file_cursor (struct file_instance inst) {

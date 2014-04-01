@@ -32,6 +32,28 @@ struct file_instance {
 };
 
 /*
+ * Distinctly idenfies a chunk of a file.
+ */
+struct file_chunk {
+  uint32_t file_id;
+  uint32_t stripe_id;
+  uint32_t chunk_num;
+
+  bool operator ==(const file_chunk & other) const {
+    return (this->file_id == other.file_id &&
+            this->stripe_id == other.stripe_id &&
+            this->chunk_num == other.chunk_num);
+  }
+  
+  bool operator <(const file_chunk &other) const {
+    return ((this->file_id < other.file_id) ? true :
+               (this->stripe_id < other.stripe_id) ? true :
+                   (this->chunk_num < other.chunk_num) ? 
+                      true : false);
+  }
+};
+
+/*
  *  Storage Information about one file in DecaFS.
  */
 struct decafs_file_stat {
