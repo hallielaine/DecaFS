@@ -92,6 +92,8 @@ int IO_Manager::get_replica_node_id (uint32_t file_id, uint32_t stripe_id,
   return REPLICA_CHUNK_NOT_FOUND;
 }
 
+// These 4 functions should be moved up to Barista Core
+// this layer is stripe level not file level
 int IO_Manager::stat_file_name (char *pathname, struct decafs_file_stat *buf) {
   return 0;
 }
