@@ -3,8 +3,8 @@
 BARISTA = decafs_barista
 CFLAGS = -g -Wall
 INCDIR = ../../lib
-LIBDIRS = ../../lib/network_core
-LIBS = -lnetcore ../../lib/ip_address/libip_address.a
+LIBDIRS = ../../../lib 
+LIBS = -lnetcore -lip_address -laccess
 
 OBJS = barista_core.o volatile_metadata.o persistent_metadata.o io_manager.o distribution_strategy.o replication_strategy.o
 
