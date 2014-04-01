@@ -1,6 +1,7 @@
 #ifndef __IO_MANAGER_H__
 #define __IO_MANAGER_H__
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,6 +14,10 @@
 
 #define CHUNK_NOT_FOUND -1
 #define NODE_NOT_FOUND -2
+#define REPLICA_CHUNK_NOT_FOUND -3
+#define REPLICA_NODE_NOT_FOUND -4
+
+#define CHUNK_ID_INIT 1
 
 using namespace std;
 
@@ -20,9 +25,11 @@ class IO_Manager {
   private:
     // Variables
     std::map<struct file_chunk, int> chunk_to_node;
+    std::map<struct file_chunk, int> chunk_to_replica_node;
     
     // Helper Functions
     bool chunk_exists (struct file_chunk);
+    bool chunk_replica_exists (struct file_chunk);
 
   public:
     IO_Manager();
