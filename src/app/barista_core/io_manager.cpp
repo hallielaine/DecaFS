@@ -51,21 +51,50 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
                                           uint32_t stripe_id, void *buf,
                                           int offset, size_t count) {
-  uint32_t chunk_id = CHUNK_ID_INIT, bytes_written = 0, write_size = 0;
+  uint32_t chunk_id, bytes_written = 0, write_size = 0;
+  int chunk_offset, node_id, replica_node_id;
 
-  assert (count <= get_stripe_size());
+  assert ((count - offset) <= get_stripe_size());
+  
+  get_first_chunk (&chunk_id, &chunk_offset, offset);
+
   while (bytes_written < count) {
-    if (count - bytes_written > get_chunk_size()) {
-      write_size = get_chunk_size();
+    struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
+    // If the chunk does not exists, create it
+    if (!chunk_exists (cur_chunk)) {
+      node_id = put_chunk (file_id, pathname, stripe_id, chunk_id);
+      chunk_to_node[cur_chunk] = node_id;
+    }
+
+    // If the replica does not exist, create it
+    if (!chunk_replica_exists (cur_chunk)) {
+      replica_node_id = put_replica (file_id, pathname, stripe_id,
+                                     chunk_id);
+      chunk_to_replica_node[cur_chunk] = replica_node_id;
+    }
+
+    // Ensure that we have the proper node and replica id's to send data to
+    node_id = chunk_to_node[cur_chunk];
+    replica_node_id = chunk_to_replica_node[cur_chunk];
+
+    // Determine the size of the write
+    if (count - bytes_written > get_chunk_size() - chunk_offset) {
+      write_size = get_chunk_size() - chunk_offset;
     }
     else {
       write_size = count - bytes_written;
     }
 
-    // use chunk_id
-    // CALL WRITE IN ACCESS LAYER
-    // write (buf + bytes_written, write_size)
-
+    // Send the write to the node
+                        // ADD FD HERE
+    process_write_chunk (0, file_id, node_id, stripe_id, chunk_id,
+                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
+    // Send the write to the replica node
+                        // ADD FD HERE
+    process_write_chunk (0, file_id, replica_node_id, stripe_id, chunk_id,
+                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
+    // update counters
+    chunk_offset = 0;
     bytes_written += write_size;
     chunk_id++;
   }
