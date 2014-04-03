@@ -11,6 +11,7 @@
 #include "volatile_metadata.h"
 #include "distribution_strategy.h"
 #include "replication_strategy.h"
+#include "access/access.h"
 
 #define CHUNK_NOT_FOUND -1
 #define NODE_NOT_FOUND -2
@@ -30,6 +31,10 @@ class IO_Manager {
     // Helper Functions
     bool chunk_exists (struct file_chunk);
     bool chunk_replica_exists (struct file_chunk);
+    // Given offset (a stripe offset) sets id to be the chunk id
+    // that the offset it is, and chunk_offset to the offset within
+    // the chunk
+    void get_first_chunk (uint32_t *id, int *chunk_offset, int offset);
 
   public:
     IO_Manager();
