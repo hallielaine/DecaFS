@@ -3,7 +3,7 @@
 #define MIN_ARGS 5
 #define STRIPE_SIZE 1
 #define CHUNK_SIZE 2
-#define BARISTA 3
+#define METADATA 3
 #define ESPRESSO 4
 
 IO_Manager io_manager;
@@ -12,10 +12,6 @@ Volatile_Metadata volatile_metadata;
 
 int main (int argc, char *argv[]) {
   process_arguments (argc, argv);
-
-  // TODO: Recreate metadata from file
-
-  // Wait for Espresso Nodes to finish startup
 
   // TODO: Change to proper logging
   printf ("Barista is initialized.\n");
@@ -34,17 +30,18 @@ void process_arguments (int argc, char *argv[]) {
   if (ret < 0) {
     exit_failure (get_size_error_message ("stripe", argv[STRIPE_SIZE]));
   }
+
   ret = volatile_metadata.set_chunk_size (atoi(argv[CHUNK_SIZE]));
   if (ret < 0) {
     exit_failure (get_size_error_message ("chunk", argv[CHUNK_SIZE]));
   }
 
-  // Add barista node to volatile_metadata
-  // BARISTA param is log file
-
-  //char bufer[100];
+  // TODO: Recreate metadata from file
+  // path to metadata file is in argv[METADATA]
 
   // Add all espresso nodes to volatile_metadata
+  // TODO: retry connections to espresso nodes on failure
+  // TODO: 3 times with increased wait each time
   for (int i = ESPRESSO; i < argc; i++) {
     int res = network_add_client(argv[i]);
     if (res >= 0) {

@@ -10,7 +10,8 @@
 #include "io_manager.h"
 #include "persistent_metadata.h"
 #include "volatile_metadata.h"
-#include "../../lib/network_core/bar_clnt.h"
+#include "network_core/bar_clnt.h"
+#include "access/access.h"
 
 void process_arguments (int argc, char *argv[]);
 void exit_failure (const char *message);

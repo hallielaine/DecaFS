@@ -4,9 +4,12 @@ int main(int argc, char** argv) {
 
   handle_cmd_args(argc, argv);
 
-  load_persistent_metadata(argv[METADATA_FILE]);
+  load_persistent_metadata(argv[METADATA]);
 
-  printf("persistent metadata on %s has been loaded, ", argv[NAME_ID]);
+  // TODO: open filesystem data for when you need it
+  // filepath is argv[FILESYSTEM]
+
+  printf("persistent metadata on %s has been loaded, ", argv[NAME]);
   printf("opening espresso node to network connections\n");
 
   // register espresso callback functions in network layer
@@ -41,6 +44,8 @@ int delete_data (int fd, int file_id, int stripe_id, int chunk_num) {
 void load_persistent_metadata(char* metadata_path) {
 
    printf("loading metadata from: %s\n", metadata_path);
+
+   // TODO: load metadata
 }
 
 void handle_cmd_args(int argc, char** argv) {
@@ -50,7 +55,7 @@ void handle_cmd_args(int argc, char** argv) {
   }
   else {
      fprintf(stderr, "%s exiting: invalid command line arguments provided", argv[0]);
-     fprintf(stderr, "\nUsage: %s <id> <persistent metadata path>\n", argv[0]);
+     fprintf(stderr, "\nUsage: %s <id> <persistent metadata path> <data path>\n", argv[0]);
      exit(-1);
   }
 }
