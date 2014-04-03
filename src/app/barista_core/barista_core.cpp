@@ -73,14 +73,14 @@ void exit_failure (const char *message) {
 // ------------------------IO Manager Call Throughs ---------------------------
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                         uint32_t stripe_id, void *buf,
-                                        size_t count) {
-  return io_manager.process_read_stripe (file_id, pathname, stripe_id, buf, count);
+                                        int offset, size_t count) {
+  return io_manager.process_read_stripe (file_id, pathname, stripe_id, buf, offset, count);
 }
 
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, void *buf,
-                                         size_t count) {
-  return io_manager.process_write_stripe (file_id, pathname, stripe_id, buf, count);
+                                         int offset, size_t count) {
+  return io_manager.process_write_stripe (file_id, pathname, stripe_id, buf, offset, count);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,

@@ -41,7 +41,7 @@ class IO_Manager {
      */
     ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                  uint32_t stripe_id, void *buf,
-                                 size_t count);
+                                 int offset, size_t count);
 
     /*
      *	Translates a write request into a series of chunk writes and handles
@@ -51,7 +51,7 @@ class IO_Manager {
      */
     ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                   uint32_t stripe_id, void *buf,
-                                  size_t count);
+                                  int offset, size_t count);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
@@ -102,7 +102,7 @@ class IO_Manager {
  */
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                         uint32_t stripe_id, void *buf,
-                                        size_t count);
+                                        int offset, size_t count);
 
 
 /*
@@ -113,7 +113,7 @@ extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
  */
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, void *buf,
-                                         size_t count);
+                                         int offset, size_t count);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.

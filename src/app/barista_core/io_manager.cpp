@@ -6,7 +6,7 @@ IO_Manager::IO_Manager() {
 
 ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, void *buf,
-                                         size_t count) {
+                                         int offset, size_t count) {
   uint32_t chunk_id = CHUNK_ID_INIT, bytes_read = 0, read_size = 0;
   
   assert (count <= get_stripe_size());
@@ -31,7 +31,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 
 ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
                                           uint32_t stripe_id, void *buf,
-                                          size_t count) {
+                                          int offset, size_t count) {
   uint32_t chunk_id = CHUNK_ID_INIT, bytes_written = 0, write_size = 0;
 
   assert (count <= get_stripe_size());
