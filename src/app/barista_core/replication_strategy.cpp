@@ -1,8 +1,7 @@
 #include "replication_strategy.h"
 
 extern "C" int put_replica (uint32_t file_id, char *pathname,
-                                  uint32_t stripe_id, uint32_t chunk_num,
-                                  uint32_t node_id) {
+                            uint32_t stripe_id, uint32_t chunk_num) {
   int node_num;
   struct ip_address ip;
 

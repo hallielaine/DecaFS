@@ -6,22 +6,41 @@ IO_Manager::IO_Manager() {
 
 ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, void *buf,
-                                         size_t count) {
-  uint32_t chunk_id = CHUNK_ID_INIT, bytes_read = 0, read_size = 0;
+                                         int offset, size_t count) {
+  uint32_t chunk_id, bytes_read = 0, read_size = 0;
+  int chunk_offset, node_id;
   
-  assert (count <= get_stripe_size());
+  assert ((count - offset) <= get_stripe_size());
+
+  get_first_chunk (&chunk_id, &chunk_offset, offset);
+  
   while (bytes_read < count) {
-    if (count - bytes_read > get_chunk_size()) {
-      read_size = get_chunk_size();
+    struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
+    if (!chunk_exists (cur_chunk)) {
+      // Current chunk does not exist. Report and error and stop the read.
+      fprintf (stderr, "Could only read %d bytes (out of %d requested.\n",
+                  (int)bytes_read, (int)count);
+      break;
+    }
+
+    // The chunk exists, so set the node_id
+    node_id = chunk_to_node[cur_chunk];
+   
+    // Determine how much data to read from the current chunk
+    if (count - bytes_read > get_chunk_size() - chunk_offset) {
+      read_size = get_chunk_size() - chunk_offset;
     }
     else {
       read_size = count - bytes_read;
     }
 
-    // use chunk_id
-    // CALL READ IN ACCESS LAYER
-    // read (buf + bytes_read, read_size)
+    // Send the read to the node
+                   // ADD FD HERE
+    process_read_chunk (0, file_id, node_id, stripe_id, chunk_id,
+                        chunk_offset, (uint8_t *)buf + bytes_read, read_size);
 
+    // update counters
+    chunk_offset = 0;
     bytes_read += read_size;
     chunk_id++;
   }
@@ -31,22 +50,51 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 
 ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
                                           uint32_t stripe_id, void *buf,
-                                          size_t count) {
-  uint32_t chunk_id = CHUNK_ID_INIT, bytes_written = 0, write_size = 0;
+                                          int offset, size_t count) {
+  uint32_t chunk_id, bytes_written = 0, write_size = 0;
+  int chunk_offset, node_id, replica_node_id;
 
-  assert (count <= get_stripe_size());
+  assert ((count - offset) <= get_stripe_size());
+  
+  get_first_chunk (&chunk_id, &chunk_offset, offset);
+
   while (bytes_written < count) {
-    if (count - bytes_written > get_chunk_size()) {
-      write_size = get_chunk_size();
+    struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
+    // If the chunk does not exists, create it
+    if (!chunk_exists (cur_chunk)) {
+      node_id = put_chunk (file_id, pathname, stripe_id, chunk_id);
+      chunk_to_node[cur_chunk] = node_id;
+    }
+
+    // If the replica does not exist, create it
+    if (!chunk_replica_exists (cur_chunk)) {
+      replica_node_id = put_replica (file_id, pathname, stripe_id,
+                                     chunk_id);
+      chunk_to_replica_node[cur_chunk] = replica_node_id;
+    }
+
+    // Ensure that we have the proper node and replica id's to send data to
+    node_id = chunk_to_node[cur_chunk];
+    replica_node_id = chunk_to_replica_node[cur_chunk];
+
+    // Determine the size of the write
+    if (count - bytes_written > get_chunk_size() - chunk_offset) {
+      write_size = get_chunk_size() - chunk_offset;
     }
     else {
       write_size = count - bytes_written;
     }
 
-    // use chunk_id
-    // CALL WRITE IN ACCESS LAYER
-    // write (buf + bytes_written, write_size)
-
+    // Send the write to the node
+                        // ADD FD HERE
+    process_write_chunk (0, file_id, node_id, stripe_id, chunk_id,
+                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
+    // Send the write to the replica node
+                        // ADD FD HERE
+    process_write_chunk (0, file_id, replica_node_id, stripe_id, chunk_id,
+                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
+    // update counters
+    chunk_offset = 0;
     bytes_written += write_size;
     chunk_id++;
   }
@@ -116,4 +164,13 @@ bool IO_Manager::chunk_exists (struct file_chunk chunk) {
 
 bool IO_Manager::chunk_replica_exists (struct file_chunk chunk) {
   return (chunk_to_replica_node.find (chunk) != chunk_to_replica_node.end());
+}
+    
+void IO_Manager::get_first_chunk (uint32_t *id, int *chunk_offset, int offset) {
+  *id = CHUNK_ID_INIT;
+  while (offset > (int)get_chunk_size()) {
+    (*id)++;
+    offset -= get_chunk_size();
+  }
+  *chunk_offset = offset;
 }

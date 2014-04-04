@@ -19,7 +19,8 @@ $(apps):
 
 $(libraries):
 	$(MAKE) --directory=$@
-	cp $@/*.a ./lib	
+	mkdir -p ./lib
+	cp $@/*.a ./lib
 
 cp:
 	cp src/app/barista_core/decafs_barista bin

@@ -13,7 +13,6 @@
  *	Determine which node a given chunk’s replica should be sent to.
  */
 extern "C" int put_replica (uint32_t file_id, char *pathname,
-                                  uint32_t stripe_id, uint32_t chunk_num,
-                                  uint32_t node_id);
+                            uint32_t stripe_id, uint32_t chunk_num);
 
 #endif

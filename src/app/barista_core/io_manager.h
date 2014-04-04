@@ -11,6 +11,7 @@
 #include "volatile_metadata.h"
 #include "distribution_strategy.h"
 #include "replication_strategy.h"
+#include "access/access.h"
 
 #define CHUNK_NOT_FOUND -1
 #define NODE_NOT_FOUND -2
@@ -30,6 +31,10 @@ class IO_Manager {
     // Helper Functions
     bool chunk_exists (struct file_chunk);
     bool chunk_replica_exists (struct file_chunk);
+    // Given offset (a stripe offset) sets id to be the chunk id
+    // that the offset it is, and chunk_offset to the offset within
+    // the chunk
+    void get_first_chunk (uint32_t *id, int *chunk_offset, int offset);
 
   public:
     IO_Manager();
@@ -41,7 +46,7 @@ class IO_Manager {
      */
     ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                  uint32_t stripe_id, void *buf,
-                                 size_t count);
+                                 int offset, size_t count);
 
     /*
      *	Translates a write request into a series of chunk writes and handles
@@ -51,7 +56,7 @@ class IO_Manager {
      */
     ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                   uint32_t stripe_id, void *buf,
-                                  size_t count);
+                                  int offset, size_t count);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
@@ -102,7 +107,7 @@ class IO_Manager {
  */
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                         uint32_t stripe_id, void *buf,
-                                        size_t count);
+                                        int offset, size_t count);
 
 
 /*
@@ -113,7 +118,7 @@ extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
  */
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, void *buf,
-                                         size_t count);
+                                         int offset, size_t count);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.
