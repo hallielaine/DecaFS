@@ -5,9 +5,20 @@ import json
 import subprocess 
 import sys
 import os
+import time
 
+import signal
+
+from subprocess import PIPE, Popen
+
+fp = open('output', 'w')
+
+def preexec_function(): pass
+
+# setup cmd line args
 parser = argparse.ArgumentParser(description='startup script for DecaFS')
-parser.add_argument('-f',
+parser.add_argument('--first',
+                    '-f',
                     default=False, 
                     action='store_true', 
                     help='set this flag if a new instance of DecaFS')
@@ -19,66 +30,53 @@ parser.add_argument('--config',
                     help='set this flag if a new instance of DecaFS')
 
 args = parser.parse_args()
-#print(args.f)
-#print(args.config)
 
+# load json configuration file
 json_data = open(args.config).read()
 data = json.loads(json_data)
+#print(data)
 
+espresso_nodes=[]
 espresso_ips=[]
-barista_ip=None
+barista_node=None
 
-if data["nodes"]["barista"]["ip"]:
-  barista_ip=data["nodes"]["barista"]["ip"]
+if data["barista"]:
+  barista_node=data["barista"]
 
-for node in data["nodes"]["espresso"]:
+for node in data["espresso"]:
+  espresso_nodes.append(node)
   espresso_ips.append(node["ip"])
 
 # deal with handling incorrecly formatted config files here
 
-# pull barista config options from config file
-stripe_size = 1024
-chunk_size = 1024
-barista_config = "config_file"
+stripe_size = data["stripe_size"]
+chunk_size = data["chunk_size"]
 
 # configure cmd line args for barista node
-barista_args = str(stripe_size) + " " + str(chunk_size) + " " + barista_config
+barista_args = str(stripe_size) + " " + str(chunk_size) + " " + barista_node["metadata"]
 barista_args = barista_args + " " + " ".join(espresso_ips)
 print(barista_args)
-# fork barista here
-pids=[]
 
-for (i, ip) in enumerate(espresso_ips):
-   pid = os.fork()
+b_proc=None
+e_procs=[]
 
-   if pid == 0:
-      #espresso=subprocess.Popen(["ssh", "-t", ip, "./decafs_espresso", ip, "path"], stdout=subprocess.PIPE)
-      
-      #for line in iter(espresso.stdout.readline, ''):
-      #   print line
-      #   sys.stdout.flush()
+for (i, node) in enumerate(espresso_nodes):
+   #TODO: check to make sure these exist
+   ip = node["ip"]
+   metadata = node["metadata"]
+   filesystem = node["filesystem"]
 
-      #espresso.communicate()
+   print("executing decafs_espresso on " + ip)
+   e_procs.append(subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_espresso", ip, metadata, filesystem], stdin=open(os.devnull), stdout=sys.stdout, stderr=sys.stderr))
 
-      #for line in espresso.stdout.readline():
-      #   print line
-      #   sys.stdout.flush()
+ip = barista_node["ip"]
+metadata = barista_node["metadata"]
 
-      subprocess.call(["ssh", "-t", ip, "./decafs_espresso", ip, "pathtometadata"])
-      exit(0)
-   else:
-      pids.append(pid)
+print("executing decafs_barista on " + ip)
+b_proc = subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_barista", barista_args], stdout=sys.stdout, stderr=sys.stderr)
+b_proc.communicate()
+print("decafs_barista exited")
 
-pid = os.fork()
-if pid == 0: # if in child
-#   barista = subprocess.Popen(["ssh", barista_ip, "./decafs_barista" + " " + barista_args], stdout=sys.stdout)
-#   barista.communicate()
-   subprocess.call(["ssh", "-t", barista_ip, "./decafs_barista", barista_args], stdout=sys.stdout)
-   exit(0)
-else:
-   pids.append(pid)
-
-count = 0
-while (count < len(pids)):
-   os.waitpid(0, 0)
-   count = count + 1
+for proc in e_procs:
+   proc.send_signal(signal.SIGINT) 
+   proc.wait()
