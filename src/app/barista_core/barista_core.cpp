@@ -67,7 +67,102 @@ void exit_failure (const char *message) {
   exit (EXIT_FAILURE);
 }
 
-// ------------------------IO Manager Call Throughs ---------------------------
+// ------------------------Core Functions---------------------------
+int open (const char *pathname, int flags) {
+
+  return 0;
+}
+
+ssize_t read (int fd, void *buf, size_t count) {
+
+  return 0;
+}
+
+ssize_t write (int fd, const void *buf, size_t count) {
+
+  return 0;
+}
+
+int close (int fd) {
+
+  return 0;
+}
+
+void delete_file (char *pathname) {
+
+}
+
+void sync() {
+
+}
+
+int stat (const char *path, struct stat *buf) {
+
+  return 0;
+}
+
+int fstat (int fd, struct stat *buf) {
+
+  return 0;
+}
+
+void statfs (char *pathname, struct statvfs *stat) {
+
+}
+
+void register_monitor_module (void (*monitor_module), 
+                              struct timeval timeout) {
+
+}
+
+void register_node_failure_handler (void (*failure_handler)) {
+
+}
+
+void register_chunk_metadata_handler (void (*metadata_handler)) {
+
+}
+
+void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
+
+}
+
+void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
+                 uint32_t dest_node) {
+
+}
+
+void fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                  uint32_t dest_node) {
+
+}
+
+void move_chunk_replica (const char* pathname, uint32_t stripe_id, 
+                         uint32_t chunk_num, uint32_t dest_node) {
+
+}
+
+void fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                          uint32_t chunk_num, uint32_t dest_node) {
+
+}
+
+int mkdir (const char* dirname) {
+
+  return 0;
+}
+
+DIR* opendir (const char* name) {
+
+  return NULL;
+}
+
+struct dirent* readdir (DIR *dirp) {
+
+  return NULL;
+}
+
+// ------------------------IO Manager Call Throughs---------------------------
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                         uint32_t stripe_id, void *buf,
                                         int offset, size_t count) {
@@ -114,7 +209,7 @@ extern "C" int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf) 
   return io_manager.stat_replica_id (file_id, buf);
 }
 
-// ------------------------Persistent Metadata Call Throughs ---------------------------
+// ------------------------Persistent Metadata Call Throughs---------------------------
 extern "C" int get_num_files () {
   return persistent_metadata.get_num_files();
 }
@@ -150,7 +245,7 @@ extern "C" int update_file_size (uint32_t file_id, int size_delta) {
   return persistent_metadata.update_file_size (file_id, size_delta);
 }
 
-// ------------------------Volatile Metadata Call Throughs ---------------------------
+// ------------------------Volatile Metadata Call Throughs---------------------------
 extern "C" uint32_t get_chunk_size () {
   return volatile_metadata.get_chunk_size();
 }
