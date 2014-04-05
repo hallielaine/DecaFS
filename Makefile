@@ -23,6 +23,7 @@ $(libraries):
 	cp $@/*.a ./lib
 
 cp:
+	mkdir -p ./bin
 	cp src/app/barista_core/decafs_barista bin
 	cp src/app/espresso_core/decafs_espresso bin
 
