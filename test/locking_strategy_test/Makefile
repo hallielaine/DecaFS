@@ -45,7 +45,7 @@ $(USER_DIR)/liblocking_strategy.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
                                     $(USER_DIR)/Makefile
 	make -C $(USER_DIR) liblocking_strategy.a
 
-locking_strategy_unittest : $(USER_DIR)/liblocking_strategy.a \
-                            locking_strategy_unittest.o gtest_main.a
+locking_strategy_unittest : locking_strategy_unittest.o gtest_main.a \
+                            $(USER_DIR)/liblocking_strategy.a
 	$(CXX) $(CXXFLAGS) --coverage $^ -o $@
 
