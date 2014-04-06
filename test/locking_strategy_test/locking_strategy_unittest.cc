@@ -9,20 +9,38 @@
 #include "locking_strategy.h"
 
 
-typedef std::chrono::duration<float, std::ratio<1, 10> > BASE_DURATION;
+typedef std::chrono::duration<float, std::ratio<1, 10> > base_duration;
 
-TEST(LockingTest, SimpleExclusive) {
+TEST(LockingTest, HasExclusive) {
   EXPECT_EQ(0, get_exclusive_lock(1, 1, 1));
   EXPECT_EQ(1, has_exclusive_lock(1, 1, 1));
   EXPECT_EQ(0, release_lock(1, 1, 1));
   EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
 }
 
-TEST(LockingTest, SimpleShared) {
+TEST(LockingTest, HasShared) {
   EXPECT_EQ(0, get_shared_lock(1, 1, 1));
   EXPECT_EQ(1, has_shared_lock(1, 1, 1));
   EXPECT_EQ(0, release_lock(1, 1, 1));
   EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+}
+
+TEST(LockingTest, MultiHasShared) {
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, get_shared_lock(1, 2, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, release_lock(1, 2, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 2, 1));
 }
 
 TEST(LockingTest, SimpleExclusiveConflict) {

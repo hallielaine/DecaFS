@@ -69,7 +69,7 @@ int release_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
   if (lock.ex_proc == proc_id) {
     file_locks.erase(file_id);
   } else {
-    auto erasure = lock.sh_procs.erase(user_id);
+    auto erasure = lock.sh_procs.erase(proc_id);
     if (erasure == 0)
       return -1;
 
