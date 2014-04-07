@@ -145,13 +145,14 @@ int release_metadata_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) 
   {
     std::lock_guard<std::mutex> lk(meta_m);
     meta_it = meta_locks.find(file_id);
+
+    if (meta_it == meta_locks.end() ||
+        meta_it->second.owner != user_id ||
+        meta_it->second.proc != proc_id) {
+      return -1;
+    }
   }
 
-  if (meta_it == meta_locks.end() ||
-      meta_it->second.owner != user_id ||
-      meta_it->second.proc != proc_id) {
-    return -1;
-  }
 
   meta_it->second.owner = 0;
   meta_it->second.proc = 0;
