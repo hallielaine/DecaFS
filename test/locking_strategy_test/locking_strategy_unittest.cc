@@ -46,6 +46,28 @@ TEST(LockingTest, MultiHasShared) {
   EXPECT_EQ(0, has_shared_lock(1, 2, 1));
 }
 
+TEST(LockingTest, ExclusiveDoubleRelease) {
+  EXPECT_EQ(0, get_exclusive_lock(1, 1, 1));
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(-1, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
+}
+
+TEST(LockingTest, MultiSharedDoubleRelease) {
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(0, get_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(-1, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, release_lock(1, 2, 1));
+  EXPECT_EQ(-1, release_lock(1, 2, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 2, 1));
+}
+
 TEST(LockingTest, SimpleExclusiveConflict) {
   EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
   EXPECT_EQ(0, has_exclusive_lock(2, 2, 1));
@@ -100,6 +122,39 @@ TEST(LockingTest, ExclusiveSharedConflict) {
   EXPECT_EQ(0, has_shared_lock(2, 2, 1));
 }
 
+TEST(LockingTest, MultiUserSharedConflict) {
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(-1, get_shared_lock(2, 2, 1));
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(0, get_shared_lock(2, 2, 1));
+  EXPECT_EQ(0, release_lock(2, 2, 1));
+}
+
+
+TEST(LockingTest, ExclusiveMultiSharedConflict) {
+  EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(2, 2, 1));
+  EXPECT_EQ(0, has_shared_lock(2, 3, 1));
+  EXPECT_EQ(0, has_shared_lock(2, 4, 1));
+
+  EXPECT_EQ(0, get_shared_lock(2, 2, 1));
+  EXPECT_EQ(0, get_shared_lock(2, 3, 1));
+  EXPECT_EQ(0, get_shared_lock(2, 4, 1));
+
+  EXPECT_EQ(-1, get_exclusive_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(2, 2, 1));
+  EXPECT_EQ(-1, get_exclusive_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(2, 3, 1));
+  EXPECT_EQ(-1, get_exclusive_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(2, 4, 1));
+  EXPECT_EQ(0, get_exclusive_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+}
+
 TEST(LockingTest, SameProcExclusiveConflict) {
   EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
 
@@ -119,6 +174,41 @@ TEST(LockingTest, SameProcExclusiveConflict) {
   EXPECT_EQ(0, has_exclusive_lock(1, 1, 1));
 }
 
+TEST(LockingTest, SameProcSharedConflict) {
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(-1, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+}
+
+TEST(LockingTest, SameProcMultiSharedConflict) {
+  EXPECT_EQ(0, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(-1, get_shared_lock(1, 1, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 1, 1));
+
+  EXPECT_EQ(0, get_shared_lock(1, 2, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 2, 1));
+  EXPECT_EQ(-1, get_shared_lock(1, 2, 1));
+  EXPECT_EQ(1, has_shared_lock(1, 2, 1));
+
+  EXPECT_EQ(0, release_lock(1, 1, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 1, 1));
+  EXPECT_EQ(0, release_lock(1, 2, 1));
+  EXPECT_EQ(0, has_shared_lock(1, 2, 1));
+}
 
 TEST(LockingTest, SameProcExclusiveSharedConflict) {
   EXPECT_EQ(0, get_exclusive_lock(1, 1, 1));
