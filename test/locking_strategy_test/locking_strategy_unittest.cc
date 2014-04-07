@@ -345,3 +345,18 @@ TEST(LockingTest, MultiRead) {
   EXPECT_EQ(i, r3);
   EXPECT_EQ(i, r4);
 }
+
+TEST(LockingTest, HasMetadataTest) {
+  int i = 7;
+  int r = 0;
+  auto rsf = locked_read(&r, &i, 1, 1, 1, 0, 2);
+  std::this_thread::sleep_for(base_duration(1));
+  EXPECT_EQ(1, has_metadata_lock(1, 1, 1));
+  EXPECT_EQ(0, has_metadata_lock(2, 2, 1));
+  ASSERT_EQ(std::future_status::ready, rsf.wait_for(base_duration(2)));
+  EXPECT_EQ(0, has_metadata_lock(1, 1, 1));
+  auto rsr = rsf.get();
+  EXPECT_EQ(0, rsr.first);
+  EXPECT_EQ(0, rsr.second);
+  EXPECT_EQ(i, r);
+}
