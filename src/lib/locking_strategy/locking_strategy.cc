@@ -13,7 +13,7 @@
 struct file_lock {
   uint32_t owner;
   uint32_t ex_proc;
-  std::set<int> sh_procs;
+  std::set<uint32_t> sh_procs;
   file_lock() : owner(0), ex_proc(0), sh_procs() {}
 };
 
@@ -53,6 +53,9 @@ int get_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
 
     lock.owner = user_id;
   }
+
+  if (lock.ex_proc)
+    return -1;
 
   auto insertion = lock.sh_procs.insert(proc_id);
   return insertion.second ? 0 : -1;
