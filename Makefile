@@ -2,8 +2,9 @@ lib_network := src/lib/network_core
 lib_espresso_storage := src/lib/espresso_storage
 lib_ip_address := src/lib/ip_address
 lib_access := src/lib/access
+lib_locking := src/lib/decafs_locking
 
-libraries := $(lib_network) $(lib_espresso_storage) $(lib_ip_address) $(lib_access)
+libraries := $(lib_network) $(lib_espresso_storage) $(lib_ip_address) $(lib_access) $(lib_locking)
 
 decafs_barista := src/app/barista_core
 decafs_espresso := src/app/espresso_core
@@ -14,7 +15,7 @@ dirs := $(libraries) $(apps)
 .PHONY: all $(apps) $(libraries)
 all: $(apps) cp
 
-$(apps): 
+$(apps):
 	$(MAKE) --directory=$@
 
 $(libraries):
