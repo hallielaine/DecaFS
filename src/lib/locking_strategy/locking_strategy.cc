@@ -22,12 +22,10 @@ struct meta_lock {
   uint32_t owner;
   uint32_t proc;
   meta_lock() : mtx(), owner(0), proc(0) {}
-};
+} meta_lock_singleton;
 
 static std::mutex file_m;
 static std::unordered_map<uint32_t, file_lock> file_locks;
-static std::mutex meta_m;
-static std::unordered_map<uint32_t, meta_lock> meta_locks;
 
 extern "C"
 int get_exclusive_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
@@ -120,52 +118,32 @@ int has_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
 }
 
 extern "C"
-int get_metadata_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
-  meta_lock *m_lk = NULL;
-  {
-    std::lock_guard<std::mutex> lk(meta_m);
-    m_lk = &meta_locks[file_id];
-  }
+int get_metadata_lock(uint32_t user_id, uint32_t proc_id) {
+  meta_lock_singleton.mtx.lock();
 
-  m_lk->mtx.lock();
+  assert(meta_lock_singleton.owner == 0);
+  assert(meta_lock_singleton.proc == 0);
 
-  if (m_lk->owner || m_lk->proc) {
-    m_lk->mtx.unlock();
+  meta_lock_singleton.owner = user_id;
+  meta_lock_singleton.proc = proc_id;
+  return 0;
+}
+
+extern "C"
+int release_metadata_lock(uint32_t user_id, uint32_t proc_id) {
+  if (meta_lock_singleton.owner != user_id ||
+      meta_lock_singleton.proc != proc_id) {
     return -1;
   }
 
-  m_lk->owner = user_id;
-  m_lk->proc = proc_id;
+  meta_lock_singleton.owner = 0;
+  meta_lock_singleton.proc = 0;
+  meta_lock_singleton.mtx.unlock();
   return 0;
 }
 
 extern "C"
-int release_metadata_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
-  std::unordered_map<uint32_t, meta_lock>::iterator meta_it;
-  {
-    std::lock_guard<std::mutex> lk(meta_m);
-    meta_it = meta_locks.find(file_id);
-
-    if (meta_it == meta_locks.end() ||
-        meta_it->second.owner != user_id ||
-        meta_it->second.proc != proc_id) {
-      return -1;
-    }
-  }
-
-
-  meta_it->second.owner = 0;
-  meta_it->second.proc = 0;
-  meta_it->second.mtx.unlock();
-  return 0;
-}
-
-extern "C"
-int has_metadata_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
-  std::lock_guard<std::mutex> lk(meta_m);
-  auto meta_it = meta_locks.find(file_id);
-
-  return meta_it != meta_locks.end() &&
-         meta_it->second.owner == user_id &&
-         meta_it->second.proc == proc_id;
+int has_metadata_lock(uint32_t user_id, uint32_t proc_id) {
+  return meta_lock_singleton.owner == user_id &&
+         meta_lock_singleton.proc == proc_id;
 }
