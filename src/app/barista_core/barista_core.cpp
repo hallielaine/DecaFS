@@ -68,27 +68,29 @@ void exit_failure (const char *message) {
 }
 
 // ------------------------Core Functions---------------------------
-int open (const char *pathname, int flags) {
+int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
 
   return 0;
 }
 
-ssize_t read (int fd, void *buf, size_t count) {
+ssize_t read (int fd, void *buf, size_t count, uint32_t user_id,
+              uint32_t proc_id) {
 
   return 0;
 }
 
-ssize_t write (int fd, const void *buf, size_t count) {
+ssize_t write (int fd, const void *buf, size_t count, uint32_t user_id,
+               uint32_t proc_id) {
 
   return 0;
 }
 
-int close (int fd) {
+int close (int fd, uint32_t user_id, uint32_t proc_id) {
 
   return 0;
 }
 
-void delete_file (char *pathname) {
+void delete_file (char *pathname, uint32_t user_id, uint32_t proc_id) {
 
 }
 
@@ -106,7 +108,7 @@ int fstat (int fd, struct stat *buf) {
   return 0;
 }
 
-void statfs (char *pathname, struct statvfs *stat) {
+void statfs (char *pathname, struct statvfs * stat) {
 
 }
 
@@ -127,24 +129,30 @@ void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
 
 }
 
-void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                 uint32_t dest_node) {
+int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
+                 uint32_t dest_node, uint32_t user_id, uint32_t proc_id) {
 
+  return 0;
 }
 
-void fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
-                  uint32_t dest_node) {
+int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                  uint32_t dest_node, uint32_t user_id, uint32_t proc_id) {
 
+  return 0;
 }
 
-void move_chunk_replica (const char* pathname, uint32_t stripe_id, 
-                         uint32_t chunk_num, uint32_t dest_node) {
+int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
+                         uint32_t chunk_num, uint32_t dest_node,
+                         uint32_t user_id, uint32_t proc_id) {
 
+  return 0;
 }
 
-void fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
-                          uint32_t chunk_num, uint32_t dest_node) {
+int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                          uint32_t chunk_num, uint32_t dest_node,
+                          uint32_t user_id, uint32_t proc_id) {
 
+  return 0;
 }
 
 int mkdir (const char* dirname) {

@@ -28,14 +28,15 @@ const char *get_size_error_message (const char *type, const char *value);
  *	the file, an exclusive lock is granted.
  *	@ return the file id for the newly opened file (non-zero)
  */
-int open (const char *pathname, int flags);
+int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id);
 
 /*
  *	If the process has a lock on the file, complete the read.
  *	Translates read request into chunks of requests to Espresso 
  *	nodes.
  */
-ssize_t read (int fd, void *buf, size_t count);
+ssize_t read (int fd, void *buf, size_t count, uint32_t user_id,
+              uint32_t proc_id);
 
 /*
  *	If the process has an exclusive lock on the file, complete the
@@ -43,18 +44,19 @@ ssize_t read (int fd, void *buf, size_t count);
  *	Translate write requests into chunks of requests to Espresso
  *	nodes.
  */
-ssize_t write (int fd, const void *buf, size_t count);
+ssize_t write (int fd, const void *buf, size_t count, uint32_t user_id,
+               uint32_t proc_id);
 
 /*
  *	Release locks associate with a fd.
  */
-int close (int fd);
+int close (int fd, uint32_t user_id, uint32_t proc_id);
 
 /*
  *	Removes a file from DecaFS.
  *	@ return >= 0 success, < 0 failure
  */
-void delete_file (char *pathname);
+void delete_file (char *pathname, uint32_t user_id, uint32_t proc_id);
 
 /*
  *	Ensure that all filedata is written to disk.
@@ -99,18 +101,20 @@ void register_chunk_replica_metadata_handler (void (*metadata_handler));
 /*
  *	Move an existing chunk to a different Espresso node in the system. 
  */
-void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                 uint32_t dest_node);
-void fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
-                  uint32_t dest_node);
+int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
+                 uint32_t dest_node, uint32_t user_id, uint32_t proc_id);
+int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                  uint32_t dest_node, uint32_t user_id, uint32_t proc_id);
 
 /*
  *	Move a chunk’s replica to a different Espresso node in the system. 
  */
-void move_chunk_replica (const char* pathname, uint32_t stripe_id, 
-                         uint32_t chunk_num, uint32_t dest_node);
-void fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
-                          uint32_t chunk_num, uint32_t dest_node);
+int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
+                         uint32_t chunk_num, uint32_t dest_node,
+                         uint32_t user_id, uint32_t proc_id);
+int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                          uint32_t chunk_num, uint32_t dest_node,
+                          uint32_t user_id, uint32_t proc_id);
 
 /*
  *	creates a directory in the DecaFS instance.
