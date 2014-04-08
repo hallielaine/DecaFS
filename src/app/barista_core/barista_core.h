@@ -14,6 +14,7 @@
 #include "volatile_metadata.h"
 #include "network_core/bar_clnt.h"
 #include "access/access.h"
+#include "locking_strategy/locking_strategy.h"
 
 #define FILE_IN_USE -1
 

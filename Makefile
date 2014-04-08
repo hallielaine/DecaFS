@@ -2,7 +2,7 @@ lib_network := src/lib/network_core
 lib_espresso_storage := src/lib/espresso_storage
 lib_ip_address := src/lib/ip_address
 lib_access := src/lib/access
-lib_locking := src/lib/decafs_locking
+lib_locking := src/lib/locking_strategy
 
 libraries := $(lib_network) $(lib_espresso_storage) $(lib_ip_address) $(lib_access) $(lib_locking)
 

@@ -125,10 +125,7 @@ bool Persistent_Metadata::file_id_exists (int id) {
 uint32_t Persistent_Metadata::get_new_file_id() {
   // If we don't know the file id, find the max
   if (next_file_id == ID_NOT_SET) {
-    if (file_id_to_pathname.empty()) {
-      next_file_id = 0;
-    }
-    else {
+    if (!file_id_to_pathname.empty()) {
       next_file_id = file_id_to_pathname.rbegin()->first;
     }
   }
