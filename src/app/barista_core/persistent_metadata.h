@@ -8,6 +8,7 @@
 
 #include <cstring>
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "limits.h"
@@ -40,13 +41,15 @@ class Persistent_Metadata {
     // Variables
     std::map<int, string> file_id_to_pathname;
     std::map<string, struct persistent_metadata_info> metadata;
-    uint32_t next_file_id;
 
     // Helper Functions
     bool get_file_name (uint32_t file_id, string *name);
     bool metadata_contains (char *pathname);
     bool file_id_exists (int id);
     uint32_t get_new_file_id();
+    
+    uint32_t next_file_id;
+    std::mutex file_id_mutex;
 
   public:
     Persistent_Metadata();

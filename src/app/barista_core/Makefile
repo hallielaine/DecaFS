@@ -1,7 +1,7 @@
 .SUFFIXES:
 .SUFFIXES: .cpp .o
 BARISTA = decafs_barista
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -std=c++11
 INCDIR = ../../lib
 LIBDIRS = ../../../lib 
 LIBS = -lnetcore -lip_address -laccess -llocking_strategy --coverage

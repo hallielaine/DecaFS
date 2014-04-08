@@ -8,6 +8,7 @@
 #include <cstring>
 #include <list>
 #include <map>
+#include <mutex>
 #include <string>
 
 #include "limits.h"
@@ -37,10 +38,13 @@ class Volatile_Metadata {
     // Variables
     uint32_t chunk_size;
     uint32_t stripe_size;
-    uint32_t last_fd;
+    
     std::map<string, int> ip_to_node_map;
     std::list<string> up_nodes;
     std::map<struct file_instance, int> file_cursors;
+    
+    uint32_t last_fd;
+    std::mutex fd_mutex;
 
     // Helper Functions
     bool ip_to_node_map_contains (char *ip);

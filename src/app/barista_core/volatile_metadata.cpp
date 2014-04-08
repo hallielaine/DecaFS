@@ -168,11 +168,19 @@ bool Volatile_Metadata::file_cursors_contains (struct file_instance inst) {
 }
 
 uint32_t Volatile_Metadata::get_new_fd() {
+  uint32_t new_fd;
+
+  fd_mutex.lock();
   // If we don't know the current fd, find the max
   if (last_fd == FD_NOT_SET) {
     if (!file_cursors.empty()) {
       last_fd = file_cursors.rbegin()->first.fd_number;
     }
   }
-  return ++last_fd;
+  
+  new_fd = ++last_fd;
+  fd_mutex.unlock();
+
+  return new_fd;
+  
 }

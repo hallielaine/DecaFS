@@ -123,11 +123,18 @@ bool Persistent_Metadata::file_id_exists (int id) {
 }
     
 uint32_t Persistent_Metadata::get_new_file_id() {
+  uint32_t new_file_id;
+  
+  file_id_mutex.lock();
   // If we don't know the file id, find the max
   if (next_file_id == ID_NOT_SET) {
     if (!file_id_to_pathname.empty()) {
       next_file_id = file_id_to_pathname.rbegin()->first;
     }
   }
-  return ++next_file_id;
+  
+  new_file_id = ++next_file_id;
+  file_id_mutex.unlock();
+
+  return new_file_id;
 }
