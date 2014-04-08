@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "limits.h"
 #include "file_types.h"
@@ -70,8 +73,8 @@ void sync();
 /*
  *	Fills struct stat with file info.
  */
-int stat (const char *path, struct stat *buf);
-int fstat (int fd, struct stat *buf);
+int file_stat (const char *path, struct stat *buf);
+int file_fstat (int fd, struct stat *buf);
 
 /*
  *  Collects information about a mounted filesystem. 

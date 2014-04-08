@@ -87,8 +87,24 @@ int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
     file_id = stat.file_id;
   }
   
-  printf ("file id: %d\n", file_id);
-  return 0;
+  // If we're opening with read only, obtain a read lock
+  if (flags == O_RDONLY) {
+    // if we can't get a read lock, return that the file is in use so we can't
+    // open it
+    if (get_shared_lock (user_id, proc_id, file_id) < 0) {
+      return FILE_IN_USE;
+    }
+  }
+  // obtain a write lock
+  else {
+    // if we can't get a write lock, return that the file is in use so we can't
+    // open it
+    if (get_exclusive_lock (user_id, proc_id, file_id) < 0) {
+      return FILE_IN_USE;
+    }
+  }
+  
+  return new_file_cursor (user_id, proc_id, file_id);
 }
 
 ssize_t read (int fd, void *buf, size_t count, uint32_t user_id,
@@ -116,12 +132,12 @@ void sync() {
 
 }
 
-int stat (const char *path, struct stat *buf) {
+int file_stat (const char *path, struct stat *buf) {
 
   return 0;
 }
 
-int fstat (int fd, struct stat *buf) {
+int file_fstat (int fd, struct stat *buf) {
 
   return 0;
 }
@@ -379,8 +395,8 @@ extern "C" bool node_exists (uint32_t node_number) {
   return volatile_metadata.node_exists (node_number);
 }
 
-extern "C" int new_file_cursor (struct file_instance inst) {
-  return volatile_metadata.new_file_cursor (inst);
+extern "C" int new_file_cursor (uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
+  return volatile_metadata.new_file_cursor (user_id, proc_id, file_id);
 }
 
 extern "C" int close_file_cursor (struct file_instance inst) {
