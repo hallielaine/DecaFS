@@ -20,6 +20,8 @@
 #define FILE_EXISTS -2
 #define FILENAME_INVALID -3
 
+#define ID_NOT_SET -1
+
 struct persistent_metadata_info {
   uint32_t file_id;
   uint32_t size;
@@ -36,11 +38,13 @@ class Persistent_Metadata {
     // Variables
     std::map<int, string> file_id_to_pathname;
     std::map<string, struct persistent_metadata_info> metadata;
-    
+    uint32_t next_file_id;
+
     // Helper Functions
     bool get_file_name (uint32_t file_id, string *name);
     bool metadata_contains (char *pathname);
     bool file_id_exists (int id);
+    uint32_t get_new_file_id();
 
   public:
     Persistent_Metadata();
@@ -84,12 +88,12 @@ class Persistent_Metadata {
 
     /*
      *  Add a file to the DecaFS metadata.
-     *  @return 0 on success
+     *  @return file_id on success
      *          FILE_EXISTS if filename already exists in DecaFS
      *          FILENAME_INVALID if filename is too long
      */
-    int add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
-                  uint32_t chunk_size, uint32_t replica_size, struct timeval time);
+    int add_file (char *pathname, uint32_t stripe_size, uint32_t chunk_size,
+                  uint32_t replica_size, struct timeval time);
     
     /*
      * Removes a file from DecaFS metadata.
@@ -146,11 +150,11 @@ extern "C" int set_access_time (file_instance inst, struct timeval time);
 
 /*
  *  Add a file to the DecaFS metadata.
- *  @return 0 on success
+ *  @return file_id on success
  *          FILE_EXISTS if filename already exists in DecaFS
  *          FILENAME_INVALID if filename is too long
  */
-extern "C" int add_file (char *pathname, uint32_t file_id,
+extern "C" int add_file (char *pathname,
                          uint32_t stripe_size, uint32_t chunk_size,
                          uint32_t replica_size, struct timeval time);
 

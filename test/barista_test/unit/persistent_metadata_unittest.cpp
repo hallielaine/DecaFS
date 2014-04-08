@@ -20,12 +20,12 @@ TEST (Persistent_Metadata, AddFile) {
   memset (bad_file, 'a', MAX_FILENAME_LENGTH + 1);
   bad_file[MAX_FILENAME_LENGTH + 1] = '\0';
 
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
-  EXPECT_EQ (FILE_EXISTS, p_meta.add_file ((char *)file_1, file_1_id,
+  EXPECT_EQ (FILE_EXISTS, p_meta.add_file ((char *)file_1,
                                                STRIPE_SIZE, CHUNK_SIZE,
                                                REPLICA_SIZE, time));
-  EXPECT_EQ (FILENAME_INVALID, p_meta.add_file ((char *)bad_file, file_1_id,
+  EXPECT_EQ (FILENAME_INVALID, p_meta.add_file ((char *)bad_file,
                                                     STRIPE_SIZE, CHUNK_SIZE,
                                                     REPLICA_SIZE, time));
 }
@@ -34,10 +34,10 @@ TEST (Persistent_Metadata, GetNumFiles) {
   Persistent_Metadata p_meta;
   struct timeval time;
   
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (1, p_meta.get_num_files());
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_2, file_2_id, STRIPE_SIZE,
+  EXPECT_EQ (file_2_id, p_meta.add_file ((char *)file_2, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (2, p_meta.get_num_files());
 }
@@ -46,9 +46,9 @@ TEST (Persistent_Metadata, Filenames) {
   Persistent_Metadata p_meta;
   struct timeval time;
   
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_2, file_2_id, STRIPE_SIZE,
+  EXPECT_EQ (file_2_id, p_meta.add_file ((char *)file_2, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   
   char **filenames = (char **)malloc(2);
@@ -69,7 +69,7 @@ TEST (Persistent_Metadata, DecafsFileStat) {
   struct timeval time;
   struct decafs_file_stat stat;
 
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (FILE_NOT_FOUND, p_meta.decafs_file_stat((char *)"junk", &stat));
   EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
@@ -88,7 +88,7 @@ TEST (Persistent_Metadata, SetAccessTime) {
   time.tv_sec = 0;
   time.tv_usec = 0;
 
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
   EXPECT_EQ (0, stat.last_access_time.tv_sec); 
@@ -108,7 +108,7 @@ TEST (Persistent_Metadata, UpdateFileZize) {
   struct timeval time;
   struct decafs_file_stat stat;
   
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (FILE_NOT_FOUND, p_meta.update_file_size (file_2_id, 100));
   EXPECT_EQ (100, p_meta.update_file_size (file_1_id, 100));
@@ -122,9 +122,9 @@ TEST (Persistent_Metadata, UpdateFileZize) {
 TEST (Persistent_Metadata, DeleteFile) {
   Persistent_Metadata p_meta;
   struct timeval time;
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_1, file_1_id, STRIPE_SIZE,
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
-  EXPECT_EQ (0, p_meta.add_file ((char *)file_2, file_2_id, STRIPE_SIZE,
+  EXPECT_EQ (file_2_id, p_meta.add_file ((char *)file_2, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   
   char **filenames = (char **)malloc(2);
@@ -151,5 +151,4 @@ TEST (Persistent_Metadata, DeleteFile) {
   
   free (filenames[0]);
   free (filenames);
-
 }

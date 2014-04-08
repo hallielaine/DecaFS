@@ -69,7 +69,24 @@ void exit_failure (const char *message) {
 
 // ------------------------Core Functions---------------------------
 int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
+  uint32_t file_id;
+  struct decafs_file_stat stat;
 
+  // If the file does not exist
+  if ((decafs_file_stat ((char *)pathname, &stat)) == FILE_NOT_FOUND) {
+    // Create the file
+    struct timeval time;
+    gettimeofday(&time, NULL);
+                        // change 4th param to get_replica_size()
+                        // implement in vmeta
+    file_id = add_file ((char *)pathname, get_stripe_size(), get_chunk_size(),
+                        get_chunk_size(), time);
+  }
+  else {
+    file_id = stat.file_id;
+  }
+  
+  printf ("file id: %d\n", file_id);
   return 0;
 }
 
@@ -238,10 +255,10 @@ extern "C" int set_access_time (file_instance inst, struct timeval time) {
   return persistent_metadata.set_access_time (inst, time);
 }
 
-extern "C" int add_file (char *pathname, uint32_t file_id,
+extern "C" int add_file (char *pathname,
                          uint32_t stripe_size, uint32_t chunk_size,
                          uint32_t replica_size, struct timeval time) {
-  return persistent_metadata.add_file (pathname, file_id, stripe_size,
+  return persistent_metadata.add_file (pathname, stripe_size,
                                        chunk_size, replica_size, time);
 }
 

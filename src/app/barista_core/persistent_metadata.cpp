@@ -1,6 +1,7 @@
 #include "persistent_metadata.h"
 
 Persistent_Metadata::Persistent_Metadata() {
+  next_file_id = ID_NOT_SET;
 }
 
 int Persistent_Metadata::get_num_files() {
@@ -55,7 +56,7 @@ int Persistent_Metadata::set_access_time (file_instance inst, struct timeval tim
   return FILE_NOT_FOUND;
 }
     
-int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t stripe_size,
+int Persistent_Metadata::add_file (char *pathname, uint32_t stripe_size,
                                    uint32_t chunk_size, uint32_t replica_size, struct timeval time) {
   if (metadata_contains (pathname)) {
     return FILE_EXISTS;
@@ -66,11 +67,12 @@ int Persistent_Metadata::add_file (char *pathname, uint32_t file_id, uint32_t st
   }
  
   string name(pathname);
+  uint32_t file_id = get_new_file_id();
   struct persistent_metadata_info info = {file_id, 0, stripe_size, chunk_size, replica_size, time};
 
   metadata[name] = info;
   file_id_to_pathname[file_id] = name;
-  return P_META_SUCCESS;
+  return file_id;
 }
 
 int Persistent_Metadata::delete_file (uint32_t file_id) {
@@ -100,7 +102,7 @@ int Persistent_Metadata::update_file_size (uint32_t file_id, int size_delta) {
   }
   return FILE_NOT_FOUND;
 }
-
+     
 bool Persistent_Metadata::get_file_name (uint32_t file_id, string *name) {
   if (!file_id_exists (file_id)) {
     return false;
@@ -118,4 +120,17 @@ bool Persistent_Metadata::metadata_contains (char *pathname) {
 
 bool Persistent_Metadata::file_id_exists (int id) {
   return (file_id_to_pathname.find (id) != file_id_to_pathname.end());
+}
+    
+uint32_t Persistent_Metadata::get_new_file_id() {
+  // If we don't know the file id, find the max
+  if (next_file_id == ID_NOT_SET) {
+    if (file_id_to_pathname.empty()) {
+      next_file_id = 0;
+    }
+    else {
+      next_file_id = file_id_to_pathname.rbegin()->first;
+    }
+  }
+  return ++next_file_id;
 }

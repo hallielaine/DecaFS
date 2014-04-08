@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "limits.h"
 #include "file_types.h"
@@ -13,6 +14,8 @@
 #include "volatile_metadata.h"
 #include "network_core/bar_clnt.h"
 #include "access/access.h"
+
+#define FILE_IN_USE -1
 
 void process_arguments (int argc, char *argv[]);
 void exit_failure (const char *message);
