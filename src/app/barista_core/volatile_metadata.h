@@ -28,14 +28,16 @@
 // Cursor Errors
 #define INSTANCE_NOT_FOUND -1
 
+#define FD_NOT_SET 0
+
 using namespace std;
 
 class Volatile_Metadata {
   private:
-    
     // Variables
     uint32_t chunk_size;
     uint32_t stripe_size;
+    uint32_t last_fd;
     std::map<string, int> ip_to_node_map;
     std::list<string> up_nodes;
     std::map<struct file_instance, int> file_cursors;
@@ -44,6 +46,7 @@ class Volatile_Metadata {
     bool ip_to_node_map_contains (char *ip);
     bool up_nodes_contains (char *ip);
     bool file_cursors_contains (struct file_instance inst);
+    uint32_t get_new_fd(); 
 
   public:
     Volatile_Metadata();
@@ -140,9 +143,9 @@ class Volatile_Metadata {
 
     /*
      *   Start a new file cursor if one doesn’t exist already.
-     *  @return the current byte offset for a given fd
+     *  @return the fd number
      */
-    int new_file_cursor (struct file_instance inst);
+    int new_file_cursor (uint32_t user_id, uint32_t proc_id, uint32_t file_id);
 
     /*
      *   Remove a file cursor for an open instance of a file.
@@ -263,9 +266,9 @@ extern "C" bool node_exists (uint32_t node_number);
 
 /*
  *   Start a new file cursor if one doesn’t exist already.
- *  @return the current byte offset for a given fd
+ *  @return the fd
  */
-extern "C" int new_file_cursor (struct file_instance inst);
+extern "C" int new_file_cursor (uint32_t user_id, uint32_t proc_id, uint32_t file_id);
 
 /*
  *   Remove a file cursor for an open instance of a file.

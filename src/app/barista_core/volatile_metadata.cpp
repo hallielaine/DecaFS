@@ -2,6 +2,7 @@
 
 Volatile_Metadata::Volatile_Metadata() {
   // initialize volatile metadata map for file cursor
+  last_fd = FD_NOT_SET;
 
   // Initialize stripe and chunk size
   chunk_size = 0;
@@ -125,11 +126,11 @@ bool Volatile_Metadata::node_exists (uint32_t node_number) {
   return false;
 }
 
-int Volatile_Metadata::new_file_cursor (struct file_instance inst) {
-  if (!file_cursors_contains (inst)) {
-    file_cursors[inst] = 0;
-  }
-  return file_cursors[inst];
+int Volatile_Metadata::new_file_cursor (uint32_t user_id, uint32_t proc_id,uint32_t file_id) {
+  uint32_t fd = get_new_fd();
+  struct file_instance inst = {user_id, proc_id, file_id, fd};
+  file_cursors[inst] = 0;
+  return fd;
 }
 
 int Volatile_Metadata::close_file_cursor (struct file_instance inst) {
@@ -164,4 +165,14 @@ bool Volatile_Metadata::up_nodes_contains (char *ip) {
 
 bool Volatile_Metadata::file_cursors_contains (struct file_instance inst) {
   return (file_cursors.find (inst) != file_cursors.end());
+}
+
+uint32_t Volatile_Metadata::get_new_fd() {
+  // If we don't know the current fd, find the max
+  if (last_fd == FD_NOT_SET) {
+    if (!file_cursors.empty()) {
+      last_fd = file_cursors.rbegin()->first.fd_number;
+    }
+  }
+  return ++last_fd;
 }

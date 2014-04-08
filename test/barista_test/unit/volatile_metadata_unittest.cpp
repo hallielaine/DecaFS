@@ -200,8 +200,7 @@ TEST (Volatile_Metadata, NodeUpDoesNotExist) {
 TEST (Volatile_Metadata, FileCursorCreation) {
   Volatile_Metadata v_meta;
 
-  v_meta.new_file_cursor (inst);
-
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, 1, 1));
   EXPECT_EQ (0, v_meta.get_file_cursor (inst));
 }
 
@@ -209,7 +208,7 @@ TEST (Volatile_Metadata, FileCursorBadCursor) {
   Volatile_Metadata v_meta;
 
   EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
-  v_meta.new_file_cursor (inst);
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, 1, 1));
   EXPECT_EQ (0, v_meta.get_file_cursor (inst));
   EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (bad_inst));
 }
@@ -217,7 +216,7 @@ TEST (Volatile_Metadata, FileCursorBadCursor) {
 TEST (Volatile_Metadata, FileCursorSet) {
   Volatile_Metadata v_meta;
   
-  v_meta.new_file_cursor (inst);
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, 1, 1));
   v_meta.set_file_cursor (inst, CURSOR_VAL);
   EXPECT_EQ (CURSOR_VAL, v_meta.get_file_cursor (inst));
 }
@@ -225,7 +224,7 @@ TEST (Volatile_Metadata, FileCursorSet) {
 TEST (Volatile_Metadata, FileCursorDelete) {
   Volatile_Metadata v_meta;
   
-  v_meta.new_file_cursor (inst);
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, 1, 1));
   EXPECT_EQ (0, v_meta.get_file_cursor (inst));
   v_meta.close_file_cursor (inst);
   EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
