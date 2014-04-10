@@ -159,6 +159,7 @@ int Volatile_Metadata::set_file_cursor (uint32_t fd, uint32_t offset,
     if (file_cursors[fd].client_id == client) {
       // TODO: Add error checking to ensure that only valid offsets can be set
       file_cursors[fd].offset = offset;
+      return offset;
     }
     else {
       return WRONG_CLIENT;
