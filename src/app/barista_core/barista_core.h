@@ -21,6 +21,8 @@
 #include "ip_address/ip_address.h"
 
 #define FILE_IN_USE -1
+#define FILE_NOT_OPEN_FOR_WRITE -2
+#define FILE_NOT_OPEN_FOR_READ -3
 
 void process_arguments (int argc, char *argv[]);
 void exit_failure (const char *message);

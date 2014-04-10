@@ -73,7 +73,7 @@ int open (const char *pathname, int flags, struct client client) {
   struct decafs_file_stat stat;
 
   // If the file does not exist
-  if ((decafs_file_stat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
+  if ((decafs_file_sstat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
     // Create the file
     struct timeval time;
     gettimeofday(&time, NULL);
@@ -112,7 +112,21 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
 }
 
 ssize_t write (int fd, const void *buf, size_t count, struct client client) {
-
+  struct file_instance inst;
+  struct decafs_file_stat stat;
+  assert (fd > 0);
+  inst = get_file_info((uint32_t)fd); 
+  
+  // If the client does not have permission to write, return an error
+  if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
+    return FILE_NOT_OPEN_FOR_WRITE; 
+  }
+ 
+  decafs_file_stat (inst.file_id, &stat, client);
+  //ssize_t process_write_stripe (uint32_t file_id, char *pathname,
+  //                              uint32_t stripe_id, void *buf,
+  //                              int offset, size_t count);
+   
   return 0;
 }
 
@@ -269,13 +283,24 @@ extern "C" int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size,
   return res;
 }
 
-extern "C" int decafs_file_stat (char *pathname, struct decafs_file_stat *buf,
+extern "C" int decafs_file_sstat (char *pathname, struct decafs_file_stat *buf,
                                  struct client client) {
   int res;
   if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.decafs_file_stat (pathname, buf);
+  res = persistent_metadata.decafs_file_sstat (pathname, buf);
+  release_metadata_lock (client.user_id, client.proc_id);
+  return res;
+}
+
+extern "C" int decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf,
+                                 struct client client) {
+  int res;
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+    return NO_METADATA_LOCK;
+  }
+  res = persistent_metadata.decafs_file_stat (file_id, buf);
   release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }

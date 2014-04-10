@@ -77,7 +77,8 @@ class Persistent_Metadata {
      *           FILE_NOT_FOUND on failure
      */
     
-    int decafs_file_stat (char *pathname, struct decafs_file_stat *buf);
+    int decafs_file_sstat (char *pathname, struct decafs_file_stat *buf);
+    int decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf);
     /*
      *  Fill in system stat structure with information 
      *  about entire mounted DecaFS.
@@ -139,7 +140,9 @@ extern "C" int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size,
  *           FILE_NOT_FOUND on failure
  */
 
-extern "C" int decafs_file_stat (char *pathname, struct decafs_file_stat *buf,
+extern "C" int decafs_file_sstat (char *pathname, struct decafs_file_stat *buf,
+                                 struct client client);
+extern "C" int decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf,
                                  struct client client);
 
 /*

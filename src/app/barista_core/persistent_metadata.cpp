@@ -22,7 +22,7 @@ int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], in
   return current;
 }
 
-int Persistent_Metadata::decafs_file_stat (char *pathname, struct decafs_file_stat *buf) {
+int Persistent_Metadata::decafs_file_sstat (char *pathname, struct decafs_file_stat *buf) {
   if (metadata_contains (pathname)) {
     struct persistent_metadata_info info = metadata[pathname];
     buf->file_id = info.file_id;
@@ -37,6 +37,15 @@ int Persistent_Metadata::decafs_file_stat (char *pathname, struct decafs_file_st
     // TODO: call function to populate replica ids from Replication Strategy
 
     return P_META_SUCCESS;
+  }
+  return FILE_NOT_FOUND;
+}
+
+int Persistent_Metadata::decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf) {
+  string pathname;
+
+  if (get_file_name (file_id, &pathname)) {
+    return decafs_file_sstat ((char *)pathname.c_str(), buf);
   }
   return FILE_NOT_FOUND;
 }

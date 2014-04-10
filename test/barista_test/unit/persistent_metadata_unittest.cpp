@@ -66,6 +66,22 @@ TEST (Persistent_Metadata, Filenames) {
   free (filenames);
 }
 
+TEST (Persistent_Metadata, DecafsFileSStat) {
+  Persistent_Metadata p_meta;
+  struct timeval time;
+  struct decafs_file_stat stat;
+
+  EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
+                                    CHUNK_SIZE, REPLICA_SIZE, time));
+  EXPECT_EQ (FILE_NOT_FOUND, p_meta.decafs_file_sstat((char *)"junk", &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_sstat((char *)file_1, &stat));
+  EXPECT_EQ (file_1_id, stat.file_id);
+  EXPECT_EQ (0, stat.size);
+  EXPECT_EQ (STRIPE_SIZE, stat.stripe_size);
+  EXPECT_EQ (CHUNK_SIZE, stat.chunk_size);
+  EXPECT_EQ (REPLICA_SIZE, stat.replica_size);
+}
+
 TEST (Persistent_Metadata, DecafsFileStat) {
   Persistent_Metadata p_meta;
   struct timeval time;
@@ -73,8 +89,8 @@ TEST (Persistent_Metadata, DecafsFileStat) {
 
   EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
-  EXPECT_EQ (FILE_NOT_FOUND, p_meta.decafs_file_stat((char *)"junk", &stat));
-  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (FILE_NOT_FOUND, p_meta.decafs_file_stat(100, &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_stat(file_1_id, &stat));
   EXPECT_EQ (file_1_id, stat.file_id);
   EXPECT_EQ (0, stat.size);
   EXPECT_EQ (STRIPE_SIZE, stat.stripe_size);
@@ -92,7 +108,7 @@ TEST (Persistent_Metadata, SetAccessTime) {
 
   EXPECT_EQ (file_1_id, p_meta.add_file ((char *)file_1, STRIPE_SIZE,
                                     CHUNK_SIZE, REPLICA_SIZE, time));
-  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_sstat((char *)file_1, &stat));
   EXPECT_EQ (0, stat.last_access_time.tv_sec); 
   EXPECT_EQ (0, stat.last_access_time.tv_usec);
 
@@ -100,7 +116,7 @@ TEST (Persistent_Metadata, SetAccessTime) {
   time.tv_usec = 100;
 
   EXPECT_EQ (0, p_meta.set_access_time (inst, time));
-  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_sstat((char *)file_1, &stat));
   EXPECT_EQ (100, stat.last_access_time.tv_sec); 
   EXPECT_EQ (100, stat.last_access_time.tv_usec);
 }
@@ -114,10 +130,10 @@ TEST (Persistent_Metadata, UpdateFileZize) {
                                     CHUNK_SIZE, REPLICA_SIZE, time));
   EXPECT_EQ (FILE_NOT_FOUND, p_meta.update_file_size (file_2_id, 100));
   EXPECT_EQ (100, p_meta.update_file_size (file_1_id, 100));
-  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_sstat((char *)file_1, &stat));
   EXPECT_EQ (100, stat.size); 
   EXPECT_EQ (0, p_meta.update_file_size (file_1_id, -200));
-  EXPECT_EQ (0, p_meta.decafs_file_stat((char *)file_1, &stat));
+  EXPECT_EQ (0, p_meta.decafs_file_sstat((char *)file_1, &stat));
   EXPECT_EQ (0, stat.size); 
 }
 
