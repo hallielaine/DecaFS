@@ -117,8 +117,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
 }
 
 int close (int fd, struct client client) {
-
-  return 0;
+  return close_file_cursor (fd, client);
 }
 
 void delete_file (char *pathname, struct client client) {
