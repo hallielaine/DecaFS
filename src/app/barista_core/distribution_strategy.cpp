@@ -16,7 +16,7 @@ extern "C" int put_chunk (uint32_t file_id, char *pathname, uint32_t stripe_id,
 
   // If the ip address for the node cannot be found,
   // return an error
-  if (is_null (ip)) {
+  if (is_ip_null (ip)) {
     return CANNOT_PUT_CHUNK;
   }
 

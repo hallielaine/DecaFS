@@ -125,37 +125,53 @@ bool Volatile_Metadata::node_exists (uint32_t node_number) {
   return false;
 }
 
-int Volatile_Metadata::new_file_cursor (uint32_t user_id, uint32_t proc_id,uint32_t file_id) {
+int Volatile_Metadata::new_file_cursor (uint32_t file_id,
+                                        struct client client) {
   uint32_t fd = get_new_fd();
-  struct file_instance inst = {user_id, proc_id, file_id, fd};
-  file_cursors[inst] = 0;
+  struct file_instance inst = {client, file_id, 0};
+  file_cursors[fd] = inst;
   return fd;
 }
 
-int Volatile_Metadata::close_file_cursor (struct file_instance inst) {
-  if (file_cursors_contains (inst)) {
-    file_cursors.erase(inst);
+int Volatile_Metadata::close_file_cursor (uint32_t fd,
+                                          struct client client) {
+  if (file_cursors_contains (fd)) {
+    if (file_cursors[fd].client_id == client) {
+      file_cursors.erase(fd);
+    }
+    else {
+      return WRONG_CLIENT;
+    }
   }
   return V_META_SUCCESS;
 }
 
-int Volatile_Metadata::get_file_cursor (struct file_instance inst) {
-  if (file_cursors_contains (inst)) {
-    return file_cursors[inst];
+int Volatile_Metadata::get_file_cursor (uint32_t fd) {
+  if (file_cursors_contains (fd)) {
+    return file_cursors[fd].offset;
   }
   return INSTANCE_NOT_FOUND;
 }
 
-int Volatile_Metadata::set_file_cursor (struct file_instance inst, uint32_t offset) {
-  if (file_cursors_contains (inst)) {
-    // TODO: Add error checking to ensure that only valid offsets can be set
-    file_cursors[inst] = offset;
+int Volatile_Metadata::set_file_cursor (uint32_t fd, uint32_t offset,
+                                        struct client client) {
+  if (file_cursors_contains (fd)) {
+    if (file_cursors[fd].client_id == client) {
+      // TODO: Add error checking to ensure that only valid offsets can be set
+      file_cursors[fd].offset = offset;
+    }
+    else {
+      return WRONG_CLIENT;
+    }
   }
   return INSTANCE_NOT_FOUND;
 }
  
-struct file_instance Volatile_Metadata::get_file_info (int fd) {
+struct file_instance Volatile_Metadata::get_file_info (uint32_t fd) {
   struct file_instance inst;
+  if (file_cursors_contains (fd)) {
+    return file_cursors[fd];
+  }
   return inst;
 }
 
@@ -167,8 +183,8 @@ bool Volatile_Metadata::up_nodes_contains (char *ip) {
   return (std::find (up_nodes.begin(), up_nodes.end(), ip) != up_nodes.end());
 }
 
-bool Volatile_Metadata::file_cursors_contains (struct file_instance inst) {
-  return (file_cursors.find (inst) != file_cursors.end());
+bool Volatile_Metadata::file_cursors_contains (uint32_t fd) {
+  return (file_cursors.find (fd) != file_cursors.end());
 }
 
 uint32_t Volatile_Metadata::get_new_fd() {
@@ -178,7 +194,7 @@ uint32_t Volatile_Metadata::get_new_fd() {
   // If we don't know the current fd, find the max
   if (last_fd == FD_NOT_SET) {
     if (!file_cursors.empty()) {
-      last_fd = file_cursors.rbegin()->first.fd_number;
+      last_fd = file_cursors.rbegin()->first;
     }
   }
   

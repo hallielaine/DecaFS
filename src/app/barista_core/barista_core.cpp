@@ -104,7 +104,7 @@ int open (const char *pathname, int flags, struct client client) {
     }
   }
   
-  return new_file_cursor (client.user_id, client.proc_id, file_id);
+  return new_file_cursor (file_id, client);
 }
 
 ssize_t read (int fd, void *buf, size_t count, struct client client) {
@@ -393,22 +393,22 @@ extern "C" bool node_exists (uint32_t node_number) {
   return volatile_metadata.node_exists (node_number);
 }
 
-extern "C" int new_file_cursor (uint32_t user_id, uint32_t proc_id, uint32_t file_id) {
-  return volatile_metadata.new_file_cursor (user_id, proc_id, file_id);
+extern "C" int new_file_cursor (uint32_t file_id, struct client client) {
+  return volatile_metadata.new_file_cursor (file_id, client);
 }
 
-extern "C" int close_file_cursor (struct file_instance inst) {
-  return volatile_metadata.close_file_cursor (inst);
+extern "C" int close_file_cursor (uint32_t fd, struct client client) {
+  return volatile_metadata.close_file_cursor (fd, client);
 }
 
-extern "C" int get_file_cursor (struct file_instance inst) {
-  return volatile_metadata.get_file_cursor (inst);
+extern "C" int get_file_cursor (uint32_t fd) {
+  return volatile_metadata.get_file_cursor (fd);
 }
 
-extern "C" int set_file_cursor (struct file_instance inst, uint32_t offset) {
-  return volatile_metadata.set_file_cursor (inst, offset);
+extern "C" int set_file_cursor (uint32_t fd, uint32_t offset, struct client client) {
+  return volatile_metadata.set_file_cursor (fd, offset, client);
 }
 
-extern "C" struct file_instance get_file_info (int fd) {
+extern "C" struct file_instance get_file_info (uint32_t fd) {
   return volatile_metadata.get_file_info (fd);
 }
