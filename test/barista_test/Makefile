@@ -86,11 +86,11 @@ volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gt
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 persistent_metadata.o : $(USER_DIR)/persistent_metadata.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/persistent_metadata.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/persistent_metadata.cpp -I$(LIBS)
 
 persistent_metadata_unittest.o : $(TEST_DIR)/persistent_metadata_unittest.cpp \
                      $(USER_DIR)/persistent_metadata.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp -I$(LIBS)
 
 persistent_metadata_unittest : persistent_metadata.o persistent_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
