@@ -11,7 +11,9 @@ const char *file_2 = "file 2";
 const int file_1_id = 1;
 const int file_2_id = 2;
 
-struct file_instance inst = {1, 1, 1, 1};
+struct ip_address ip;
+struct client client(ip, 1, 1);
+struct file_instance inst = {client, 1, 0};
 
 TEST (Persistent_Metadata, AddFile) {
   Persistent_Metadata p_meta;

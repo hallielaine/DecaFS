@@ -73,15 +73,14 @@ int open (const char *pathname, int flags, struct client client) {
   struct decafs_file_stat stat;
 
   // If the file does not exist
-  if ((decafs_file_stat ((char *)pathname, &stat, client.user_id,
-                          client.proc_id)) == FILE_NOT_FOUND) {
+  if ((decafs_file_stat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
     // Create the file
     struct timeval time;
     gettimeofday(&time, NULL);
                         // change 4th param to get_replica_size()
                         // implement in vmeta
     file_id = add_file ((char *)pathname, get_stripe_size(), get_chunk_size(),
-                        get_chunk_size(), time, client.user_id, client.proc_id);
+                        get_chunk_size(), time, client);
   }
   else {
     file_id = stat.file_id;
@@ -250,93 +249,92 @@ extern "C" int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf) 
 }
 
 // ------------------------Persistent Metadata Call Throughs---------------------------
-extern "C" int get_num_files (uint32_t user_id, uint32_t proc_id) {
+extern "C" int get_num_files (struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.get_num_files();
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size,
-                              uint32_t user_id, uint32_t proc_id) {
+                              struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.get_filenames(filenames, size);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int decafs_file_stat (char *pathname, struct decafs_file_stat *buf,
-                                 uint32_t user_id, uint32_t proc_id) {
+                                 struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.decafs_file_stat (pathname, buf);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int decafs_stat (char *pathname, struct statvfs *buf,
-                            uint32_t user_id, uint32_t proc_id) {
+                            struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.decafs_stat (pathname, buf);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int set_access_time (file_instance inst, struct timeval time,
-                                uint32_t user_id, uint32_t proc_id) {
+                                struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.set_access_time (inst, time);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int add_file (char *pathname,
                          uint32_t stripe_size, uint32_t chunk_size,
                          uint32_t replica_size, struct timeval time,
-                         uint32_t user_id, uint32_t proc_id) {
+                         struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.add_file (pathname, stripe_size,
                                       chunk_size, replica_size, time);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
-extern "C" int delete_file (uint32_t file_id, uint32_t user_id,
-                            uint32_t proc_id) {
+extern "C" int delete_file (uint32_t file_id, struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.delete_file (file_id);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
 extern "C" int update_file_size (uint32_t file_id, int size_delta,
-                                 uint32_t user_id, uint32_t proc_id) {
+                                 struct client client) {
   int res;
-  if (get_metadata_lock (user_id, proc_id) < 0) {
+  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.update_file_size (file_id, size_delta);
-  release_metadata_lock (user_id, proc_id);
+  release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
 
