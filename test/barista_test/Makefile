@@ -76,11 +76,11 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 volatile_metadata.o : $(USER_DIR)/volatile_metadata.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp $(LIBS)/ip_address/libip_address.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp $(LIBS)/ip_address/libip_address.a -I$(LIBS)
 
 volatile_metadata_unittest.o : $(TEST_DIR)/volatile_metadata_unittest.cpp \
                      $(USER_DIR)/volatile_metadata.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp $(LIBS)/ip_address/libip_address.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp $(LIBS)/ip_address/libip_address.a -I$(LIBS)
 
 volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a $(LIBS)/ip_address/libip_address.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
