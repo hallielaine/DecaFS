@@ -24,6 +24,8 @@
 #define FILE_NOT_OPEN_FOR_WRITE -2
 #define FILE_NOT_OPEN_FOR_READ -3
 
+#define STRIPE_ID_INIT 1
+
 void process_arguments (int argc, char *argv[]);
 void exit_failure (const char *message);
 

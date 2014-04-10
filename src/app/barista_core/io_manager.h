@@ -45,7 +45,7 @@ class IO_Manager {
      *	Distribution and Replication strategies that are in place.
      */
     ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                 uint32_t stripe_id, void *buf,
+                                 uint32_t stripe_id, const void *buf,
                                  int offset, size_t count);
 
     /*
@@ -55,7 +55,7 @@ class IO_Manager {
      *	Distribution and Replication strategies that are in place.
      */
     ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                  uint32_t stripe_id, void *buf,
+                                  uint32_t stripe_id, const void *buf,
                                   int offset, size_t count);
 
     /*
@@ -106,7 +106,7 @@ class IO_Manager {
  *	Distribution and Replication strategies that are in place.
  */
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, void *buf,
+                                        uint32_t stripe_id, const void *buf,
                                         int offset, size_t count);
 
 
@@ -117,7 +117,7 @@ extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
  *	Distribution and Replication strategies that are in place.
  */
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, void *buf,
+                                         uint32_t stripe_id, const void *buf,
                                          int offset, size_t count);
 
 /*

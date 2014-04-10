@@ -5,7 +5,7 @@ IO_Manager::IO_Manager() {
 }
 
 ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, void *buf,
+                                         uint32_t stripe_id, const void *buf,
                                          int offset, size_t count) {
   uint32_t chunk_id, bytes_read = 0, read_size = 0;
   int chunk_offset, node_id;
@@ -49,7 +49,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 }
 
 ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
-                                          uint32_t stripe_id, void *buf,
+                                          uint32_t stripe_id, const void *buf,
                                           int offset, size_t count) {
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id;

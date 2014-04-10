@@ -67,6 +67,17 @@ void exit_failure (const char *message) {
   exit (EXIT_FAILURE);
 }
 
+// ------------------------Helper Functions-------------------------
+void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
+                       int offset) {
+  *id = STRIPE_ID_INIT;
+  while (offset > (int)stripe_size) {
+    (*id)++;
+    offset -= stripe_size;
+  }
+  *stripe_offset = offset;
+}
+
 // ------------------------Core Functions---------------------------
 int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
@@ -114,6 +125,9 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
 ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
+  uint32_t stripe_id;
+  int file_offset, stripe_offset, bytes_written = 0, write_size = 0;
+  
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
   
@@ -123,11 +137,32 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   }
  
   decafs_file_stat (inst.file_id, &stat, client);
-  //ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-  //                              uint32_t stripe_id, void *buf,
-  //                              int offset, size_t count);
+  
+  if ((file_offset = get_file_cursor (fd)) < 0) {
+    return FILE_NOT_OPEN_FOR_WRITE; 
+  }
+
+  // TODO: make some assertion about max write size here
+  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
+          
+  while (bytes_written < (int)count) {
+    if (count - bytes_written > stat.stripe_size - stripe_offset) {
+      write_size = stat.stripe_size - stripe_offset;
+    }
+    else {
+      write_size = count - bytes_written;
+    }
+
+    // TODO: add pathname here, get from persistent meta
+    process_write_stripe (inst.file_id, (char *)"", stripe_id, buf, stripe_offset,
+                          write_size);
+
+    stripe_offset = 0;
+    bytes_written += write_size;
+    ++stripe_id;
+  }
    
-  return 0;
+  return bytes_written;
 }
 
 int close (int fd, struct client client) {
@@ -216,13 +251,13 @@ struct dirent* readdir (DIR *dirp) {
 
 // ------------------------IO Manager Call Throughs---------------------------
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, void *buf,
+                                        uint32_t stripe_id, const void *buf,
                                         int offset, size_t count) {
     return io_manager.process_read_stripe (file_id, pathname, stripe_id, buf, offset, count);
 }
 
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, void *buf,
+                                         uint32_t stripe_id, const void *buf,
                                          int offset, size_t count) {
   return io_manager.process_write_stripe (file_id, pathname, stripe_id, buf, offset, count);
 }
