@@ -170,6 +170,11 @@ class Volatile_Metadata {
      *          if the fd does not exist, INSTANCE_NOT_FOUND is returned.
      */
     int set_file_cursor (struct file_instance inst, uint32_t offset);
+
+    /*
+     * Find the file_instance associated with a given fd.
+     */
+    struct file_instance get_file_info (int fd);
 }; 
 
 /*
@@ -293,5 +298,10 @@ extern "C" int get_file_cursor (struct file_instance inst);
  *          if the fd does not exist, INSTANCE_NOT_FOUND is returned.
  */
 extern "C" int set_file_cursor (struct file_instance inst, uint32_t offset);
+    
+/*
+ * Find the file_instance associated with a given fd.
+ */
+extern "C" struct file_instance get_file_info (int fd);
 
 #endif

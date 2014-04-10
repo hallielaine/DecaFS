@@ -50,7 +50,6 @@ uint32_t Volatile_Metadata::get_node_number (char *ip) {
 
 struct ip_address Volatile_Metadata::get_node_ip (uint32_t node_number) {
   struct ip_address ip;
-  init_ip (&ip);
   
   for (std::map<string, int>::iterator it = ip_to_node_map.begin();
        it != ip_to_node_map.end(); it++) {
@@ -154,6 +153,11 @@ int Volatile_Metadata::set_file_cursor (struct file_instance inst, uint32_t offs
   }
   return INSTANCE_NOT_FOUND;
 }
+ 
+struct file_instance Volatile_Metadata::get_file_info (int fd) {
+  struct file_instance inst;
+  return inst;
+}
 
 bool Volatile_Metadata::ip_to_node_map_contains (char *ip) {
   return (ip_to_node_map.find (ip) != ip_to_node_map.end());
@@ -182,5 +186,4 @@ uint32_t Volatile_Metadata::get_new_fd() {
   fd_mutex.unlock();
 
   return new_fd;
-  
 }

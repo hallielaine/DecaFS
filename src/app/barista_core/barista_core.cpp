@@ -68,20 +68,20 @@ void exit_failure (const char *message) {
 }
 
 // ------------------------Core Functions---------------------------
-int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
+int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
 
   // If the file does not exist
-  if ((decafs_file_stat ((char *)pathname, &stat, user_id,
-                          proc_id)) == FILE_NOT_FOUND) {
+  if ((decafs_file_stat ((char *)pathname, &stat, client.user_id,
+                          client.proc_id)) == FILE_NOT_FOUND) {
     // Create the file
     struct timeval time;
     gettimeofday(&time, NULL);
                         // change 4th param to get_replica_size()
                         // implement in vmeta
     file_id = add_file ((char *)pathname, get_stripe_size(), get_chunk_size(),
-                        get_chunk_size(), time, user_id, proc_id);
+                        get_chunk_size(), time, client.user_id, client.proc_id);
   }
   else {
     file_id = stat.file_id;
@@ -91,7 +91,7 @@ int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
   if (flags == O_RDONLY) {
     // if we can't get a read lock, return that the file is in use so we can't
     // open it
-    if (get_shared_lock (user_id, proc_id, file_id) < 0) {
+    if (get_shared_lock (client.user_id, client.proc_id, file_id) < 0) {
       return FILE_IN_USE;
     }
   }
@@ -99,32 +99,30 @@ int open (const char *pathname, int flags, uint32_t user_id, uint32_t proc_id) {
   else {
     // if we can't get a write lock, return that the file is in use so we can't
     // open it
-    if (get_exclusive_lock (user_id, proc_id, file_id) < 0) {
+    if (get_exclusive_lock (client.user_id, client.proc_id, file_id) < 0) {
       return FILE_IN_USE;
     }
   }
   
-  return new_file_cursor (user_id, proc_id, file_id);
+  return new_file_cursor (client.user_id, client.proc_id, file_id);
 }
 
-ssize_t read (int fd, void *buf, size_t count, uint32_t user_id,
-              uint32_t proc_id) {
+ssize_t read (int fd, void *buf, size_t count, struct client client) {
 
   return 0;
 }
 
-ssize_t write (int fd, const void *buf, size_t count, uint32_t user_id,
-               uint32_t proc_id) {
+ssize_t write (int fd, const void *buf, size_t count, struct client client) {
 
   return 0;
 }
 
-int close (int fd, uint32_t user_id, uint32_t proc_id) {
+int close (int fd, struct client client) {
 
   return 0;
 }
 
-void delete_file (char *pathname, uint32_t user_id, uint32_t proc_id) {
+void delete_file (char *pathname, struct client client) {
 
 }
 
@@ -164,20 +162,20 @@ void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
 }
 
 int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                 uint32_t dest_node, uint32_t user_id, uint32_t proc_id) {
+                 uint32_t dest_node, struct client client) {
 
   return 0;
 }
 
 int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
-                  uint32_t dest_node, uint32_t user_id, uint32_t proc_id) {
+                  uint32_t dest_node, struct client client) {
 
   return 0;
 }
 
 int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
                          uint32_t chunk_num, uint32_t dest_node,
-                         uint32_t user_id, uint32_t proc_id) {
+                         struct client client) {
 
   return 0;
 }
@@ -409,4 +407,8 @@ extern "C" int get_file_cursor (struct file_instance inst) {
 
 extern "C" int set_file_cursor (struct file_instance inst, uint32_t offset) {
   return volatile_metadata.set_file_cursor (inst, offset);
+}
+
+extern "C" struct file_instance get_file_info (int fd) {
+  return volatile_metadata.get_file_info (fd);
 }

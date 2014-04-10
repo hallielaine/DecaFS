@@ -1,6 +1,6 @@
 CXX := g++
 CXXFLAGS := -g -O3 \
-            -Wall -Wextra -Weffc++ -Werror
+            -Wall -Wextra -Weffc++ -Werror -std=c++11
 
 .PHONY: all clean
 

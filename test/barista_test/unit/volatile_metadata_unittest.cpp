@@ -90,7 +90,6 @@ TEST (Volatile_Metadata, AddNode) {
 TEST (Volatile_Metadata, GetNodeIp) {
   Volatile_Metadata v_meta;
   struct ip_address addr;
-  init_ip (&addr);
 
   ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
 
