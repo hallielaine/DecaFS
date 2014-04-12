@@ -154,8 +154,9 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
     }
 
     // TODO: add pathname here, get from persistent meta
-    process_write_stripe (inst.file_id, (char *)"", stripe_id, buf, stripe_offset,
-                          write_size);
+    process_write_stripe (inst.file_id, (char *)"", stripe_id,
+                          stat.stripe_size, stat.chunk_size, buf,
+                          stripe_offset, write_size);
 
     stripe_offset = 0;
     bytes_written += write_size;
@@ -251,15 +252,21 @@ struct dirent* readdir (DIR *dirp) {
 
 // ------------------------IO Manager Call Throughs---------------------------
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, const void *buf,
+                                        uint32_t stripe_id, uint32_t stripe_size,
+                                        uint32_t chunk_size, const void *buf,
                                         int offset, size_t count) {
-    return io_manager.process_read_stripe (file_id, pathname, stripe_id, buf, offset, count);
+    return io_manager.process_read_stripe (file_id, pathname, stripe_id,
+                                           stripe_size, chunk_size, buf,
+                                           offset, count);
 }
 
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, const void *buf,
+                                         uint32_t stripe_id, uint32_t stripe_size,
+                                         uint32_t chunk_size, const void *buf,
                                          int offset, size_t count) {
-  return io_manager.process_write_stripe (file_id, pathname, stripe_id, buf, offset, count);
+  return io_manager.process_write_stripe (file_id, pathname, stripe_id,
+                                          stripe_size, chunk_size, buf,
+                                          offset, count);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,

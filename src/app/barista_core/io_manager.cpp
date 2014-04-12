@@ -5,12 +5,13 @@ IO_Manager::IO_Manager() {
 }
 
 ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, const void *buf,
+                                         uint32_t stripe_id, uint32_t stripe_size,
+                                         uint32_t chunk_size, const void *buf,
                                          int offset, size_t count) {
   uint32_t chunk_id, bytes_read = 0, read_size = 0;
   int chunk_offset, node_id;
   
-  assert ((count - offset) <= get_stripe_size());
+  assert ((count - offset) <= stripe_size);
 
   get_first_chunk (&chunk_id, &chunk_offset, offset);
   
@@ -27,8 +28,8 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
     node_id = chunk_to_node[cur_chunk];
    
     // Determine how much data to read from the current chunk
-    if (count - bytes_read > get_chunk_size() - chunk_offset) {
-      read_size = get_chunk_size() - chunk_offset;
+    if (count - bytes_read > chunk_size - chunk_offset) {
+      read_size = chunk_size - chunk_offset;
     }
     else {
       read_size = count - bytes_read;
@@ -49,12 +50,13 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 }
 
 ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
-                                          uint32_t stripe_id, const void *buf,
+                                          uint32_t stripe_id, uint32_t stripe_size,
+                                          uint32_t chunk_size, const void *buf,
                                           int offset, size_t count) {
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id;
 
-  assert ((count - offset) <= get_stripe_size());
+  assert ((count - offset) <= stripe_size);
   
   get_first_chunk (&chunk_id, &chunk_offset, offset);
 
@@ -78,8 +80,8 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
     replica_node_id = chunk_to_replica_node[cur_chunk];
 
     // Determine the size of the write
-    if (count - bytes_written > get_chunk_size() - chunk_offset) {
-      write_size = get_chunk_size() - chunk_offset;
+    if (count - bytes_written > chunk_size - chunk_offset) {
+      write_size = chunk_size - chunk_offset;
     }
     else {
       write_size = count - bytes_written;
