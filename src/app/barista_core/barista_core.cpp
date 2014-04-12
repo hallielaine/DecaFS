@@ -168,11 +168,11 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
       read_size = count - bytes_read;
     }
 
-    printf ("Sending stripe information %d for processing (%d bytes)\n", 
+    printf ("Sending stripe (%d) information for processing (%d bytes)\n", 
                stripe_id, read_size);
 
     // TODO: add pathname here, get from persistent meta
-    process_write_stripe (inst.file_id, (char *)"", stripe_id,
+    process_read_stripe (inst.file_id, (char *)"", stripe_id,
                           stat.stripe_size, stat.chunk_size, buf,
                           stripe_offset, read_size);
 
