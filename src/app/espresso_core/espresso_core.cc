@@ -31,7 +31,8 @@ ssize_t read_data (int fd, int file_id, int stripe_id, int chunk_num, int offset
 }
 
 ssize_t write_data (int fd, int file_id, int stripe_id, int chunk_num, int offset, void *buf, int count) {
-
+  
+  printf("write_data called, espresso_core\n");
   return write_chunk(fd, file_id, stripe_id, chunk_num, offset, buf, count);
 }
 
