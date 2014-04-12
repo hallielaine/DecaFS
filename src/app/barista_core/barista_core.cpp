@@ -17,6 +17,12 @@ int main (int argc, char *argv[]) {
   printf ("Barista is initialized.\n");
   printf ("\tstripe_size: %d\n\tchunk_size: %d\n", 
            volatile_metadata.get_stripe_size(), volatile_metadata.get_chunk_size());
+   
+  struct ip_address ip;
+  struct client default_client = {ip, 1, 1};
+  int fd = open ("new_file.txt", O_RDWR, default_client);
+  char buf[] = "this is a test.";
+  write (fd, buf, strlen (buf), default_client);
   return 0;
 }
 

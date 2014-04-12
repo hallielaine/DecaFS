@@ -65,19 +65,22 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
     // If the chunk does not exists, create it
     if (!chunk_exists (cur_chunk)) {
       node_id = put_chunk (file_id, pathname, stripe_id, chunk_id);
+      printf ("Chunk doesn't exist. Setting it's id to %d\n", node_id);
       chunk_to_node[cur_chunk] = node_id;
     }
 
     // If the replica does not exist, create it
-    if (!chunk_replica_exists (cur_chunk)) {
+    /*if (!chunk_replica_exists (cur_chunk)) {
       replica_node_id = put_replica (file_id, pathname, stripe_id,
                                      chunk_id);
+      printf ("Chunk Replica doesn't exist. Setting it's id to %d\n", 
+                 replica_node_id);
       chunk_to_replica_node[cur_chunk] = replica_node_id;
-    }
+    }*/
 
     // Ensure that we have the proper node and replica id's to send data to
     node_id = chunk_to_node[cur_chunk];
-    replica_node_id = chunk_to_replica_node[cur_chunk];
+    //replica_node_id = chunk_to_replica_node[cur_chunk];
 
     // Determine the size of the write
     if (count - bytes_written > chunk_size - chunk_offset) {
@@ -89,12 +92,15 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
 
     // Send the write to the node
                         // ADD FD HERE
+    printf ("Processing chunk %d (sending to node %d)\n", chunk_id, node_id);
     process_write_chunk (0, file_id, node_id, stripe_id, chunk_id,
                          chunk_offset, (uint8_t *)buf + bytes_written, write_size);
     // Send the write to the replica node
                         // ADD FD HERE
-    process_write_chunk (0, file_id, replica_node_id, stripe_id, chunk_id,
-                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
+    //printf ("Processing chunk replica %d (sending to node %d)\n", chunk_id, 
+    //           replica_node_id);
+    //process_write_chunk (0, file_id, replica_node_id, stripe_id, chunk_id,
+    //                     chunk_offset, (uint8_t *)buf + bytes_written, write_size);
     // update counters
     chunk_offset = 0;
     bytes_written += write_size;
