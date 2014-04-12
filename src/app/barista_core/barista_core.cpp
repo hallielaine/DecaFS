@@ -22,7 +22,12 @@ int main (int argc, char *argv[]) {
   struct client default_client = {ip, 1, 1};
   int fd = open ("new_file.txt", O_RDWR, default_client);
   char buf[] = "this is a test.";
+  char read_buf[100];
+  memset (read_buf, '\0', 100);
   write (fd, buf, strlen (buf), default_client);
+  int count = read (fd, read_buf, strlen (buf), default_client);
+  printf ("Read %d bytes.\n", count);
+  printf ("Buf is:\n%s\n", read_buf);
   return 0;
 }
 
@@ -129,8 +134,54 @@ int open (const char *pathname, int flags, struct client client) {
 }
 
 ssize_t read (int fd, void *buf, size_t count, struct client client) {
+  struct file_instance inst;
+  struct decafs_file_stat stat;
+  uint32_t stripe_id;
+  int file_offset, stripe_offset, bytes_read = 0, read_size = 0;
 
-  return 0;
+  assert (fd > 0);
+  inst = get_file_info((uint32_t)fd); 
+
+  printf ("Read request (%d bytes)\n", (int)count);
+ 
+  // If the client does not have permission to read, return an error
+  if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
+    if (has_shared_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
+      return FILE_NOT_OPEN_FOR_READ;
+    }
+  }
+  
+  decafs_file_stat (inst.file_id, &stat, client);
+  
+  if ((file_offset = get_file_cursor (fd)) < 0) {
+    return FILE_NOT_OPEN_FOR_READ; 
+  }
+  
+  // TODO: make some assertion about max read size here
+  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
+
+  while (bytes_read < (int)count) {
+    if (count - bytes_read > stat.stripe_size - stripe_offset) {
+      read_size = stat.stripe_size - stripe_offset;
+    }
+    else {
+      read_size = count - bytes_read;
+    }
+
+    printf ("Sending stripe information %d for processing (%d bytes)\n", 
+               stripe_id, read_size);
+
+    // TODO: add pathname here, get from persistent meta
+    process_write_stripe (inst.file_id, (char *)"", stripe_id,
+                          stat.stripe_size, stat.chunk_size, buf,
+                          stripe_offset, read_size);
+
+    stripe_offset = 0;
+    bytes_read += read_size;
+    ++stripe_id;
+  }
+   
+  return bytes_read;
 }
 
 ssize_t write (int fd, const void *buf, size_t count, struct client client) {
