@@ -34,7 +34,8 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
     else {
       read_size = count - bytes_read;
     }
-
+    
+    printf ("Processing chunk %d (sending to node %d)\n", chunk_id, node_id);
     // Send the read to the node
                    // ADD FD HERE
     process_read_chunk (0, file_id, node_id, stripe_id, chunk_id,
