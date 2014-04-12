@@ -82,9 +82,12 @@ void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
 int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
+  
+  printf ("Opening file %s\n", pathname);
 
   // If the file does not exist
   if ((decafs_file_sstat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
+    printf ("File not found... creating now\n");  
     // Create the file
     struct timeval time;
     gettimeofday(&time, NULL);
@@ -96,6 +99,8 @@ int open (const char *pathname, int flags, struct client client) {
   else {
     file_id = stat.file_id;
   }
+
+  printf ("File %s has id %d.\n", pathname, file_id);
   
   // If we're opening with read only, obtain a read lock
   if (flags == O_RDONLY) {
@@ -130,6 +135,8 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
+
+  printf ("Write request (%d bytes)\n", (int)count);
   
   // If the client does not have permission to write, return an error
   if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
@@ -153,6 +160,8 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
       write_size = count - bytes_written;
     }
 
+    printf ("Sending stripe %d for processing (%d bytes)\n", 
+               stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
     process_write_stripe (inst.file_id, (char *)"", stripe_id,
                           stat.stripe_size, stat.chunk_size, buf,
