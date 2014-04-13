@@ -18,15 +18,15 @@ int main(int argc, char** argv) {
   register_delete_data_callback(delete_data);
   
   char storage_file[] = ".data_storage";
-  char *file = (char *)malloc(strlen (argv[FILESYSTEM] +
-                              strlen (storage_file) + 1));
+  char *file = (char *)malloc(strlen (argv[FILESYSTEM]) +
+                              strlen (storage_file) + 1);
   strcpy (file, argv[FILESYSTEM]);
   strcat (file, storage_file);
   
   printf ("Opening storage file %s\n", file);
   
   int storage_file_fd;
-  if ((storage_file_fd  = open (file, O_RDWR | O_CREAT | O_APPEND,
+  if ((storage_file_fd  = open (file, O_RDWR | O_CREAT,
                                 S_IRUSR | S_IWUSR)) < 0) {
     perror("Unable to open data storage file.");
     exit (EXIT_FAILURE);
