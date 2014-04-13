@@ -23,8 +23,17 @@ int main(int argc, char** argv) {
   strcpy (file, argv[FILESYSTEM]);
   strcat (file, storage_file);
   
-  int storage_file_fd = open (file, O_RDWR);
+  printf ("Opening storage file %s\n", file);
   
+  int storage_file_fd;
+  if ((storage_file_fd  = open (file, O_RDWR | O_CREAT | O_APPEND,
+                                S_IRUSR | S_IWUSR)) < 0) {
+    perror("Unable to open data storage file.");
+    exit (EXIT_FAILURE);
+  }
+
+  printf ("storage file open (%d)\n", storage_file_fd);
+   
   espresso_global_data_init (storage_file_fd, NODE_STORAGE_SIZE);
 
   // the svc_main_loop function lives in network core and
