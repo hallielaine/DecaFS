@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
 
   // TODO: Change to proper logging
   printf ("Barista is initialized.\n");
-  printf ("\tstripe_size: %d\n\tchunk_size: %d\n", 
+  printf ("\tstripe_size: %d\n\tchunk_size: %d\n\n", 
            volatile_metadata.get_stripe_size(), volatile_metadata.get_chunk_size());
    
   struct ip_address ip;
@@ -26,8 +26,8 @@ int main (int argc, char *argv[]) {
   memset (read_buf, '\0', 100);
   write (fd, buf, strlen (buf), default_client);
   int count = read (fd, read_buf, strlen (buf), default_client);
-  printf ("Read %d bytes.\n", count);
-  printf ("Buf is:\n%s\n", read_buf);
+  printf ("\n(BARISTA) Read %d bytes.\n", count);
+  printf ("(BARISTA) Buf is:\n%s\n", read_buf);
   return 0;
 }
 
@@ -94,11 +94,11 @@ int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
   
-  printf ("Opening file %s\n", pathname);
+  printf ("\n(BARISTA) Opening file %s\n", pathname);
 
   // If the file does not exist
   if ((decafs_file_sstat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
-    printf ("File not found... creating now\n");  
+    printf ("\tfile not found... creating now\n");  
     // Create the file
     struct timeval time;
     gettimeofday(&time, NULL);
@@ -111,7 +111,7 @@ int open (const char *pathname, int flags, struct client client) {
     file_id = stat.file_id;
   }
 
-  printf ("File %s has id %d.\n", pathname, file_id);
+  printf ("\tfile %s has id %d.\n", pathname, file_id);
   
   // If we're opening with read only, obtain a read lock
   if (flags == O_RDONLY) {
@@ -142,7 +142,7 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
 
-  printf ("Read request (%d bytes)\n", (int)count);
+  printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
  
   // If the client does not have permission to read, return an error
   if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
@@ -168,7 +168,7 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
       read_size = count - bytes_read;
     }
 
-    printf ("Sending stripe (%d) information for processing (%d bytes)\n", 
+    printf ("\tsending stripe (%d) information for processing (%d bytes)\n", 
                stripe_id, read_size);
 
     // TODO: add pathname here, get from persistent meta
@@ -193,7 +193,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
 
-  printf ("Write request (%d bytes)\n", (int)count);
+  printf ("\n(BARISTA) Write request (%d bytes)\n", (int)count);
   
   // If the client does not have permission to write, return an error
   if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
@@ -217,7 +217,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
       write_size = count - bytes_written;
     }
 
-    printf ("Sending stripe %d for processing (%d bytes)\n", 
+    printf ("\tsending stripe %d for processing (%d bytes)\n", 
                stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
     process_write_stripe (inst.file_id, (char *)"", stripe_id,

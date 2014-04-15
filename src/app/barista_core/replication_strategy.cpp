@@ -13,6 +13,9 @@ extern "C" int put_replica (uint32_t file_id, char *pathname,
   }
  
   ip = get_node_ip (node_num);
+  
+  printf ("\t(BARISTA) Put replica.\n");
+  printf ("\t\tip for node %d is %s\n", node_num, ip.addr);
 
   
   // If the ip address for the node cannot be found,

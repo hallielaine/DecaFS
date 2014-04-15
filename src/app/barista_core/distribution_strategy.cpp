@@ -14,7 +14,8 @@ extern "C" int put_chunk (uint32_t file_id, char *pathname, uint32_t stripe_id,
  
   ip = get_node_ip (node_num);
   
-  printf ("Ip for node %d is %s\n", node_num, ip.addr);
+  printf ("\t(BARISTA) Put chunk.\n");
+  printf ("\t\tip for node %d is %s\n", node_num, ip.addr);
 
   // If the ip address for the node cannot be found,
   // return an error
