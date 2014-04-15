@@ -4,8 +4,8 @@
 #include "ip_address/ip_address.h"
 #include "volatile_metadata.h"
 
-#define FIRST_REPLICA 3
-#define SECOND_REPLICA 4
+#define FIRST_REPLICA 2
+#define SECOND_REPLICA 3
 
 #define CANNOT_PUT_REPLICA -1
 
