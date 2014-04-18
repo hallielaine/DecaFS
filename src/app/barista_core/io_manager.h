@@ -100,6 +100,12 @@ class IO_Manager {
      */
     int stat_replica_name (char *pathname, struct decafs_file_stat *buf);
     int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf);
+
+    /*
+     *	Ensure that all filedata is written to disk.
+     */
+     void sync();
+
 };
     
 /*
@@ -162,5 +168,10 @@ extern "C" int stat_file_id (uint32_t file_id, struct decafs_file_stat *buf);
  */
 extern "C" int stat_replica_name (char *pathname, struct decafs_file_stat *buf);
 extern "C" int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf);
+
+/*
+ *	Ensure that all filedata is written to disk.
+ */
+extern "C" void sync();
 
 #endif

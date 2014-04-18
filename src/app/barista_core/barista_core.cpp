@@ -240,10 +240,6 @@ void delete_file (char *pathname, struct client client) {
 
 }
 
-void sync() {
-
-}
-
 int file_stat (const char *path, struct stat *buf) {
 
   return 0;
@@ -365,8 +361,13 @@ extern "C" int stat_file_id (uint32_t file_id, struct decafs_file_stat *buf) {
 extern "C" int stat_replica_name (char *pathname, struct decafs_file_stat *buf) {
   return io_manager.stat_replica_name (pathname, buf);
 }
+
 extern "C" int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf) {
   return io_manager.stat_replica_id (file_id, buf);
+}
+
+extern "C" void sync () {
+  return io_manager.sync();
 }
 
 // ------------------------Persistent Metadata Call Throughs---------------------------

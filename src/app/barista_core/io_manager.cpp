@@ -215,6 +215,11 @@ int IO_Manager::stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf)
   return 0;
 }
 
+void IO_Manager::sync () {
+  // Intentionally left blank, in this implementation, all file data is written
+  // to disk when "write" completes.
+}
+
 bool IO_Manager::chunk_exists (struct file_chunk chunk) {
   return (chunk_to_node.find (chunk) != chunk_to_node.end());
 }

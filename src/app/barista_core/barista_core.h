@@ -69,11 +69,6 @@ int close (int fd, struct client client);
 void delete_file (char *pathname, struct client client);
 
 /*
- *	Ensure that all filedata is written to disk.
- */
-void sync();
-
-/*
  *	Fills struct stat with file info.
  */
 int file_stat (const char *path, struct stat *buf);
