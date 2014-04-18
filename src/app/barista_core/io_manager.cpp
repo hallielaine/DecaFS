@@ -227,7 +227,20 @@ bool IO_Manager::chunk_exists (struct file_chunk chunk) {
 bool IO_Manager::chunk_replica_exists (struct file_chunk chunk) {
   return (chunk_to_replica_node.find (chunk) != chunk_to_replica_node.end());
 }
-    
+
+std::vector<struct file_chunk> IO_Manager::get_all_chunks (uint32_t file_id) {
+  std::vector <struct file_chunk> chunks;
+  
+  for (std::map<struct file_chunk, int>::iterator it = chunk_to_node.begin();
+         it != chunk_to_node.end(); it++) {
+    struct file_chunk cur = it->first;
+    if (cur.file_id == file_id) {
+      chunks.push_back (cur);
+    }
+  }
+  return chunks;
+}
+
 void IO_Manager::get_first_chunk (uint32_t *id, int *chunk_offset, int offset) {
   *id = CHUNK_ID_INIT;
   while (offset > (int)get_chunk_size()) {

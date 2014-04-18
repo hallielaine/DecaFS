@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #include "limits.h"
 #include "file_types.h"
@@ -31,6 +32,8 @@ class IO_Manager {
     // Helper Functions
     bool chunk_exists (struct file_chunk);
     bool chunk_replica_exists (struct file_chunk);
+    //Given a file_id, list all chunks that are part of the file
+    std::vector<struct file_chunk> get_all_chunks (uint32_t file_id);
     // Given offset (a stripe offset) sets id to be the chunk id
     // that the offset it is, and chunk_offset to the offset within
     // the chunk
