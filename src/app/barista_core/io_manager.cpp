@@ -9,7 +9,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                          uint32_t chunk_size, const void *buf,
                                          int offset, size_t count) {
   uint32_t chunk_id, bytes_read = 0, read_size = 0;
-  int chunk_offset, node_id;
+  int chunk_offset, chunk_result, node_id;
   
   assert ((count - offset) <= stripe_size);
   
@@ -19,6 +19,8 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
   
   while (bytes_read < count) {
     struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
+    struct ip_address cur_node;
+
     if (!chunk_exists (cur_chunk)) {
       // Current chunk does not exist. Report and error and stop the read.
       fprintf (stderr, "Could only read %d bytes (out of %d requested.\n",
@@ -28,6 +30,14 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
 
     // The chunk exists, so set the node_id
     node_id = chunk_to_node[cur_chunk];
+    cur_node = get_node_ip (node_id);
+
+    // If the node isn't up, switch to the replica
+    if (!is_node_up ((char *)cur_node.addr)) {
+      assert (chunk_replica_exists (cur_chunk));
+      node_id = chunk_to_replica_node[cur_chunk];
+      cur_node = get_node_ip (node_id);
+    }
    
     // Determine how much data to read from the current chunk
     if (count - bytes_read > chunk_size - chunk_offset) {
@@ -40,13 +50,23 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
     printf ("\tprocessing chunk %d (sending to node %d)\n", chunk_id, node_id);
     // Send the read to the node
                    // ADD FD HERE
-    process_read_chunk (0, file_id, node_id, stripe_id, chunk_id,
-                        chunk_offset, (uint8_t *)buf + bytes_read, read_size);
+    chunk_result = process_read_chunk (0, file_id, node_id, stripe_id,
+                                      chunk_id, chunk_offset, 
+                                      (uint8_t *)buf + bytes_read,
+                                      read_size);
 
-    // update counters
-    chunk_offset = 0;
-    bytes_read += read_size;
-    chunk_id++;
+    // If the node cannot be read from
+    if (chunk_result < 0) {
+      // Mark the node as "down"
+      set_node_down (cur_node.addr);
+    }
+    // The read suceeded, so move on
+    else {
+      // update counters
+      chunk_offset = 0;
+      bytes_read += read_size;
+      chunk_id++;
+    }
   }
 
   return bytes_read;
@@ -57,7 +77,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
                                           uint32_t chunk_size, const void *buf,
                                           int offset, size_t count) {
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
-  int chunk_offset, node_id, replica_node_id;
+  int chunk_offset, node_id, replica_node_id, write_result;
 
   assert ((count - offset) <= stripe_size);
   printf ("\n(BARISTA) Process Write Stripe\n");
@@ -66,6 +86,8 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
 
   while (bytes_written < count) {
     struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
+    struct ip_address cur_node, cur_replica_node;
+    
     // If the chunk does not exists, create it
     if (!chunk_exists (cur_chunk)) {
       node_id = put_chunk (file_id, pathname, stripe_id, chunk_id);
@@ -84,7 +106,9 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
 
     // Ensure that we have the proper node and replica id's to send data to
     node_id = chunk_to_node[cur_chunk];
-    //replica_node_id = chunk_to_replica_node[cur_chunk];
+    cur_node = get_node_ip (node_id);
+    replica_node_id = chunk_to_replica_node[cur_chunk];
+    cur_replica_node = get_node_ip (replica_node_id);
 
     // Determine the size of the write
     if (count - bytes_written > chunk_size - chunk_offset) {
@@ -97,18 +121,39 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
     // Send the write to the node
                         // ADD FD HERE
     printf ("\tprocessing chunk %d (sending to node %d)\n", chunk_id, node_id);
-    process_write_chunk (0, file_id, node_id, stripe_id, chunk_id,
-                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
-    // Send the write to the replica node
-                        // ADD FD HERE
-    printf ("\tprocessing chunk replica %d (sending to node %d)\n", chunk_id, 
-               replica_node_id);
-    process_write_chunk (0, file_id, replica_node_id, stripe_id, chunk_id,
-                         chunk_offset, (uint8_t *)buf + bytes_written, write_size);
-    // update counters
-    chunk_offset = 0;
-    bytes_written += write_size;
-    chunk_id++;
+    write_result = process_write_chunk (0, file_id, node_id, stripe_id,
+                                        chunk_id, chunk_offset, (uint8_t *)buf
+                                        + bytes_written, write_size);
+    // If the write failed
+    if (write_result < 0) {
+      // Set the node to "down" and try again
+      set_node_down (cur_node.addr);
+    }
+    else {
+      // Send the write to the replica node
+                          // ADD FD HERE
+      printf ("\tprocessing chunk replica %d (sending to node %d)\n", chunk_id, 
+                 replica_node_id);
+      write_result = process_write_chunk (0, file_id, replica_node_id, stripe_id,
+                                          chunk_id, chunk_offset, (uint8_t *)buf
+                                          + bytes_written, write_size);
+      // if the replica write failed
+      if (write_result < 0) {
+        // Set the node to "down"
+        set_node_down (cur_replica_node.addr);
+        // Choose a different replica
+        replica_node_id = put_replica (file_id, pathname, stripe_id,
+                                       chunk_id);
+        // Re-write the data
+        process_write_chunk (0, file_id, replica_node_id, stripe_id,
+                             chunk_id, chunk_offset, (uint8_t *)buf
+                             + bytes_written, write_size);
+      }
+      // update counters
+      chunk_offset = 0;
+      bytes_written += write_size;
+      chunk_id++;
+    }
   }
 
   return bytes_written;

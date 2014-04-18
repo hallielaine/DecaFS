@@ -72,6 +72,7 @@ int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
 
 uint32_t Volatile_Metadata::set_node_down (char *ip) {
   if (up_nodes_contains (ip)) {
+    printf ("(BARISTA) Setting node %s to DOWN\n", ip);
     up_nodes.remove (ip);
     return V_META_SUCCESS;
   }
@@ -83,6 +84,7 @@ uint32_t Volatile_Metadata::set_node_up (char *ip) {
     return V_META_SUCCESS;
   }
   else if (ip_to_node_map_contains (ip)) {
+    printf ("(BARISTA) Setting node %s to UP\n", ip);
     up_nodes.push_back (ip);
     return V_META_SUCCESS;
   }
