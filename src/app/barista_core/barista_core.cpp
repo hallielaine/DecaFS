@@ -25,6 +25,11 @@ int main (int argc, char *argv[]) {
   char read_buf[100];
   memset (read_buf, '\0', 100);
   write (fd, buf, strlen (buf), default_client);
+
+  printf ("Sleeping for 10 seconds\n");
+  sleep (10);
+  printf ("Good morning.\n\n");
+
   int count = read (fd, read_buf, strlen (buf), default_client);
   printf ("\n(BARISTA) Read %d bytes.\n", count);
   printf ("(BARISTA) Buf is:\n%s\n", read_buf);

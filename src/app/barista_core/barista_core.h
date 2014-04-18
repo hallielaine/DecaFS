@@ -2,12 +2,13 @@
 #define __BARISTA_CORE_H__
 
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 #include "limits.h"
 #include "file_types.h"
