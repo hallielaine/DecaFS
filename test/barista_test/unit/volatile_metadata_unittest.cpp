@@ -230,8 +230,9 @@ TEST (Volatile_Metadata, FileCursorDelete) {
   EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
   EXPECT_EQ (0, v_meta.get_file_cursor (1));
   EXPECT_EQ (WRONG_CLIENT, v_meta.close_file_cursor (1, bad_client));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.close_file_cursor (2, client));
   EXPECT_EQ (0, v_meta.get_file_cursor (1));
-  v_meta.close_file_cursor (1, client);
+  EXPECT_EQ (1, v_meta.close_file_cursor (1, client));
   EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (1));
 }
 
