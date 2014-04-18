@@ -233,11 +233,31 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
 }
 
 int close (int fd, struct client client) {
-  return close_file_cursor (fd, client);
+  int file_id = close_file_cursor (fd, client);
+  // If we successfully closed the file, release the lock
+  if (file_id > 0) {
+    release_lock (client.user_id, client.proc_id, file_id);
+  }
+  return file_id;
 }
 
-void delete_file (char *pathname, struct client client) {
+int delete_file (char *pathname, struct client client) {
+  struct decafs_file_stat file_info;
+  
+  // If the file doesn't exist
+  if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
+    return FILE_NOT_FOUND;
+  }
 
+  if (get_exclusive_lock (client.user_id, client.proc_id,
+                          file_info.file_id) < 0) {
+    return FILE_IN_USE;
+  }
+ 
+  process_delete_file (file_info.file_id);
+  release_lock (client.user_id, client.proc_id, file_info.file_id);
+  
+  return file_info.file_id;
 }
 
 int file_stat (const char *path, struct stat *buf) {
@@ -329,6 +349,10 @@ extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
   return io_manager.process_write_stripe (file_id, pathname, stripe_id,
                                           stripe_size, chunk_size, buf,
                                           offset, count);
+}
+
+extern "C" void process_delete_file (uint32_t file_id) {
+  io_manager.process_delete_file (file_id);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,

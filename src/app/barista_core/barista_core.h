@@ -66,7 +66,7 @@ int close (int fd, struct client client);
  *	Removes a file from DecaFS.
  *	@ return >= 0 success, < 0 failure
  */
-void delete_file (char *pathname, struct client client);
+int delete_file (char *pathname, struct client client);
 
 /*
  *	Fills struct stat with file info.

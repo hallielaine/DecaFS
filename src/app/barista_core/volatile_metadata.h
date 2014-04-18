@@ -155,6 +155,10 @@ class Volatile_Metadata {
 
     /*
      *   Remove a file cursor for an open instance of a file.
+     *   @return id of the file closed on success
+     *   @return INSTANCE_NOT_FOUND if fd does not exist
+     *   @return WRONG_CLIENT if the client doesn't match the client who
+     *           opened the file
      */
     int close_file_cursor (uint32_t fd, struct client client);
 
@@ -283,6 +287,10 @@ extern "C" int new_file_cursor (uint32_t file_id, struct client client);
 
 /*
  *   Remove a file cursor for an open instance of a file.
+ *   @return id of the file closed on success
+ *   @return INSTANCE_NOT_FOUND if fd does not exist
+ *   @return WRONG_CLIENT if the client doesn't match the client who
+ *           opened the file
  */
 extern "C" int close_file_cursor (uint32_t fd, struct client client);
 

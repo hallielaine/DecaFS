@@ -159,6 +159,10 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
   return bytes_written;
 }
 
+void IO_Manager::process_delete_file (uint32_t file_id) {
+  std::vector<struct file_chunk> chunks = get_all_chunks (file_id); 
+}
+
 int IO_Manager::set_node_id (uint32_t file_id, uint32_t stripe_id,
                              uint32_t chunk_num, uint32_t node_id) {
   if (node_exists (node_id)) {

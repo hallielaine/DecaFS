@@ -137,15 +137,18 @@ int Volatile_Metadata::new_file_cursor (uint32_t file_id,
 
 int Volatile_Metadata::close_file_cursor (uint32_t fd,
                                           struct client client) {
+  struct file_instance file;
   if (file_cursors_contains (fd)) {
-    if (file_cursors[fd].client_id == client) {
+    file = file_cursors[fd];
+    if (file.client_id == client) {
       file_cursors.erase(fd);
+      return file.file_id;
     }
     else {
       return WRONG_CLIENT;
     }
   }
-  return V_META_SUCCESS;
+  return INSTANCE_NOT_FOUND;
 }
 
 int Volatile_Metadata::get_file_cursor (uint32_t fd) {

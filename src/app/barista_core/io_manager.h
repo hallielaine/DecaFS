@@ -62,6 +62,11 @@ class IO_Manager {
                                   uint32_t stripe_id, uint32_t stripe_size,
                                   uint32_t chunk_size, const void *buf,
                                   int offset, size_t count);
+    
+    /*
+     *   Delete all chunks and replicas for a given file.
+     */
+    void process_delete_file (uint32_t file_id);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
@@ -132,6 +137,11 @@ extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, uint32_t stripe_size,
                                          uint32_t chunk_size, const void *buf,
                                          int offset, size_t count);
+    
+/*
+ *   Delete all chunks and replicas for a given file.
+ */
+extern "C" void process_delete_file (uint32_t file_id);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.
