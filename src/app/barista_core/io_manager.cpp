@@ -161,6 +161,18 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
 
 void IO_Manager::process_delete_file (uint32_t file_id) {
   std::vector<struct file_chunk> chunks = get_all_chunks (file_id); 
+
+  for (std::vector<struct file_chunk>::iterator it = chunks.begin();
+       it != chunks.end(); it++) {
+    if (chunk_exists (*it)) {
+      // TODO: call access layer remove chunk here when implemented
+      chunk_to_node.erase (*it);
+    }
+    if (chunk_replica_exists (*it)) {
+      // TODO: call access layer remove chunk here when implemented
+      chunk_to_replica_node.erase (*it);
+    }
+  }
 }
 
 int IO_Manager::set_node_id (uint32_t file_id, uint32_t stripe_id,
