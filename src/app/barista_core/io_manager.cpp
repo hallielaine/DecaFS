@@ -54,9 +54,10 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                       chunk_id, chunk_offset, 
                                       (uint8_t *)buf + bytes_read,
                                       read_size);
-
+    
     // If the node cannot be read from
-    if (chunk_result < 0) {
+    // TODO: uncomment when network layer reports failures
+    /*if (chunk_result < 0) {
       // Mark the node as "down"
       set_node_down (cur_node.addr);
     }
@@ -66,7 +67,11 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
       chunk_offset = 0;
       bytes_read += read_size;
       chunk_id++;
-    }
+    }*/
+    // update counters
+    chunk_offset = 0;
+    bytes_read += read_size;
+    chunk_id++;
   }
 
   return bytes_read;
@@ -125,7 +130,8 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
                                         chunk_id, chunk_offset, (uint8_t *)buf
                                         + bytes_written, write_size);
     // If the write failed
-    if (write_result < 0) {
+    // TODO: uncomment when network layer reports errors
+    /*if (write_result < 0) {
       // Set the node to "down" and try again
       set_node_down (cur_node.addr);
     }
@@ -153,7 +159,16 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
       chunk_offset = 0;
       bytes_written += write_size;
       chunk_id++;
-    }
+    }*/
+    printf ("\tprocessing chunk replica %d (sending to node %d)\n", chunk_id, 
+               replica_node_id);
+    write_result = process_write_chunk (0, file_id, replica_node_id, stripe_id,
+                                        chunk_id, chunk_offset, (uint8_t *)buf
+                                        + bytes_written, write_size);
+    // update counters
+    chunk_offset = 0;
+    bytes_written += write_size;
+    chunk_id++;
   }
 
   return bytes_written;

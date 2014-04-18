@@ -22,17 +22,33 @@ int main (int argc, char *argv[]) {
   struct client default_client = {ip, 1, 1};
   int fd = open ("new_file.txt", O_RDWR, default_client);
   char buf[] = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100";
-  char read_buf[100];
-  memset (read_buf, '\0', 100);
+  char read_buf[1000];
+  memset (read_buf, '\0', 1000);
+  printf ("\n\n ------------------------------FIRST WRITE------------------------------\n");
   write (fd, buf, strlen (buf), default_client);
 
   printf ("Sleeping for 10 seconds\n");
   sleep (10);
   printf ("Good morning.\n\n");
+  
+  close (fd, default_client);
+  fd = open ("new_file.txt", O_RDWR, default_client);
 
+  printf ("\n\n ------------------------------FIRST READ--------------------------------\n");
   int count = read (fd, read_buf, strlen (buf), default_client);
   printf ("\n(BARISTA) Read %d bytes.\n", count);
   printf ("(BARISTA) Buf is:\n%s\n", read_buf);
+
+  /*printf ("\n\n ------------------------------SECOND WRITE------------------------------\n");
+  write (fd, buf, strlen (buf), default_client);
+  
+  close (fd, default_client);
+  fd = open ("new_file.txt", O_RDWR, default_client);
+  
+  printf ("\n\n ------------------------------SECOND READ--------------------------------\n");
+  count = read (fd, read_buf, 2*strlen (buf), default_client);
+  printf ("\n(BARISTA) Read %d bytes.\n", count);
+  printf ("(BARISTA) Buf is:\n%s\n", read_buf);*/
   return 0;
 }
 
@@ -166,6 +182,7 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
 
   while (bytes_read < (int)count) {
+    printf ("file cursor: %d\n", get_file_cursor(fd));
     if (count - bytes_read > stat.stripe_size - stripe_offset) {
       read_size = stat.stripe_size - stripe_offset;
     }
@@ -181,12 +198,12 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
                           stat.stripe_size, stat.chunk_size, buf,
                           stripe_offset, read_size);
 
-    set_file_cursor (fd, get_file_cursor (fd) + read_size, client);
     stripe_offset = 0;
     bytes_read += read_size;
     ++stripe_id;
   }
-   
+    
+  set_file_cursor (fd, get_file_cursor (fd) + bytes_read, client);
   return bytes_read;
 }
 
@@ -216,6 +233,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
           
   while (bytes_written < (int)count) {
+    printf ("file cursor: %d\n", get_file_cursor(fd));
     if (count - bytes_written > stat.stripe_size - stripe_offset) {
       write_size = stat.stripe_size - stripe_offset;
     }
@@ -230,12 +248,12 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
                           stat.stripe_size, stat.chunk_size, buf,
                           stripe_offset, write_size);
 
-    set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
     stripe_offset = 0;
     bytes_written += write_size;
     ++stripe_id;
   }
-   
+  
+  set_file_cursor (fd, get_file_cursor (fd) + bytes_written, client);
   return bytes_written;
 }
 
