@@ -181,6 +181,7 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
                           stat.stripe_size, stat.chunk_size, buf,
                           stripe_offset, read_size);
 
+    set_file_cursor (fd, get_file_cursor (fd) + read_size, client);
     stripe_offset = 0;
     bytes_read += read_size;
     ++stripe_id;
@@ -229,6 +230,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
                           stat.stripe_size, stat.chunk_size, buf,
                           stripe_offset, write_size);
 
+    set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
     stripe_offset = 0;
     bytes_written += write_size;
     ++stripe_id;
