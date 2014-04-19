@@ -1,19 +1,4 @@
-.SUFFIXES:
-.SUFFIXES: .c .o
-NETWORK = libnetcore.a
-CFLAGS = -g -Wall
-
+LIB := libnetcore.a
 OBJS = esp_svc.o network_svc.o network_xdr.o network_clnt.o bar_clnt.o
 
-.c.o:; g++ -c -o $@ $(CFLAGS) $<
-
-default: $(NETWORK)
-
-$(NETWORK): $(OBJS)
-	ar -cvq $(NETWORK) $(OBJS)
-	#gcc -o $(NETWORK) $(OBJS)
-
-clean:
-	rm *.o $(NETWORK)
-	rm -i *~
-	rm core
+include ../../lib.mk
