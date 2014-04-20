@@ -252,7 +252,7 @@ void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
 }
 
 // ------------------------Core Functions---------------------------
-int open (const char *pathname, int flags, struct client client) {
+extern "C" int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
   int cursor;
@@ -301,7 +301,7 @@ int open (const char *pathname, int flags, struct client client) {
   return cursor;
 }
 
-ssize_t read (int fd, void *buf, size_t count, struct client client) {
+extern "C" ssize_t read (int fd, void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
@@ -354,7 +354,7 @@ ssize_t read (int fd, void *buf, size_t count, struct client client) {
   return bytes_read;
 }
 
-ssize_t write (int fd, const void *buf, size_t count, struct client client) {
+extern "C" ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
@@ -406,7 +406,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
   return bytes_written;
 }
 
-int close (int fd, struct client client) {
+extern "C" int close (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
   // If we successfully closed the file, release the lock
   if (file_id > 0) {
@@ -415,7 +415,7 @@ int close (int fd, struct client client) {
   return file_id;
 }
 
-int delete_file (char *pathname, struct client client) {
+extern "C" int delete_file (char *pathname, struct client client) {
   struct decafs_file_stat file_info;
   
   // If the file doesn't exist
@@ -434,7 +434,7 @@ int delete_file (char *pathname, struct client client) {
   return file_info.file_id;
 }
 
-int file_seek (int fd, uint32_t offset, int whence, struct client client) {
+extern "C" int file_seek (int fd, uint32_t offset, int whence, struct client client) {
   int cursor_val;
   if (whence == SEEK_SET) {
     set_file_cursor (fd, 0, client);
@@ -445,74 +445,74 @@ int file_seek (int fd, uint32_t offset, int whence, struct client client) {
   return get_file_cursor (fd);
 }
 
-int file_stat (const char *path, struct stat *buf) {
+extern "C" int file_stat (const char *path, struct stat *buf) {
 
   return 0;
 }
 
-int file_fstat (int fd, struct stat *buf) {
+extern "C" int file_fstat (int fd, struct stat *buf) {
 
   return 0;
 }
 
-void statfs (char *pathname, struct statvfs * stat) {
+extern "C" void statfs (char *pathname, struct statvfs * stat) {
 
 }
 
-void register_monitor_module (void (*monitor_module), 
-                              struct timeval timeout) {
+extern "C" void register_monitor_module (void (*monitor_module), 
+                                         struct timeval timeout) {
 
 }
 
-void register_node_failure_handler (void (*failure_handler)) {
+extern "C" void register_node_failure_handler (void (*failure_handler)) {
 
 }
 
-void register_chunk_metadata_handler (void (*metadata_handler)) {
+extern "C" void register_chunk_metadata_handler (void (*metadata_handler)) {
 
 }
 
-void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
+extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
 
 }
 
-int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                 uint32_t dest_node, struct client client) {
+extern "C" int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
+                           uint32_t dest_node, struct client client) {
 
   return 0;
 }
 
-int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
-                  uint32_t dest_node, struct client client) {
+extern "C" int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                            uint32_t dest_node, struct client client) {
 
   return 0;
 }
 
-int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
-                         uint32_t chunk_num, uint32_t dest_node,
-                         struct client client) {
+extern "C" int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
+                                   uint32_t chunk_num, uint32_t dest_node,
+                                   struct client client) {
 
   return 0;
 }
 
-int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
-                          uint32_t chunk_num, uint32_t dest_node,
-                          uint32_t user_id, uint32_t proc_id) {
+extern "C" int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                                    uint32_t chunk_num, uint32_t dest_node,
+                                    uint32_t user_id, uint32_t proc_id) {
 
   return 0;
 }
 
-int mkdir (const char* dirname) {
+extern "C" int mkdir (const char* dirname) {
 
   return 0;
 }
 
-DIR* opendir (const char* name) {
+extern "C" DIR* opendir (const char* name) {
 
   return NULL;
 }
 
-struct dirent* readdir (DIR *dirp) {
+extern "C" struct dirent* readdir (DIR *dirp) {
 
   return NULL;
 }
