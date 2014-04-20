@@ -29,23 +29,26 @@ int main (int argc, char *argv[]) {
   printf ("(\n(BARISTA) wrote %d bytes.\n", count);
   
   close (fd, default_client);
-  fd = open ("new_file.txt", O_RDWR, default_client);
+  fd = open ("new_file.txt", O_RDONLY, default_client);
 
   printf ("\n\n ------------------------------FIRST READ--------------------------------\n");
   count = read (fd, read_buf, strlen (buf), default_client);
   printf ("\n(BARISTA) Read %d bytes.\n", count);
   printf ("(BARISTA) Buf is:\n%s\n", read_buf);
+  
+  close (fd, default_client);
+  fd = open ("new_file.txt", O_RDWR | O_APPEND, default_client);
 
-  /*printf ("\n\n ------------------------------SECOND WRITE------------------------------\n");
+  printf ("\n\n ------------------------------SECOND WRITE------------------------------\n");
   write (fd, buf, strlen (buf), default_client);
   
   close (fd, default_client);
-  fd = open ("new_file.txt", O_RDWR, default_client);
+  fd = open ("new_file.txt", O_RDONLY, default_client);
   
   printf ("\n\n ------------------------------SECOND READ--------------------------------\n");
   count = read (fd, read_buf, 2*strlen (buf), default_client);
   printf ("\n(BARISTA) Read %d bytes.\n", count);
-  printf ("(BARISTA) Buf is:\n%s\n", read_buf);*/
+  printf ("(BARISTA) Buf is:\n%s\n", read_buf);
   return 0;
 }
 
@@ -113,8 +116,6 @@ int open (const char *pathname, int flags, struct client client) {
   struct decafs_file_stat stat;
   int cursor;
 
-  printf ("\n(BARISTA) Opening file %s\n", pathname);
-
   // If the file does not exist
   if ((decafs_file_sstat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
     printf ("\tfile not found... creating now\n");  
@@ -133,22 +134,22 @@ int open (const char *pathname, int flags, struct client client) {
   printf ("\tfile %s has id %d.\n", pathname, file_id);
   
   // If we're opening with read only, obtain a read lock
-  if (flags & O_RDONLY) {
-    // if we can't get a read lock, return that the file is in use so we can't
-    // open it
-    if (get_shared_lock (client.user_id, client.proc_id, file_id) < 0) {
-      return FILE_IN_USE;
-    }
-    printf ("\tobtained a read lock.\n");
-  }
-  // obtain a write lock
-  else {
+  if (flags & O_RDWR) {
     // if we can't get a write lock, return that the file is in use so we can't
     // open it
     if (get_exclusive_lock (client.user_id, client.proc_id, file_id) < 0) {
       return FILE_IN_USE;
     }
     printf ("\tobtained a write lock.\n");
+  }
+  // obtain a write lock
+  else {
+    // if we can't get a read lock, return that the file is in use so we can't
+    // open it
+    if (get_shared_lock (client.user_id, client.proc_id, file_id) < 0) {
+      return FILE_IN_USE;
+    }
+    printf ("\tobtained a read lock.\n");
   }
   
   cursor = new_file_cursor (file_id, client);
