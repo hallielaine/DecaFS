@@ -246,7 +246,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
                           (uint8_t *)buf + bytes_written, stripe_offset,
                           write_size);
 
-    update_file_size (inst.file_id, write_size);
+    update_file_size (inst.file_id, write_size, client);
     set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
     stripe_offset = 0;
     bytes_written += write_size;
