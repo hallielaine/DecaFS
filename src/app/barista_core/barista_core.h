@@ -34,12 +34,14 @@ const char *get_size_error_message (const char *type, const char *value);
 
 /*
  *	Open a file for read or write access.
- *	If a file is opened for read access, no exclusive locks are held 
- *	for the file and no other client has any lock on the file, a 
- *	shared lock is granted.
- *	If a file is opened for write access, and there are no locks on  
- *	the file, an exclusive lock is granted.
+ *
+ * Flags:
+ *   O_RDONLY open a file for reading
+ *   O_RDWR open a file for both reading and writing
+ *   O_APPEND start the file cursor at the end of the file
+ *
  *	@ return the file id for the newly opened file (non-zero)
+ *     FILE_IN_USE if the proper lock cannot be obtained
  */
 int open (const char *pathname, int flags, struct client client);
 
