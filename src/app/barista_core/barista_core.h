@@ -70,6 +70,22 @@ int close (int fd, struct client client);
 int delete_file (char *pathname, struct client client);
 
 /*
+ * Moves the file cursor to the location specificed by whence, plus offset
+ * bytes.
+ *
+ * If the whence and offset cause the cursor to be set past the end of the file
+ * it will be set to the end of the file.
+ *
+ * whence:
+ *   SEEK_SET move to offset from the beginning of the file
+ *   SEEK_CUR move to offset from the current location of the fd
+ *
+ * @return the cursor's new location on success and < 0 on failure
+ *          
+ */
+int file_seek (int fd, uint32_t offset, int whence, struct client client);
+
+/*
  *	Fills struct stat with file info.
  */
 int file_stat (const char *path, struct stat *buf);

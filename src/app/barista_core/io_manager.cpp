@@ -15,7 +15,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
   
   printf ("\n(BARISTA) Process Read Stripe\n");
 
-  get_first_chunk (&chunk_id, &chunk_offset, offset);
+  get_first_chunk (&chunk_id, chunk_size, &chunk_offset, offset);
   
   while (bytes_read < count) {
     struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
@@ -56,6 +56,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                       (uint8_t *)buf + bytes_read,
                                       read_size);
     
+    printf ("\t\treceived %d from network call.\n", chunk_result);
     // If the node cannot be read from
     // TODO: uncomment when network layer reports failures
     /*if (chunk_result < 0) {
@@ -88,7 +89,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
   assert ((count - offset) <= stripe_size);
   printf ("\n(BARISTA) Process Write Stripe\n");
   
-  get_first_chunk (&chunk_id, &chunk_offset, offset);
+  get_first_chunk (&chunk_id, chunk_size, &chunk_offset, offset);
 
   while (bytes_written < count) {
     struct file_chunk cur_chunk = {file_id, stripe_id, chunk_id};
@@ -130,6 +131,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
     write_result = process_write_chunk (0, file_id, node_id, stripe_id,
                                         chunk_id, chunk_offset, (uint8_t *)buf
                                         + bytes_written, write_size);
+    printf ("\t\treceived %d from network call.\n", write_result);
     // If the write failed
     // TODO: uncomment when network layer reports errors
     /*if (write_result < 0) {
@@ -273,11 +275,11 @@ std::vector<struct file_chunk> IO_Manager::get_all_chunks (uint32_t file_id) {
   return chunks;
 }
 
-void IO_Manager::get_first_chunk (uint32_t *id, int *chunk_offset, int offset) {
+void IO_Manager::get_first_chunk (uint32_t *id, uint32_t chunk_size, int *chunk_offset, int offset) {
   *id = CHUNK_ID_INIT;
-  while (offset > (int)get_chunk_size()) {
+  while (offset > (int)chunk_size) {
     (*id)++;
-    offset -= get_chunk_size();
+    offset -= chunk_size;
   }
   *chunk_offset = offset;
 }

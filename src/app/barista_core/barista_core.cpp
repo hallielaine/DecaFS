@@ -246,6 +246,7 @@ ssize_t write (int fd, const void *buf, size_t count, struct client client) {
                           (uint8_t *)buf + bytes_written, stripe_offset,
                           write_size);
 
+    update_file_size (inst.file_id, write_size);
     set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
     stripe_offset = 0;
     bytes_written += write_size;
@@ -281,6 +282,17 @@ int delete_file (char *pathname, struct client client) {
   release_lock (client.user_id, client.proc_id, file_info.file_id);
   
   return file_info.file_id;
+}
+
+int file_seek (int fd, uint32_t offset, int whence, struct client client) {
+  int cursor_val;
+  if (whence == SEEK_SET) {
+    set_file_cursor (fd, 0, client);
+  }
+  if ((cursor_val = get_file_cursor (fd)) >= 0) {
+    set_file_cursor (fd, cursor_val + offset, client);
+  }
+  return get_file_cursor (fd);
 }
 
 int file_stat (const char *path, struct stat *buf) {

@@ -160,9 +160,18 @@ int Volatile_Metadata::get_file_cursor (uint32_t fd) {
 
 int Volatile_Metadata::set_file_cursor (uint32_t fd, uint32_t offset,
                                         struct client client) {
+  struct file_instance inst;
+  struct decafs_file_stat info;
+
   if (file_cursors_contains (fd)) {
     if (file_cursors[fd].client_id == client) {
-      // TODO: Add error checking to ensure that only valid offsets can be set
+      // Ensure that the file cursor is set to end of file at most
+      inst = get_file_info (fd);
+      decafs_file_stat (inst.file_id, &info, client);
+      if (offset > info.size) {
+        offset = info.size;
+      }
+
       file_cursors[fd].offset = offset;
       return offset;
     }

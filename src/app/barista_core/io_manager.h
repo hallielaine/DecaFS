@@ -37,7 +37,7 @@ class IO_Manager {
     // Given offset (a stripe offset) sets id to be the chunk id
     // that the offset it is, and chunk_offset to the offset within
     // the chunk
-    void get_first_chunk (uint32_t *id, int *chunk_offset, int offset);
+    void get_first_chunk (uint32_t *id, uint32_t chunk_size, int *chunk_offset, int offset);
 
   public:
     IO_Manager();

@@ -13,6 +13,7 @@
 
 #include "limits.h"
 #include "file_types.h"
+#include "persistent_metadata.h"
 #include "ip_address/ip_address.h"
 
 #define V_META_SUCCESS 0
