@@ -111,7 +111,8 @@ void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
 int open (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
-  
+  int cursor;
+
   printf ("\n(BARISTA) Opening file %s\n", pathname);
 
   // If the file does not exist
@@ -132,12 +133,13 @@ int open (const char *pathname, int flags, struct client client) {
   printf ("\tfile %s has id %d.\n", pathname, file_id);
   
   // If we're opening with read only, obtain a read lock
-  if (flags == O_RDONLY) {
+  if (flags & O_RDONLY) {
     // if we can't get a read lock, return that the file is in use so we can't
     // open it
     if (get_shared_lock (client.user_id, client.proc_id, file_id) < 0) {
       return FILE_IN_USE;
     }
+    printf ("\tobtained a read lock.\n");
   }
   // obtain a write lock
   else {
@@ -146,9 +148,15 @@ int open (const char *pathname, int flags, struct client client) {
     if (get_exclusive_lock (client.user_id, client.proc_id, file_id) < 0) {
       return FILE_IN_USE;
     }
+    printf ("\tobtained a write lock.\n");
   }
   
-  return new_file_cursor (file_id, client);
+  cursor = new_file_cursor (file_id, client);
+  if (flags & O_APPEND) {
+    printf ("\tfile opened with O_APPEND, moving cursor to EOF.\n");
+    set_file_cursor (cursor, stat.size, client);
+  }
+  return cursor;
 }
 
 ssize_t read (int fd, void *buf, size_t count, struct client client) {
