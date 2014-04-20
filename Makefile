@@ -2,8 +2,9 @@ lib_network := src/lib/network_core
 lib_espresso_storage := src/lib/espresso_storage
 lib_ip_address := src/lib/ip_address
 lib_access := src/lib/access
+lib_nettcp := src/lib/net_tcp
 
-libraries := $(lib_network) $(lib_espresso_storage) $(lib_ip_address) $(lib_access)
+libraries := $(lib_network) $(lib_espresso_storage) $(lib_ip_address) $(lib_access) $(lib_nettcp)
 
 decafs_barista := src/app/barista_core
 decafs_espresso := src/app/espresso_core
