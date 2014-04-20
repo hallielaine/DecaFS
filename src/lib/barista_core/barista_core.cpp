@@ -146,12 +146,12 @@ extern "C" int add_file (char *pathname,
   return res;
 }
 
-extern "C" int delete_file (uint32_t file_id, struct client client) {
+extern "C" int delete_file_contents (uint32_t file_id, struct client client) {
   int res;
   if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.delete_file (file_id);
+  res = persistent_metadata.delete_file_contents (file_id);
   release_metadata_lock (client.user_id, client.proc_id);
   return res;
 }
@@ -252,7 +252,7 @@ void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
 }
 
 // ------------------------Core Functions---------------------------
-extern "C" int open (const char *pathname, int flags, struct client client) {
+extern "C" int open_file (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
   int cursor;
@@ -301,7 +301,7 @@ extern "C" int open (const char *pathname, int flags, struct client client) {
   return cursor;
 }
 
-extern "C" ssize_t read (int fd, void *buf, size_t count, struct client client) {
+extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
@@ -354,7 +354,7 @@ extern "C" ssize_t read (int fd, void *buf, size_t count, struct client client) 
   return bytes_read;
 }
 
-extern "C" ssize_t write (int fd, const void *buf, size_t count, struct client client) {
+extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
@@ -406,7 +406,7 @@ extern "C" ssize_t write (int fd, const void *buf, size_t count, struct client c
   return bytes_written;
 }
 
-extern "C" int close (int fd, struct client client) {
+extern "C" int close_file (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
   // If we successfully closed the file, release the lock
   if (file_id > 0) {
@@ -497,22 +497,22 @@ extern "C" int move_chunk_replica (const char* pathname, uint32_t stripe_id,
 
 extern "C" int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
                                     uint32_t chunk_num, uint32_t dest_node,
-                                    uint32_t user_id, uint32_t proc_id) {
+                                    struct client client) {
 
   return 0;
 }
 
-extern "C" int mkdir (const char* dirname) {
+extern "C" int mk_decafs_dir (const char* dirname) {
 
   return 0;
 }
 
-extern "C" DIR* opendir (const char* name) {
+extern "C" DIR* open_decafs_dir (const char* name) {
 
   return NULL;
 }
 
-extern "C" struct dirent* readdir (DIR *dirp) {
+extern "C" struct dirent* read_decafs_dir (DIR *dirp) {
 
   return NULL;
 }

@@ -106,7 +106,7 @@ class Persistent_Metadata {
      * @ return 0 on success
      *          FILE_NOT_FOUND on error
      */
-    int delete_file (uint32_t file_id);
+    int delete_file_contents (uint32_t file_id);
 
     /*
      *  Update the size (add or remove bytes to a file) of an existing file.

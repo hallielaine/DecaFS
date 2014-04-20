@@ -45,14 +45,14 @@
  *	@ return the file id for the newly opened file (non-zero)
  *     FILE_IN_USE if the proper lock cannot be obtained
  */
-extern "C" int open (const char *pathname, int flags, struct client client);
+extern "C" int open_file (const char *pathname, int flags, struct client client);
 
 /*
  *	If the process has a lock on the file, complete the read.
  *	Translates read request into chunks of requests to Espresso 
  *	nodes.
  */
-extern "C" ssize_t read (int fd, void *buf, size_t count, struct client client);
+extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client client);
 
 /*
  *	If the process has an exclusive lock on the file, complete the
@@ -60,12 +60,12 @@ extern "C" ssize_t read (int fd, void *buf, size_t count, struct client client);
  *	Translate write requests into chunks of requests to Espresso
  *	nodes.
  */
-extern "C" ssize_t write (int fd, const void *buf, size_t count, struct client client);
+extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client);
 
 /*
  *	Release locks associate with a fd.
  */
-extern "C" int close (int fd, struct client client);
+extern "C" int close_file (int fd, struct client client);
 
 /*
  *	Removes a file from DecaFS.
@@ -145,17 +145,17 @@ extern "C" int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
 /*
  *	creates a directory in the DecaFS instance.
  */
-extern "C" int mkdir (const char* dirname);
+extern "C" int mk_decafs_dir (const char* dirname);
 
 /*
  *	opens a directory stream corresponding to the directory name.
  */
-extern "C" DIR* opendir (const char* name);
+extern "C" DIR* open_decafs_dir (const char* name);
 
 /*
  *	returns a pointer to a dirent structure representing the next directory   
  *	entry in the directory stream pointed to by dirp.
  */
-extern "C" struct dirent* readdir (DIR *dirp);
+extern "C" struct dirent* read_decafs_dir (DIR *dirp);
 
 #endif

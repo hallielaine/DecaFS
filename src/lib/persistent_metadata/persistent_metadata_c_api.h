@@ -67,7 +67,7 @@ extern "C" int add_file (char *pathname,
  * @ return 0 on success
  *          FILE_NOT_FOUND on error
  */
-extern "C" int delete_file (uint32_t file_id, struct client client);
+extern "C" int delete_file_contents (uint32_t file_id, struct client client);
 
 /*
  *  Update the size (add or remove bytes to a file) of an existing file.
