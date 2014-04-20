@@ -22,8 +22,11 @@ const char espresso_1[] = "192.168.1.101";
 const char espresso_2[] = "192.168.1.102";
 const char invalid_ip[] = "0.0.0.0";
 
-struct file_instance inst = {1, 1, 1, 1};
-struct file_instance bad_inst = {1, 1, 1, 2};
+struct ip_address ip;
+struct client client(ip, 1, 1);
+struct client bad_client(ip, 2, 1);
+struct file_instance file_inst = {client, 1, 0};
+struct file_instance bad_inst = {client, 2, 0};
 
 TEST (Volatile_Metadata, DefaultConstructor) {
   Volatile_Metadata v_meta;
@@ -90,7 +93,6 @@ TEST (Volatile_Metadata, AddNode) {
 TEST (Volatile_Metadata, GetNodeIp) {
   Volatile_Metadata v_meta;
   struct ip_address addr;
-  init_ip (&addr);
 
   ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
 
@@ -200,33 +202,45 @@ TEST (Volatile_Metadata, NodeUpDoesNotExist) {
 TEST (Volatile_Metadata, FileCursorCreation) {
   Volatile_Metadata v_meta;
 
-  v_meta.new_file_cursor (inst);
-
-  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
+  EXPECT_EQ (0, v_meta.get_file_cursor (1));
 }
 
 TEST (Volatile_Metadata, FileCursorBadCursor) {
   Volatile_Metadata v_meta;
 
-  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
-  v_meta.new_file_cursor (inst);
-  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
-  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (bad_inst));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (1));
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
+  EXPECT_EQ (0, v_meta.get_file_cursor (1));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (2));
 }
 
 TEST (Volatile_Metadata, FileCursorSet) {
   Volatile_Metadata v_meta;
   
-  v_meta.new_file_cursor (inst);
-  v_meta.set_file_cursor (inst, CURSOR_VAL);
-  EXPECT_EQ (CURSOR_VAL, v_meta.get_file_cursor (inst));
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
+  EXPECT_EQ (CURSOR_VAL, v_meta.set_file_cursor (1, CURSOR_VAL, client));
+  EXPECT_EQ (CURSOR_VAL, v_meta.get_file_cursor (1));
+  EXPECT_EQ (WRONG_CLIENT, v_meta.set_file_cursor (1, 0, bad_client));
 }
 
 TEST (Volatile_Metadata, FileCursorDelete) {
   Volatile_Metadata v_meta;
   
-  v_meta.new_file_cursor (inst);
-  EXPECT_EQ (0, v_meta.get_file_cursor (inst));
-  v_meta.close_file_cursor (inst);
-  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (inst));
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
+  EXPECT_EQ (0, v_meta.get_file_cursor (1));
+  EXPECT_EQ (WRONG_CLIENT, v_meta.close_file_cursor (1, bad_client));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.close_file_cursor (2, client));
+  EXPECT_EQ (0, v_meta.get_file_cursor (1));
+  EXPECT_EQ (1, v_meta.close_file_cursor (1, client));
+  EXPECT_EQ (INSTANCE_NOT_FOUND, v_meta.get_file_cursor (1));
+}
+
+TEST (Volatile_Metadata, GetFileInfo) {
+  Volatile_Metadata v_meta;
+  struct file_instance inst;
+  
+  EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
+  EXPECT_EQ (file_inst, v_meta.get_file_info (1));
+  EXPECT_EQ (inst, v_meta.get_file_info (2));
 }

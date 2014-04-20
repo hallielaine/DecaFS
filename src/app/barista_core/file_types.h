@@ -4,30 +4,31 @@
 #include <stdint.h>
 
 #include "limits.h"
+#include "ip_address/ip_address.h"
 
 /*
  * Stores information about a specific instance of an open file in
  * DecaFS.
  */
 struct file_instance {
-  uint32_t client_id;
-  uint32_t process_id;
+  struct client client_id;
   uint32_t file_id;
-  uint32_t fd_number;
+  uint32_t offset;
+  file_instance(): client_id (client()), file_id (0), offset (0) {}
+  file_instance (struct client client, uint32_t file_id, uint32_t offset) {
+    this->client_id = client;
+    this->file_id = file_id;
+    this->offset = offset;
+  }
 
   bool operator ==(const file_instance & other) const {
     return (this->client_id == other.client_id &&
-            this->process_id == other.process_id &&
-            this->file_id == other.file_id &&
-            this->fd_number == other.fd_number);
+            this->file_id == other.file_id);
   }
   
   bool operator <(const file_instance &other) const {
     return ((this->client_id < other.client_id) ? true :
-               (this->process_id < other.process_id) ? true :
-                  (this->file_id < other.file_id) ? true :
-                     (this->fd_number < other.fd_number) ? 
-                        true : false);
+                (this->file_id < other.file_id) ? true : false);
   }
 };
 

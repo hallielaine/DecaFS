@@ -5,7 +5,7 @@ extern "C" int put_chunk (uint32_t file_id, char *pathname, uint32_t stripe_id,
   int node_num;
   struct ip_address ip;
 
-  if (chunk_num%2 == 0) {
+  if (chunk_num%2 == 1) {
     node_num = FIRST;  
   }
   else {
@@ -13,10 +13,13 @@ extern "C" int put_chunk (uint32_t file_id, char *pathname, uint32_t stripe_id,
   }
  
   ip = get_node_ip (node_num);
+  
+  printf ("\t(BARISTA) Put chunk.\n");
+  printf ("\t\tip for node %d is %s\n", node_num, ip.addr);
 
   // If the ip address for the node cannot be found,
   // return an error
-  if (is_null (ip)) {
+  if (is_ip_null (ip)) {
     return CANNOT_PUT_CHUNK;
   }
 

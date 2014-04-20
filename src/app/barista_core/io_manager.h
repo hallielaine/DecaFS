@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 #include "limits.h"
 #include "file_types.h"
@@ -31,10 +32,12 @@ class IO_Manager {
     // Helper Functions
     bool chunk_exists (struct file_chunk);
     bool chunk_replica_exists (struct file_chunk);
+    //Given a file_id, list all chunks that are part of the file
+    std::vector<struct file_chunk> get_all_chunks (uint32_t file_id);
     // Given offset (a stripe offset) sets id to be the chunk id
     // that the offset it is, and chunk_offset to the offset within
     // the chunk
-    void get_first_chunk (uint32_t *id, int *chunk_offset, int offset);
+    void get_first_chunk (uint32_t *id, uint32_t chunk_size, int *chunk_offset, int offset);
 
   public:
     IO_Manager();
@@ -45,7 +48,8 @@ class IO_Manager {
      *	Distribution and Replication strategies that are in place.
      */
     ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                 uint32_t stripe_id, void *buf,
+                                 uint32_t stripe_id, uint32_t stripe_size,
+                                 uint32_t chunk_size, const void *buf,
                                  int offset, size_t count);
 
     /*
@@ -55,8 +59,14 @@ class IO_Manager {
      *	Distribution and Replication strategies that are in place.
      */
     ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                  uint32_t stripe_id, void *buf,
+                                  uint32_t stripe_id, uint32_t stripe_size,
+                                  uint32_t chunk_size, const void *buf,
                                   int offset, size_t count);
+    
+    /*
+     *   Delete all chunks and replicas for a given file.
+     */
+    void process_delete_file (uint32_t file_id);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
@@ -98,6 +108,12 @@ class IO_Manager {
      */
     int stat_replica_name (char *pathname, struct decafs_file_stat *buf);
     int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf);
+
+    /*
+     *	Ensure that all filedata is written to disk.
+     */
+     void sync();
+
 };
     
 /*
@@ -106,7 +122,8 @@ class IO_Manager {
  *	Distribution and Replication strategies that are in place.
  */
 extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, void *buf,
+                                        uint32_t stripe_id, uint32_t stripe_size,
+                                        uint32_t chunk_size, const void *buf,
                                         int offset, size_t count);
 
 
@@ -117,8 +134,14 @@ extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
  *	Distribution and Replication strategies that are in place.
  */
 extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, void *buf,
+                                         uint32_t stripe_id, uint32_t stripe_size,
+                                         uint32_t chunk_size, const void *buf,
                                          int offset, size_t count);
+    
+/*
+ *   Delete all chunks and replicas for a given file.
+ */
+extern "C" void process_delete_file (uint32_t file_id);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.
@@ -158,5 +181,10 @@ extern "C" int stat_file_id (uint32_t file_id, struct decafs_file_stat *buf);
  */
 extern "C" int stat_replica_name (char *pathname, struct decafs_file_stat *buf);
 extern "C" int stat_replica_id (uint32_t file_id, struct decafs_file_stat *buf);
+
+/*
+ *	Ensure that all filedata is written to disk.
+ */
+extern "C" void sync();
 
 #endif

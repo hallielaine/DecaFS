@@ -6,10 +6,12 @@
   "espresso": [
       
     {"ip": "192.168.1.101", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
-    {"ip": "192.168.1.102", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"}
+    {"ip": "192.168.1.102", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
+    {"ip": "192.168.1.103", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
+    {"ip": "192.168.1.104", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"}
   ],
 
   "max_file_size": "65536",
-  "stripe_size": "4096",
-  "chunk_size": "2048"
+  "stripe_size": "256",
+  "chunk_size": "128"
 }

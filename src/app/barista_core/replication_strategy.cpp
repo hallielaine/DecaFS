@@ -5,7 +5,7 @@ extern "C" int put_replica (uint32_t file_id, char *pathname,
   int node_num;
   struct ip_address ip;
 
-  if (chunk_num%2 == 0) {
+  if (chunk_num%2 == 1) {
     node_num = FIRST_REPLICA;  
   }
   else {
@@ -13,10 +13,14 @@ extern "C" int put_replica (uint32_t file_id, char *pathname,
   }
  
   ip = get_node_ip (node_num);
+  
+  printf ("\t(BARISTA) Put replica.\n");
+  printf ("\t\tip for node %d is %s\n", node_num, ip.addr);
 
+  
   // If the ip address for the node cannot be found,
   // return an error
-  if (is_null (ip)) {
+  if (is_ip_null (ip)) {
     return CANNOT_PUT_REPLICA;
   }
 

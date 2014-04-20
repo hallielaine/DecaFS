@@ -29,7 +29,7 @@ USER_DIR = ../../src/app/barista_core
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread -std=c++11
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -76,21 +76,21 @@ gtest_main.a : gtest-all.o gtest_main.o
 # function.
 
 volatile_metadata.o : $(USER_DIR)/volatile_metadata.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp $(LIBS)/ip_address/libip_address.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/volatile_metadata.cpp $(LIBS)/ip_address/libip_address.a -I$(LIBS)
 
 volatile_metadata_unittest.o : $(TEST_DIR)/volatile_metadata_unittest.cpp \
                      $(USER_DIR)/volatile_metadata.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp $(LIBS)/ip_address/libip_address.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/volatile_metadata_unittest.cpp $(LIBS)/ip_address/libip_address.a -I$(LIBS)
 
 volatile_metadata_unittest : volatile_metadata.o volatile_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a $(LIBS)/ip_address/libip_address.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 persistent_metadata.o : $(USER_DIR)/persistent_metadata.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/persistent_metadata.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/persistent_metadata.cpp -I$(LIBS)
 
 persistent_metadata_unittest.o : $(TEST_DIR)/persistent_metadata_unittest.cpp \
                      $(USER_DIR)/persistent_metadata.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TEST_DIR)/persistent_metadata_unittest.cpp -I$(LIBS)
 
 persistent_metadata_unittest : persistent_metadata.o persistent_metadata_unittest.o gtest_main.a $(LIBS)/network_core/libnetcore.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

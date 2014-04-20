@@ -2,6 +2,7 @@
 
 Volatile_Metadata::Volatile_Metadata() {
   // initialize volatile metadata map for file cursor
+  last_fd = FD_NOT_SET;
 
   // Initialize stripe and chunk size
   chunk_size = 0;
@@ -49,7 +50,6 @@ uint32_t Volatile_Metadata::get_node_number (char *ip) {
 
 struct ip_address Volatile_Metadata::get_node_ip (uint32_t node_number) {
   struct ip_address ip;
-  init_ip (&ip);
   
   for (std::map<string, int>::iterator it = ip_to_node_map.begin();
        it != ip_to_node_map.end(); it++) {
@@ -72,6 +72,7 @@ int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
 
 uint32_t Volatile_Metadata::set_node_down (char *ip) {
   if (up_nodes_contains (ip)) {
+    printf ("(BARISTA) Setting node %s to DOWN\n", ip);
     up_nodes.remove (ip);
     return V_META_SUCCESS;
   }
@@ -83,6 +84,7 @@ uint32_t Volatile_Metadata::set_node_up (char *ip) {
     return V_META_SUCCESS;
   }
   else if (ip_to_node_map_contains (ip)) {
+    printf ("(BARISTA) Setting node %s to UP\n", ip);
     up_nodes.push_back (ip);
     return V_META_SUCCESS;
   }
@@ -125,33 +127,67 @@ bool Volatile_Metadata::node_exists (uint32_t node_number) {
   return false;
 }
 
-int Volatile_Metadata::new_file_cursor (struct file_instance inst) {
-  if (!file_cursors_contains (inst)) {
-    file_cursors[inst] = 0;
-  }
-  return file_cursors[inst];
+int Volatile_Metadata::new_file_cursor (uint32_t file_id,
+                                        struct client client) {
+  uint32_t fd = get_new_fd();
+  struct file_instance inst = {client, file_id, 0};
+  file_cursors[fd] = inst;
+  return fd;
 }
 
-int Volatile_Metadata::close_file_cursor (struct file_instance inst) {
-  if (file_cursors_contains (inst)) {
-    file_cursors.erase(inst);
-  }
-  return V_META_SUCCESS;
-}
-
-int Volatile_Metadata::get_file_cursor (struct file_instance inst) {
-  if (file_cursors_contains (inst)) {
-    return file_cursors[inst];
+int Volatile_Metadata::close_file_cursor (uint32_t fd,
+                                          struct client client) {
+  struct file_instance file;
+  if (file_cursors_contains (fd)) {
+    file = file_cursors[fd];
+    if (file.client_id == client) {
+      file_cursors.erase(fd);
+      return file.file_id;
+    }
+    else {
+      return WRONG_CLIENT;
+    }
   }
   return INSTANCE_NOT_FOUND;
 }
 
-int Volatile_Metadata::set_file_cursor (struct file_instance inst, uint32_t offset) {
-  if (file_cursors_contains (inst)) {
-    // TODO: Add error checking to ensure that only valid offsets can be set
-    file_cursors[inst] = offset;
+int Volatile_Metadata::get_file_cursor (uint32_t fd) {
+  if (file_cursors_contains (fd)) {
+    return file_cursors[fd].offset;
   }
   return INSTANCE_NOT_FOUND;
+}
+
+int Volatile_Metadata::set_file_cursor (uint32_t fd, uint32_t offset,
+                                        struct client client) {
+  struct file_instance inst;
+  struct decafs_file_stat info;
+
+  if (file_cursors_contains (fd)) {
+    if (file_cursors[fd].client_id == client) {
+      // Ensure that the file cursor is set to end of file at most
+      inst = get_file_info (fd);
+      decafs_file_stat (inst.file_id, &info, client);
+      if (offset > info.size) {
+        offset = info.size;
+      }
+
+      file_cursors[fd].offset = offset;
+      return offset;
+    }
+    else {
+      return WRONG_CLIENT;
+    }
+  }
+  return INSTANCE_NOT_FOUND;
+}
+ 
+struct file_instance Volatile_Metadata::get_file_info (uint32_t fd) {
+  struct file_instance inst;
+  if (file_cursors_contains (fd)) {
+    return file_cursors[fd];
+  }
+  return inst;
 }
 
 bool Volatile_Metadata::ip_to_node_map_contains (char *ip) {
@@ -162,6 +198,23 @@ bool Volatile_Metadata::up_nodes_contains (char *ip) {
   return (std::find (up_nodes.begin(), up_nodes.end(), ip) != up_nodes.end());
 }
 
-bool Volatile_Metadata::file_cursors_contains (struct file_instance inst) {
-  return (file_cursors.find (inst) != file_cursors.end());
+bool Volatile_Metadata::file_cursors_contains (uint32_t fd) {
+  return (file_cursors.find (fd) != file_cursors.end());
+}
+
+uint32_t Volatile_Metadata::get_new_fd() {
+  uint32_t new_fd;
+
+  fd_mutex.lock();
+  // If we don't know the current fd, find the max
+  if (last_fd == FD_NOT_SET) {
+    if (!file_cursors.empty()) {
+      last_fd = file_cursors.rbegin()->first;
+    }
+  }
+  
+  new_fd = ++last_fd;
+  fd_mutex.unlock();
+
+  return new_fd;
 }

@@ -16,6 +16,25 @@ int main(int argc, char** argv) {
   register_read_data_callback(read_data);
   register_write_data_callback(write_data);
   register_delete_data_callback(delete_data);
+  
+  char storage_file[] = ".data_storage";
+  char *file = (char *)malloc(strlen (argv[FILESYSTEM]) +
+                              strlen (storage_file) + 1);
+  strcpy (file, argv[FILESYSTEM]);
+  strcat (file, storage_file);
+  
+  printf ("Opening storage file %s\n", file);
+  
+  int storage_file_fd;
+  if ((storage_file_fd  = open (file, O_RDWR | O_CREAT,
+                                S_IRUSR | S_IWUSR)) < 0) {
+    perror("Unable to open data storage file.");
+    exit (EXIT_FAILURE);
+  }
+
+  printf ("storage file open (%d)\n", storage_file_fd);
+   
+  espresso_global_data_init (storage_file_fd, NODE_STORAGE_SIZE);
 
   // the svc_main_loop function lives in network core and
   // calls registered espresso functions as it receives the rpcs
@@ -31,7 +50,8 @@ ssize_t read_data (int fd, int file_id, int stripe_id, int chunk_num, int offset
 }
 
 ssize_t write_data (int fd, int file_id, int stripe_id, int chunk_num, int offset, void *buf, int count) {
-
+  
+  printf("write_data called, espresso_core\n");
   return write_chunk(fd, file_id, stripe_id, chunk_num, offset, buf, count);
 }
 
