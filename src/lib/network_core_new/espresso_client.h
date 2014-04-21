@@ -1,6 +1,8 @@
 #ifndef _ESPRESSO_CLIENT_H_
 #define _ESPRESSO_CLIENT_H_
 
+#include <iostream>
+
 #include "net_tcp/tcp_client.h"
 #include "network_packets.h"
 
@@ -11,7 +13,7 @@ class EspressoClient : public TcpClient {
 
     void connectionClosed();
     void connectionEstablished();
-    void handleMessageFromServer(void* packet, ssize_t len);
+    void handleMessageFromServer(int socket);
 
 };
 

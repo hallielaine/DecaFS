@@ -29,7 +29,17 @@ int main(int argc, char** argv) {
 
   ConnectionToClient *client = barista.getEspressoNode();
   printf("client is: %p\n", (void*)client);
-  network_read_chunk(client, 1, 2, 3, 4, 5, 6);
+
+  int sent;
+
+  sent = network_write_chunk(client, 1, 2, 3, 4, 5, (void*)"hello!", 6);
+  printf("write sent: %d bytes\n", sent);
+
+  sent = network_read_chunk(client, 1, 2, 3, 4, 5, 6);
+  printf("read sent: %d bytes\n", sent);
+
+  sent = network_delete_chunk(client, 1, 2, 3); 
+  printf("delete sent: %d bytes\n", sent);
 
   sleep(1);
 

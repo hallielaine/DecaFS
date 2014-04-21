@@ -40,7 +40,7 @@ class TcpClient {
     virtual void connectionEstablished() = 0;
     std::string getHost();
     int getPort();
-    virtual void handleMessageFromServer(void* packet, ssize_t len) = 0;
+    virtual void handleMessageFromServer(int socket) = 0;
     bool isConnected();
     int openConnection();
     void run();

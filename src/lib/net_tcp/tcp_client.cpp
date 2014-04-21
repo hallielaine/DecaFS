@@ -83,10 +83,10 @@ void TcpClient::run() {
 
   fd_set tmp_set;
 
-  ssize_t max_len = 65536;
+  ssize_t max_len = 4;
   ssize_t len;
 
-  char buf[65536];
+  uint32_t buf;
 
   while(m_connection_open) {
 
@@ -98,7 +98,7 @@ void TcpClient::run() {
 
     if (FD_ISSET(m_socket_number, &tmp_set)) {
       // receive message from server
-      len = recv(m_socket_number, buf, max_len, 0);
+      len = recv(m_socket_number, (void*)&buf, max_len, MSG_PEEK);
 
       if (len < 0) {
         printf("TcpClient failure\n");
@@ -107,7 +107,8 @@ void TcpClient::run() {
         printf("TcpClient: %s received a msg len of 0 from the server\n", m_name.c_str());
         closeConnection();
       } else {
-        handleMessageFromServer(buf, len);
+        printf("TcpClient: %s received a msg from the server\n", m_name.c_str());
+        handleMessageFromServer(m_socket_number);
       } 
     }
   }
