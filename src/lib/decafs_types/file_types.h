@@ -1,10 +1,12 @@
 #ifndef __FILE_TYPES_H__
 #define __FILE_TYPES_H__
 
+#include <sys/time.h>
+
 #include <stdint.h>
 
 #include "limits.h"
-#include "ip_address/ip_address.h"
+#include "ip_address.h"
 
 /*
  * Stores information about a specific instance of an open file in
