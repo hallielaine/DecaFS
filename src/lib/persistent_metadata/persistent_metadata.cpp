@@ -84,7 +84,7 @@ int Persistent_Metadata::add_file (char *pathname, uint32_t stripe_size,
   return file_id;
 }
 
-int Persistent_Metadata::delete_file (uint32_t file_id) {
+int Persistent_Metadata::delete_file_contents (uint32_t file_id) {
   string pathname;
   
   if (get_file_name (file_id, &pathname)) {

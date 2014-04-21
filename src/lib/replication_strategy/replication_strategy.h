@@ -1,8 +1,10 @@
 #ifndef __REPLICATION_STRATEGY_H__
 #define __REPLICATION_STRATEGY_H__
 
-#include "ip_address/ip_address.h"
-#include "volatile_metadata.h"
+#include <stdio.h>
+
+#include "decafs_types/ip_address.h"
+#include "volatile_metadata/volatile_metadata_c_api.h"
 
 #define FIRST_REPLICA 2
 #define SECOND_REPLICA 3

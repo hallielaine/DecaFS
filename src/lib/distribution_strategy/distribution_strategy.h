@@ -1,8 +1,10 @@
 #ifndef __DISTRIBUTION_STRATEGY_H__
 #define __DISTRIBUTION_STRATEGY_H__
 
-#include "ip_address/ip_address.h"
-#include "volatile_metadata.h"
+#include <stdio.h>
+
+#include "decafs_types/ip_address.h"
+#include "volatile_metadata/volatile_metadata_c_api.h"
 
 #define CANNOT_PUT_CHUNK -1
 
