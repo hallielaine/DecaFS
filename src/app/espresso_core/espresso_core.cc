@@ -57,7 +57,7 @@ ssize_t write_data (int fd, int file_id, int stripe_id, int chunk_num, int offse
 
 int delete_data (int fd, int file_id, int stripe_id, int chunk_num) {
 
-   printf("delete_data called, espresso_core\n");
+  printf("delete_data called, espresso_core\n");
   return delete_chunk(fd, file_id, stripe_id, chunk_num);
 }
 

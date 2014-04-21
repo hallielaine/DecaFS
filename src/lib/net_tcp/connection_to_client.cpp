@@ -4,6 +4,7 @@ ConnectionToClient::ConnectionToClient() {}
 
 int ConnectionToClient::sendToClient(void* packet, int length) {
 
+  printf("client sock fd is : %d\n", sock_fd);
   ssize_t rtn = send(sock_fd, packet, length, 0);
 
   if (rtn < 0) {

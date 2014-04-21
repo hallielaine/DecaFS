@@ -86,6 +86,7 @@ void TcpServer::setup_socket() {
   // TODO where should sequence number be kept track of, currently this is in NetworkPacket extended class  
   //sequence_number = 1;
   listen(m_socket_number, BACKLOG);
+  m_open = true;
 }
 
 bool TcpServer::isListening() {
@@ -136,6 +137,7 @@ void TcpServer::check_for_clients() {
     printf("TcpServer: a client joined and was assigned fd: %d\n", client->sock_fd);
     m_clients[client->sock_fd] = client;
     FD_SET(client->sock_fd, &m_client_set);
+    clientConnected(client);
   }
 }
 

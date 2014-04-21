@@ -90,7 +90,7 @@ void TcpClient::run() {
 
   while(m_connection_open) {
 
-    //printf("TcpClient: %s spinning\n", m_name.c_str());
+    printf("TcpClient: %s spinning\n", m_name.c_str());
 
     // TODO implement scanning for messages from server
     FD_SET(m_socket_number, &tmp_set);

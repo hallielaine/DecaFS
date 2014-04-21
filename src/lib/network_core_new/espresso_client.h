@@ -2,6 +2,7 @@
 #define _ESPRESSO_CLIENT_H_
 
 #include "net_tcp/tcp_client.h"
+#include "network_packets.h"
 
 class EspressoClient : public TcpClient {
 
