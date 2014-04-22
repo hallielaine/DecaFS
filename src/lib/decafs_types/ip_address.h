@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "net_tcp/connection_to_client.h"
+
 #define IP_LENGTH 16
 
 struct ip_address {
@@ -27,8 +29,8 @@ struct client {
   uint32_t user_id;
   ConnectionToClient *ctc;
   
-  client() : ip (ip_address()), user_id (0), ctc (0) {};
-  client(struct ip_address ip, uint32_t user_id, uint32_t ctc) :
+  client() : ip (ip_address()), user_id (0), ctc (NULL) {};
+  client(struct ip_address ip, uint32_t user_id, ConnectionToClient *ctc) :
     ip(ip), user_id (user_id), ctc (ctc) {} 
 
   bool operator ==(const client & other) const {
