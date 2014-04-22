@@ -3,5 +3,6 @@
 *.gcno
 *.gcda
 *.gcov
+*.d
 bin/*
 test/gtest
