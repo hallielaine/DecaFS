@@ -9,7 +9,7 @@ else
 endif
 
 #TODO: make code compile with -Werror
-CFLAGS := -g -O3 -MMD -Wall -Wno-unused-parameter
+CFLAGS := -g -O3 -Wall -Wno-unused-parameter
 LDFLAGS :=
 
 ifeq ($(COVERAGE),yes)
