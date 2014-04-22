@@ -3,12 +3,11 @@
 
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "network_core/network.h"
-#include "network_core/esp_svc.h"
 #include "espresso_storage/espresso_state.h"
 #include "espresso_storage/espresso_storage.h"
 

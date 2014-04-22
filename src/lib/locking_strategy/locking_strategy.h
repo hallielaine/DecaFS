@@ -7,13 +7,15 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "decafs_types/ip_address.h"
+
 /*
  * Tries to acquire an exclusive lock for a process. Fails if the lock cannot
  * be acquired.
  *
  * Returns 0 on success, or negative on error.
  */
-int get_exclusive_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
+int get_exclusive_lock(struct client client, uint32_t file_id);
 
 /*
  * Tries to acquire a shared lock for a process. Fails if the lock cannot be
@@ -21,7 +23,7 @@ int get_exclusive_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
  *
  * Returns 0 on success, or negative on error.
  */
-int get_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
+int get_shared_lock(struct client client, uint32_t file_id);
 
 /*
  * Releases a lock, either exclusive or shared. The lock released is whatever
@@ -29,7 +31,7 @@ int get_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
  *
  * Returns 0 on success, or negative on error.
  */
-int release_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
+int release_lock(struct client client, uint32_t file_id);
 
 /*
  * Checks whether a process has an exclusive lock. Specifying a negative value
@@ -38,7 +40,7 @@ int release_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
  *
  * Returns positive if the lock is held, 0 if not, or negative on error.
  */
-int has_exclusive_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
+int has_exclusive_lock(struct client client, uint32_t file_id);
 
 /*
  * Checks whether a process has a shared lock. Specifying a negative value for
@@ -47,7 +49,7 @@ int has_exclusive_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
  *
  * Returns positive if the lock is held, 0 if not, or negative on error.
  */
-int has_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
+int has_shared_lock(struct client client, uint32_t file_id);
 
 /*
  * Tries to acquire an exclusive metadata lock for a process. Blocks until the
@@ -55,14 +57,14 @@ int has_shared_lock(uint32_t user_id, uint32_t proc_id, uint32_t file_id);
  *
  * Returns 0 on success, or negative on error.
  */
-int get_metadata_lock(uint32_t user_id, uint32_t proc_id);
+int get_metadata_lock(struct client client);
 
 /*
  * Releases a metadata lock. Fails if the lock is not owned.
  *
  * Returns 0 on success, or negative on error.
  */
-int release_metadata_lock(uint32_t user_id, uint32_t proc_id);
+int release_metadata_lock(struct client client);
 
 /*
  * Checks whether a process has an exclusive metadata lock. Specifying a
@@ -71,7 +73,7 @@ int release_metadata_lock(uint32_t user_id, uint32_t proc_id);
  *
  * Returns positive if the lock is held, 0 if not, or negative on error.
  */
-int has_metadata_lock(uint32_t user_id, uint32_t proc_id);
+int has_metadata_lock(struct client client);
 
 #ifdef __cplusplus
 } // extern "C"
