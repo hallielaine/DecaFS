@@ -25,22 +25,22 @@ struct ip_address {
 struct client {
   struct ip_address ip;
   uint32_t user_id;
-  uint32_t proc_id;
+  ConnectionToClient *ctc;
   
-  client() : ip (ip_address()), user_id (0), proc_id (0) {};
-  client(struct ip_address ip, uint32_t user_id, uint32_t proc_id) :
-    ip(ip), user_id (user_id), proc_id (proc_id) {} 
+  client() : ip (ip_address()), user_id (0), ctc (0) {};
+  client(struct ip_address ip, uint32_t user_id, uint32_t ctc) :
+    ip(ip), user_id (user_id), ctc (ctc) {} 
 
   bool operator ==(const client & other) const {
     return (this->ip == other.ip &&
             this->user_id == other.user_id &&
-            this->proc_id == other.proc_id);
+            this->ctc == other.ctc);
   }
   
   bool operator <(const client & other) const {
     return ((this->ip < other.ip) ? true :
               (this->user_id < other.user_id) ? true :
-                 (this->proc_id < other.proc_id) ? true : false);
+                 (this->ctc < other.ctc) ? true : false);
   }
 };
 
