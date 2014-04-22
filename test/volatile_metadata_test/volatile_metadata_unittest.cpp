@@ -1,5 +1,6 @@
-#include "../../../src/app/barista_core/volatile_metadata.h"
-#include "../../../src/lib/ip_address/ip_address.h"
+#include "../../../src/lib/volatile_metadata/volatile_metadata.h"
+#include "../../../src/lib/persistent_metadata/persistent_metadata_c_api.h"
+#include "../../../src/lib/decafs_types/ip_address.h"
 
 #include "gtest/gtest.h"
 
@@ -110,12 +111,14 @@ TEST (Volatile_Metadata, NodeDown) {
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
 
-  EXPECT_EQ (2, v_meta.get_active_nodes());
+  EXPECT_EQ (2, v_meta.get_active_node_count());
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_down (ESPRESSO_1_NODE_NUM));
 
-  EXPECT_EQ (1, v_meta.get_active_nodes());
-  EXPECT_EQ (ESPRESSO_2_NODE_NUM, nodes.node_numbers[0]);
+  EXPECT_EQ (1, v_meta.get_active_node_count());
   
+  struct active_nodes nodes = v_meta.get_active_nodes();
+  EXPECT_EQ (1, nodes.active_node_count);
+  EXPECT_EQ (ESPRESSO_2_NODE_NUM, nodes.node_numbers[0]);
 }
 
 TEST (Volatile_Metadata, NodeDownDoesNotExist) {
@@ -124,9 +127,9 @@ TEST (Volatile_Metadata, NodeDownDoesNotExist) {
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
   
-  EXPECT_EQ (2, v_meta.get_active_nodes());
+  EXPECT_EQ (2, v_meta.get_active_node_count());
   EXPECT_EQ (NODE_NUMBER_NOT_FOUND, v_meta.set_node_down (INVALID_NODE_NUM));
-  EXPECT_EQ (2, v_meta.get_active_nodes());
+  EXPECT_EQ (2, v_meta.get_active_node_count());
 }
 
 TEST (Volatile_Metadata, IsNodeUp) {
@@ -135,13 +138,13 @@ TEST (Volatile_Metadata, IsNodeUp) {
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
   
-  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
-  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
+  ASSERT_TRUE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
+  ASSERT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
 
   EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_down (ESPRESSO_1_NODE_NUM));
   
-  EXPECT_FALSE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
-  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
+  ASSERT_FALSE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
+  ASSERT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
 }
 
 TEST (Volatile_Metadata, FileCursorCreation) {
@@ -164,8 +167,9 @@ TEST (Volatile_Metadata, FileCursorSet) {
   Volatile_Metadata v_meta;
   
   EXPECT_EQ (1, v_meta.new_file_cursor (1, client));
-  EXPECT_EQ (CURSOR_VAL, v_meta.set_file_cursor (1, CURSOR_VAL, client));
-  EXPECT_EQ (CURSOR_VAL, v_meta.get_file_cursor (1));
+  // Cannot set cursor past EOF
+  EXPECT_EQ (0, v_meta.set_file_cursor (1, CURSOR_VAL, client));
+  EXPECT_EQ (0, v_meta.get_file_cursor (1));
   EXPECT_EQ (WRONG_CLIENT, v_meta.set_file_cursor (1, 0, bad_client));
 }
 

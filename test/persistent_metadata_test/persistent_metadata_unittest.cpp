@@ -1,4 +1,4 @@
-#include "../../../src/app/barista_core/persistent_metadata.h"
+#include "../../../src/lib/persistent_metadata/persistent_metadata.h"
 #include "gtest/gtest.h"
 
 #define STRIPE_SIZE 1024
@@ -12,7 +12,7 @@ const int file_1_id = 1;
 const int file_2_id = 2;
 
 struct ip_address ip;
-struct client client(ip, 1, 1);
+struct client client(ip, 1, NULL);
 struct file_instance inst = {client, 1, 0};
 
 TEST (Persistent_Metadata, AddFile) {
@@ -161,8 +161,8 @@ TEST (Persistent_Metadata, DeleteFile) {
   filenames = (char **)malloc(1);
   filenames[0] = (char *)malloc (MAX_FILENAME_LENGTH);
   
-  EXPECT_EQ (0, p_meta.delete_file (file_1_id));
-  EXPECT_EQ (FILE_NOT_FOUND, p_meta.delete_file (file_1_id));
+  EXPECT_EQ (0, p_meta.delete_file_contents (file_1_id));
+  EXPECT_EQ (FILE_NOT_FOUND, p_meta.delete_file_contents (file_1_id));
   EXPECT_EQ (1, p_meta.get_num_files());
   EXPECT_EQ (1, p_meta.get_filenames(filenames, 2));
   ASSERT_STREQ (file_2, filenames[0]);
