@@ -22,6 +22,7 @@ void EspressoClient::handleMessageFromServer(int socket) {
 
   uint32_t packet_size, flag, bytes_read;
   void* buffer_ptr;
+  Packet *packet;
 
     // get the next packet size
     if (recv(socket, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) <= 0) {
@@ -39,22 +40,28 @@ void EspressoClient::handleMessageFromServer(int socket) {
       case (READ_CHUNK) : 
         {
           printf("\ngot a READ_CHUNK packet\n");
-          ReadChunkRequest read(buffer_ptr, packet_size);
-          std::cout << read << std::endl;
+          ReadChunkRequest readRequest(buffer_ptr, packet_size);
+          std::cout << readRequest << std::endl;
+          packet = process_read_packet(readRequest);
+          sendToServer(packet->packet, packet->packet_size);
         }
         break;
       case (WRITE_CHUNK) : 
         {
           printf("\ngot a WRITE_CHUNK packet\n");
-          WriteChunkRequest write(buffer_ptr, packet_size);
-          std::cout << write << std::endl;
+          WriteChunkRequest writeRequest(buffer_ptr, packet_size);
+          std::cout << writeRequest << std::endl;
+          packet = process_write_packet(writeRequest);
+          sendToServer(packet->packet, packet->packet_size); 
         }
         break;
       case (DELETE_CHUNK) :
         {
           printf("\ngot a DELETE_CHUNK packet\n");
-          DeleteChunkRequest del(buffer_ptr, packet_size);
-          std::cout << del << std::endl;
+          DeleteChunkRequest deleteRequest(buffer_ptr, packet_size);
+          std::cout << deleteRequest << std::endl;
+          packet = process_delete_packet(deleteRequest);
+          sendToServer(packet->packet, packet->packet_size);
         }
     }
 }

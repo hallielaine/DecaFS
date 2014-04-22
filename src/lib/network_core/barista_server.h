@@ -34,7 +34,7 @@ class BaristaServer : public TcpServer {
 
     void clientConnected(ConnectionToClient* client);
     void clientDisconnected(ConnectionToClient* client);
-    void handleMessageFromClient(void* buf, ssize_t length, ConnectionToClient* client);
+    void handleMessageFromClient(ConnectionToClient* client);
     void serverClosed();
     void serverStarted();
     void serverStopped();

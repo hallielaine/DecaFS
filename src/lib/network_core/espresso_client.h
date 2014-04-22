@@ -5,6 +5,7 @@
 
 #include "net_tcp/tcp_client.h"
 #include "network_packets.h"
+#include "espresso_packet_processor.h"
 
 class EspressoClient : public TcpClient {
 
