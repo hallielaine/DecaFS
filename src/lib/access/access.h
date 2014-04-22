@@ -1,4 +1,6 @@
-#include "../network_core/bar_clnt.h"
+#include <sys/types.h>
+
+#define DATA_NOT_FOUND -1
 
 /*
  *	Read data from a chunk at a specific offset.

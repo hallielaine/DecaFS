@@ -24,7 +24,8 @@
 #include "volatile_metadata/volatile_metadata.h"
 #include "volatile_metadata/volatile_metadata_c_api.h"
 
-#include "network_core/bar_clnt.h"
+#include "network_core/barista_network_helper.h"
+
 #include "access/access.h"
 #include "locking_strategy/locking_strategy.h"
 
