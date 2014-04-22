@@ -42,9 +42,11 @@ void BaristaServer::clientConnected(ConnectionToClient* client) {
   //inet_ntop(AF_INET, &ip_addr, ip, INET_ADDSTRLEN);
   char* ip_ptr = inet_ntoa(client->addr.sin_addr);
 
+  int node_id = next_node_num++;
+
+  ip_ptr[strlen(ip_ptr)-1] = (char)(node_id + 48);
   printf("client connected with ip_address: %s\n", ip_ptr);
 
-  int node_id = next_node_num++;
 
   add_node(ip_ptr, node_id);
   m_espresso_nodes[node_id] = client;

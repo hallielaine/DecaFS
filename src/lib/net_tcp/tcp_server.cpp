@@ -100,7 +100,7 @@ void TcpServer::run() {
 
   while (m_listening && m_open) {
 
-    printf("TcpServer: spinning\n");
+    //printf("TcpServer: spinning\n");
     check_for_clients(); // new connections
     check_for_messages(); // messages from clients
   }

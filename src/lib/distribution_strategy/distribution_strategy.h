@@ -8,8 +8,8 @@
 
 #define CANNOT_PUT_CHUNK -1
 
-#define FIRST 0
-#define SECOND 1
+#define FIRST 1
+#define SECOND 2
 
 /*
  *	Determine which node a given chunk from a stripe should be sent to.

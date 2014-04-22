@@ -35,6 +35,15 @@
 
 #define STRIPE_ID_INIT 1
 
+extern "C" const char *get_size_error_message (const char *type, const char *value);
+
+extern "C" void exit_failure (const char *message);
+
+/*
+ * Initialize barista core
+ */
+extern "C" void barista_core_init (int argc, char *argv[]);
+
 /*
  *	Open a file for read or write access.
  *

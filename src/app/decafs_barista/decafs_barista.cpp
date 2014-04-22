@@ -1,21 +1,13 @@
 #include "decafs_barista.h"
 
-#define MIN_ARGS 5
-#define STRIPE_SIZE 1
-#define CHUNK_SIZE 2
-#define METADATA 3
-#define ESPRESSO 4
-
-BaristaServer *barista_server;
-
 int main (int argc, char *argv[]) {
-  process_arguments (argc, argv);
+  barista_core_init (argc, argv);
   printf ("Barista is initialized.\n");
   printf ("\tstripe_size: %d\n\tchunk_size: %d\n\n", get_stripe_size(),
            get_chunk_size());
 
                                     // TODO: Make port num an arg
-  barista_server = BaristaServer::init(1234);
+  BaristaServer *barista_server = BaristaServer::init(1234);
   barista_server->run();
 
   /* TEST CODE */
@@ -51,52 +43,5 @@ int main (int argc, char *argv[]) {
   printf ("\n(BARISTA) Read %d bytes.\n", count);
   printf ("(BARISTA) Buf is:\n%s\n", read_buf);*/
   return 0;
-}
-
-void process_arguments (int argc, char *argv[]) {
-  int ret;
-  if (argc < MIN_ARGS) {
-    exit_failure (USAGE_ERROR);
-  }
-  
-  ret = set_stripe_size (atoi(argv[STRIPE_SIZE]));
-  if (ret < 0) {
-    exit_failure (get_size_error_message ("stripe", argv[STRIPE_SIZE]));
-  }
-
-  ret = set_chunk_size (atoi(argv[CHUNK_SIZE]));
-  if (ret < 0) {
-    exit_failure (get_size_error_message ("chunk", argv[CHUNK_SIZE]));
-  }
-
-  // TODO: Recreate metadata from file
-  // path to metadata file is in argv[METADATA]
-
-  // Add all espresso nodes to volatile_metadata
-  // TODO: retry connections to espresso nodes on failure
-  // TODO: 3 times with increased wait each time
-  /*for (int i = ESPRESSO; i < argc; i++) {
-    int res = network_add_client(argv[i]);
-    if (res >= 0) {
-      add_node(argv[i], res);
-    }
-    else {
-      fprintf(stderr, "Failed to connect to espresso node: %sn", argv[i]);
-    }
-  }*/
-}
-
-const char *get_size_error_message (const char *type, const char *value) {
-  std::string msg = "Invalid size ";
-  msg += value;
-  msg += " for ";
-  msg += type;
-
-  return msg.c_str();
-}
-
-void exit_failure (const char *message) {
-  fprintf (stderr, "%s\n", message);
-  exit (EXIT_FAILURE);
 }
 
