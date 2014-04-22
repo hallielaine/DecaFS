@@ -10,7 +10,7 @@ endif
 
 #TODO: make code compile with -Werror
 CFLAGS := -g -O3 -MMD -Wall -Wno-unused-parameter
-LDFLAGS :=
+LDFLAGS := -pthread
 
 ifeq ($(COVERAGE),yes)
 	CFLAGS += --coverage
