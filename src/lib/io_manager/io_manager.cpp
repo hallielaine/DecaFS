@@ -53,6 +53,7 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                    // ADD FD HERE
     chunk_result = process_read_chunk (0, file_id, node_id, stripe_id,
                                       chunk_id, chunk_offset, 
+                                      (uint8_t *)buf + bytes_read,
                                       read_size);
     
     printf ("\t\treceived %d from network call.\n", chunk_result);
