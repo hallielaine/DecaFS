@@ -4,11 +4,24 @@ BaristaServer::BaristaServer(unsigned short port)
  : TcpServer(port) 
 {
   printf("%d\n", port);
+  next_node_num = 1;
 }
 
 void BaristaServer::clientConnected(ConnectionToClient* client) {
 
   printf("BaristaServer: a client connected!\n");
+
+  // get ip address of client
+
+  //int ip_addr = client->addr.sin_addr.s_addr;
+  //char ip[INET_ADDRSTRLEN];
+  //inet_ntop(AF_INET, &ip_addr, ip, INET_ADDSTRLEN);
+  char* ip_ptr = inet_ntoa(client->addr.sin_addr);
+
+  printf("client connected with ip_address: %s\n", ip_ptr);
+
+  add_node(ip_ptr, next_node_num++);
+
   cl = client;
 }
 
