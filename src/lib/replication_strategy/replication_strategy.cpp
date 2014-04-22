@@ -12,19 +12,11 @@ extern "C" int put_replica (uint32_t file_id, char *pathname,
     node_num = SECOND_REPLICA;
   }
  
-  ip = get_node_ip (node_num);
-  
   printf ("\t(BARISTA) Put replica.\n");
-  printf ("\t\tip for node %d is %s\n", node_num, ip.addr);
+  printf ("\t\tnode %d\n", node_num);
 
   
-  // If the ip address for the node cannot be found,
-  // return an error
-  if (is_ip_null (ip)) {
-    return CANNOT_PUT_REPLICA;
-  }
-
-  if (is_node_up (ip.addr)) {
+  if (is_node_up (node_num)) {
     return node_num;
   }
   return (node_num == FIRST_REPLICA) ? SECOND_REPLICA : FIRST_REPLICA; 

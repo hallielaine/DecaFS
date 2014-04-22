@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "net_tcp/connection_to_client.h"
-
+#define NUM_ESPRESSO 4
 #define IP_LENGTH 16
 
 struct ip_address {
@@ -44,6 +44,11 @@ struct client {
               (this->user_id < other.user_id) ? true :
                  (this->ctc < other.ctc) ? true : false);
   }
+};
+
+struct active_nodes {
+  uint32_t node_numbers[NUM_ESPRESSO];
+  uint32_t active_node_count;
 };
 
 bool is_ip_null (struct ip_address ip);

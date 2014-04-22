@@ -33,88 +33,51 @@ extern "C" uint32_t get_stripe_size ();
 extern "C" int set_stripe_size (uint32_t size);
 
 /*
- * Returns the node number for a specific IP address.
- * If barista_core was not started with the given IP address, IP_NOT_FOUND
- *   is returned.
- */
-extern "C" uint32_t get_node_number (char *ip);
-
-/*
- * Returns the IP address of the node with a given node number.
- * If the node number is not found, NODE_NUMBER_NOT_FOUND
- *   is returned.
- */
-extern "C" struct ip_address get_node_ip (uint32_t node_number);
-
-
-/*
- * Add a node ip and node number pairing to the metadata for this instance
+ * Set the node with the unique node_number to be "down" in the instance
  *   of DecaFS.
- * If the ip address has already been assigned a node number, IP_EXISTS
- *   is returned.
+ * @return V_META_SUCCESS on success
+ *         NODE_NUMBER_NOT_FOUND on failure
  */
-extern "C" int add_node (char *ip, uint32_t node_number);
+extern "C" uint32_t set_node_down (uint32_t node_number);
 
 /*
- * Set the node with the specific ip address to be "down" 
+ * Set the node with the unique node_number to be "down" in the instance
  *   of DecaFS.
- * If barista_core was not started with the given IP address, IP_NOT_FOUND
- *   is returned.
+ * @return V_META_SUCCESS on success
+ *         NODE_NOT_FOUND on failure
  */
-extern "C" uint32_t set_node_down (char *ip);
-
-/*
- * Set the node with the specific ip address to be "up" 
- *   of DecaFS.
- * If barista_core was not started with the given IP address, IP_NOT_FOUND
- *   is returned.
- */
-extern "C" uint32_t set_node_up (char *ip);
+extern "C" uint32_t set_node_up (uint32_t node_number);
 
 /* 
  * Determines whether or not a specific node is "up"
  */
-extern "C" bool is_node_up (char *ip);
+extern "C" bool is_node_up (uint32_t node_number);
 
 /*
- * Give the "state" of the system.
- * nodes is filled in with the ip addresses for the active nodes (nodes
- *   that were not set to "down").
- * IP addresses of each node will be returned in sorted order.
- * nodes will be reallocated to support the number of nodes that are up.
- * The number of active nodes in the system is returned.
+ * Returns the number of active nodes.
  */
 extern "C" int get_active_node_count();
 
 /*
- * Give the "state" of the system.
- * nodes is filled in with the ip addresses for the active nodes (nodes
- *   that were not set to "down").
- * IP addresses of each node will be returned in sorted order.
- * nodes will be reallocated to support the number of nodes that are up.
- * The number of active nodes in the system is returned.
+ * Gives the "state" of the system.
+ * Returns an active_nodes struct that represents the node numbers active
+ *  in the current instance of DecaFS.
  */
-extern "C" uint32_t get_active_nodes (char ***nodes);
-    
+extern "C" struct active_nodes get_active_nodes ();
+  
 /*
- * Determines whether or not a node exists in the system.
- * @return true if node exists, else false
- */
-extern "C" bool node_exists (uint32_t node_number);
-
-/*
- *   Start a new file cursor if one doesn’t exist already.
- *  @return the fd
- */
+*   Start a new file cursor if one doesn’t exist already.
+*  @return the fd
+*/
 extern "C" int new_file_cursor (uint32_t file_id, struct client client);
 
 /*
- *   Remove a file cursor for an open instance of a file.
- *   @return id of the file closed on success
- *   @return INSTANCE_NOT_FOUND if fd does not exist
- *   @return WRONG_CLIENT if the client doesn't match the client who
- *           opened the file
- */
+*   Remove a file cursor for an open instance of a file.
+*   @return id of the file closed on success
+*   @return INSTANCE_NOT_FOUND if fd does not exist
+*   @return WRONG_CLIENT if the client doesn't match the client who
+*           opened the file
+*/
 extern "C" int close_file_cursor (uint32_t fd, struct client client);
 
 /*

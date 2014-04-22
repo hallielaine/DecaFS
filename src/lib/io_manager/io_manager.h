@@ -14,6 +14,8 @@
 #include "replication_strategy/replication_strategy.h"
 #include "access/access.h"
 
+#define NODE_FAILURE -1
+
 #define CHUNK_NOT_FOUND -1
 #define NODE_NOT_FOUND -2
 #define REPLICA_CHUNK_NOT_FOUND -3
@@ -71,7 +73,6 @@ class IO_Manager {
     /*
      *	Set the storage location (node id) for a given chunk of a file.
      *   @return the node id
-     *   @return NODE_NOT_FOUND if the node does not exist
      */
     int set_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
                      uint32_t node_id);

@@ -41,58 +41,26 @@ uint32_t Volatile_Metadata::get_stripe_size() {
   return stripe_size;
 }
 
-uint32_t Volatile_Metadata::get_node_number (char *ip) {
-  if (ip_to_node_map_contains (ip)) {
-    return ip_to_node_map[ip];
-  }
-  return IP_NOT_FOUND;
-}
-
-struct ip_address Volatile_Metadata::get_node_ip (uint32_t node_number) {
-  struct ip_address ip;
-  
-  for (std::map<string, int>::iterator it = ip_to_node_map.begin();
-       it != ip_to_node_map.end(); it++) {
-    if ((it->second) == (int)node_number) {
-      strcpy (ip.addr, it->first.c_str());
-      break;
-    }
-  }
-  return ip;
-}
-
-int Volatile_Metadata::add_node (char *ip, uint32_t node_number) {
-  if (!ip_to_node_map_contains (ip)) {
-    ip_to_node_map[ip] = node_number;
-    up_nodes.push_back (std::string(ip));
+uint32_t Volatile_Metadata::set_node_down (uint32_t node_number) {
+  if (up_nodes_contains (node_number)) {
+    printf ("(BARISTA) Setting node %d to DOWN\n", node_number);
+    up_nodes.remove (node_number);
     return V_META_SUCCESS;
   }
-  return IP_EXISTS;
+  return NODE_NUMBER_NOT_FOUND;
 }
 
-uint32_t Volatile_Metadata::set_node_down (char *ip) {
-  if (up_nodes_contains (ip)) {
-    printf ("(BARISTA) Setting node %s to DOWN\n", ip);
-    up_nodes.remove (ip);
+uint32_t Volatile_Metadata::set_node_up (uint32_t node_number) {
+  if (!up_nodes_contains (node_number)) {
+    printf ("(BARISTA) Setting node %d to UP\n", node_number);
+    up_nodes.push_back (node_number);
     return V_META_SUCCESS;
   }
-  return IP_NOT_FOUND;
+  return NODE_ALREADY_UP;
 }
 
-uint32_t Volatile_Metadata::set_node_up (char *ip) {
-  if (up_nodes_contains (ip)) {
-    return V_META_SUCCESS;
-  }
-  else if (ip_to_node_map_contains (ip)) {
-    printf ("(BARISTA) Setting node %s to UP\n", ip);
-    up_nodes.push_back (ip);
-    return V_META_SUCCESS;
-  }
-  return IP_NOT_FOUND;
-}
-
-bool Volatile_Metadata::is_node_up (char *ip) {
-  if (up_nodes_contains (ip)) {
+bool Volatile_Metadata::is_node_up (uint32_t node_number) {
+  if (up_nodes_contains (node_number)) {
     return true;
   }
   return false;
@@ -102,29 +70,19 @@ int Volatile_Metadata::get_active_node_count() {
   return up_nodes.size();
 }
 
-uint32_t Volatile_Metadata::get_active_nodes (char ***nodes) {
+struct active_nodes Volatile_Metadata::get_active_nodes () {
   int count = 0;
-  *nodes = (char **)(realloc (*nodes, up_nodes.size()));
- 
+  struct active_nodes nodes;
+
   up_nodes.sort();
 
-  for (std::list<string>::iterator it = up_nodes.begin(); 
+  for (std::list<uint32_t>::iterator it = up_nodes.begin(); 
        it != up_nodes.end(); it++) {
-    (*nodes)[count] = (char *)(malloc ((*it).length() + 1));
-    std::strcpy ((*nodes)[count++], ((*it).c_str()));
+    nodes.node_numbers[count++] = *it;
   }
+  nodes.active_node_count = count;
 
-  return count;
-}
-
-bool Volatile_Metadata::node_exists (uint32_t node_number) {
-  for (std::map<string, int>::iterator it = ip_to_node_map.begin();
-       it != ip_to_node_map.end(); it++) {
-    if ((it->second) == (int)node_number) {
-      return true;
-    }
-  }
-  return false;
+  return nodes;
 }
 
 int Volatile_Metadata::new_file_cursor (uint32_t file_id,
@@ -190,12 +148,9 @@ struct file_instance Volatile_Metadata::get_file_info (uint32_t fd) {
   return inst;
 }
 
-bool Volatile_Metadata::ip_to_node_map_contains (char *ip) {
-  return (ip_to_node_map.find (ip) != ip_to_node_map.end());
-}
-
-bool Volatile_Metadata::up_nodes_contains (char *ip) {
-  return (std::find (up_nodes.begin(), up_nodes.end(), ip) != up_nodes.end());
+bool Volatile_Metadata::up_nodes_contains (uint32_t node_number) {
+  return (std::find (up_nodes.begin(), up_nodes.end(), node_number)
+          != up_nodes.end());
 }
 
 bool Volatile_Metadata::file_cursors_contains (uint32_t fd) {

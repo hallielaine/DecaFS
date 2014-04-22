@@ -32,12 +32,14 @@ extern "C" void process_delete_file (uint32_t file_id);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.
+ *   @return the node id
  */
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
                             uint32_t chunk_num, uint32_t node_id);
 
 /*
  *	Get the storage location (node id) for a given chunk of a file.
+ *   @return CHUNK_NOT_FOUND if the chunk hasn't been stored <properly>
  */
 extern "C" int get_node_id (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num);
 
