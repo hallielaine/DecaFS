@@ -11,20 +11,15 @@
 #define ALT_VALID_STRIPE_SIZE 4096
 #define INVALID_STRIPE_SIZE 64
 
-#define BARISTA_NODE_NUM 1
-#define ESPRESSO_1_NODE_NUM 2
-#define ESPRESSO_2_NODE_NUM 3
+#define ESPRESSO_1_NODE_NUM 1
+#define ESPRESSO_2_NODE_NUM 2
+#define INVALID_NODE_NUM 3
 
 #define CURSOR_VAL 32
 
-const char barista[] = "192.168.1.100";
-const char espresso_1[] = "192.168.1.101";
-const char espresso_2[] = "192.168.1.102";
-const char invalid_ip[] = "0.0.0.0";
-
 struct ip_address ip;
-struct client client(ip, 1, 1);
-struct client bad_client(ip, 2, 1);
+struct client client(ip, 1, NULL);
+struct client bad_client(ip, 2, NULL);
 struct file_instance file_inst = {client, 1, 0};
 struct file_instance bad_inst = {client, 2, 0};
 
@@ -81,122 +76,72 @@ TEST (Volatile_Metadata, ResetStripeSize) {
   EXPECT_EQ (VALID_STRIPE_SIZE, v_meta.get_stripe_size());
 }
 
-TEST (Volatile_Metadata, AddNode) {
+TEST (Volatile_Metadata, SetNodeUp) {
   Volatile_Metadata v_meta;
-
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  EXPECT_EQ (BARISTA_NODE_NUM, v_meta.get_node_number ((char *)barista));
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-  EXPECT_EQ (ESPRESSO_1_NODE_NUM, v_meta.get_node_number ((char *)espresso_1));
-}
-
-TEST (Volatile_Metadata, GetNodeIp) {
-  Volatile_Metadata v_meta;
-  struct ip_address addr;
-
-  ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
-
-  strcpy (addr.addr, barista);
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  
-  ASSERT_STREQ (addr.addr, (v_meta.get_node_ip (BARISTA_NODE_NUM)).addr);
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up(ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (NODE_ALREADY_UP, v_meta.set_node_up(ESPRESSO_1_NODE_NUM));
 }
 
 TEST (Volatile_Metadata, GetActiveNodeCount) {
   Volatile_Metadata v_meta;
 
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-
-  EXPECT_EQ (2, v_meta.get_active_node_count());
+  EXPECT_EQ (0, v_meta.get_active_node_count());
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (1, v_meta.get_active_node_count());
 }
 
 TEST (Volatile_Metadata, GetActiveNodes) {
   Volatile_Metadata v_meta;
+  
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
 
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
+  struct active_nodes nodes = v_meta.get_active_nodes();
 
-  char **nodes = (char **)malloc (1);
-
-  EXPECT_EQ (2, v_meta.get_active_nodes(&nodes));
-  ASSERT_STREQ (barista, nodes[0]);
-  ASSERT_STREQ (espresso_1, nodes[1]);
-}
-
-TEST (Volatile_Metadata, NodeExists) {
-  Volatile_Metadata v_meta;
-
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  EXPECT_FALSE (v_meta.node_exists (ESPRESSO_1_NODE_NUM));
-  EXPECT_TRUE (v_meta.node_exists (BARISTA_NODE_NUM));
+  EXPECT_EQ (2, nodes.active_node_count);
+  EXPECT_EQ (ESPRESSO_1_NODE_NUM, nodes.node_numbers[0]);
+  EXPECT_EQ (ESPRESSO_2_NODE_NUM, nodes.node_numbers[1]);
+  EXPECT_EQ (0, nodes.node_numbers[2]);
 }
 
 TEST (Volatile_Metadata, NodeDown) {
   Volatile_Metadata v_meta;
-
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-  v_meta.add_node ((char *)espresso_2, ESPRESSO_2_NODE_NUM);
   
-  char **nodes = (char **)malloc (1);
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
 
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
-  v_meta.set_node_down ((char *)espresso_1);
+  EXPECT_EQ (2, v_meta.get_active_nodes());
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_down (ESPRESSO_1_NODE_NUM));
 
-  EXPECT_EQ (2, v_meta.get_active_nodes(&nodes));
-  ASSERT_STREQ (barista, nodes[0]);
-  ASSERT_STREQ (espresso_2, nodes[2]);
+  EXPECT_EQ (1, v_meta.get_active_nodes());
+  EXPECT_EQ (ESPRESSO_2_NODE_NUM, nodes.node_numbers[0]);
+  
 }
 
 TEST (Volatile_Metadata, NodeDownDoesNotExist) {
   Volatile_Metadata v_meta;
 
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-  v_meta.add_node ((char *)espresso_2, ESPRESSO_2_NODE_NUM);
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
   
-  char **nodes = (char **)malloc (1);
-  
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
-  v_meta.set_node_down ((char *)invalid_ip);
-
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
+  EXPECT_EQ (2, v_meta.get_active_nodes());
+  EXPECT_EQ (NODE_NUMBER_NOT_FOUND, v_meta.set_node_down (INVALID_NODE_NUM));
+  EXPECT_EQ (2, v_meta.get_active_nodes());
 }
 
-TEST (Volatile_Metadata, NodeUp) {
+TEST (Volatile_Metadata, IsNodeUp) {
   Volatile_Metadata v_meta;
+  
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_up (ESPRESSO_2_NODE_NUM));
+  
+  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
 
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-  v_meta.add_node ((char *)espresso_2, ESPRESSO_2_NODE_NUM);
+  EXPECT_EQ (V_META_SUCCESS, v_meta.set_node_down (ESPRESSO_1_NODE_NUM));
   
-  char **nodes = (char **)malloc (1);
-
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
-  
-  v_meta.set_node_down ((char *)espresso_1);
-  EXPECT_EQ (2, v_meta.get_active_nodes(&nodes));
- 
-  v_meta.set_node_up ((char *)espresso_1);
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
-  
-}
-
-TEST (Volatile_Metadata, NodeUpDoesNotExist) {
-  Volatile_Metadata v_meta;
-
-  v_meta.add_node ((char *)barista, BARISTA_NODE_NUM);
-  v_meta.add_node ((char *)espresso_1, ESPRESSO_1_NODE_NUM);
-  v_meta.add_node ((char *)espresso_2, ESPRESSO_2_NODE_NUM);
-  
-  char **nodes = (char **)malloc (1);
-  
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
-  
-  v_meta.set_node_up ((char *)invalid_ip);
-
-  EXPECT_EQ (3, v_meta.get_active_nodes(&nodes));
+  EXPECT_FALSE (v_meta.is_node_up (ESPRESSO_1_NODE_NUM));
+  EXPECT_TRUE (v_meta.is_node_up (ESPRESSO_2_NODE_NUM));
 }
 
 TEST (Volatile_Metadata, FileCursorCreation) {
