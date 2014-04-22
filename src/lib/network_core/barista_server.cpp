@@ -1,10 +1,34 @@
 #include "barista_server.h"
 
+BaristaServer* barista_server = NULL;
+
+BaristaServer* BaristaServer::init(int port) {
+
+  static bool init = false;
+
+  if (!init) {
+    barista_server = new BaristaServer(port);
+    init = true;
+  }
+
+  return barista_server;
+}
+
+BaristaServer* BaristaServer::get() {
+
+  return barista_server;
+}
+
 BaristaServer::BaristaServer(unsigned short port) 
  : TcpServer(port) 
 {
   printf("%d\n", port);
   next_node_num = 1;
+}
+
+int BaristaServer::sendToEspresso(int node_id, Packet packet) {
+
+  return m_espresso_nodes[node_id]->sendToClient(packet.packet, packet.packet_size); 
 }
 
 void BaristaServer::clientConnected(ConnectionToClient* client) {
@@ -20,7 +44,10 @@ void BaristaServer::clientConnected(ConnectionToClient* client) {
 
   printf("client connected with ip_address: %s\n", ip_ptr);
 
-  add_node(ip_ptr, next_node_num++);
+  int node_id = next_node_num++;
+
+  add_node(ip_ptr, node_id);
+  m_espresso_nodes[node_id] = client;
 
   cl = client;
 }
