@@ -48,7 +48,7 @@ void BaristaServer::clientConnected(ConnectionToClient* client) {
   printf("client connected with ip_address: %s\n", ip_ptr);
 
 
-  add_node(ip_ptr, node_id);
+  set_node_up(node_id);
   m_espresso_nodes[node_id] = client;
 
   cl = client;

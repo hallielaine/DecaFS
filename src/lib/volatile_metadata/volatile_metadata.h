@@ -14,6 +14,7 @@
 #include "decafs_types/file_types.h"
 #include "decafs_types/ip_address.h"
 #include "decafs_types/limits.h"
+#include "net_tcp/connection_to_client.h"
 #include "persistent_metadata/persistent_metadata_c_api.h"
 
 #define V_META_SUCCESS 0
@@ -22,10 +23,9 @@
 #define SIZE_ALREADY_SET -1
 #define SIZE_INVALID -2
 
-// IP Map Errors
-#define IP_EXISTS -1
-#define IP_NOT_FOUND -2
-#define NODE_NUMBER_NOT_FOUND -3
+// Node Errors
+#define NODE_NUMBER_NOT_FOUND -1
+#define NODE_ALREADY_UP 1
 
 // Cursor Errors
 #define INSTANCE_NOT_FOUND -1
@@ -42,16 +42,14 @@ class Volatile_Metadata {
     uint32_t chunk_size;
     uint32_t stripe_size;
     
-    std::map<string, int> ip_to_node_map;
-    std::list<string> up_nodes;
+    std::list<uint32_t> up_nodes;
     std::map<uint32_t, struct file_instance> file_cursors;
     
     uint32_t last_fd;
     std::mutex fd_mutex;
 
     // Helper Functions
-    bool ip_to_node_map_contains (char *ip);
-    bool up_nodes_contains (char *ip);
+    bool up_nodes_contains (uint32_t node_number);
     bool file_cursors_contains (uint32_t fd);
     uint32_t get_new_fd(); 
 
@@ -85,47 +83,25 @@ class Volatile_Metadata {
     int set_stripe_size (uint32_t size);
 
     /*
-     * Returns the node number for a specific IP address.
-     * If barista_core was not started with the given IP address, IP_NOT_FOUND
-     *   is returned.
+     * Set the node with the unique node_number to be "down" in the instance
+     *   of DecaFS.
+     * @return V_META_SUCCESS on success
+     *         NODE_NUMBER_NOT_FOUND on failure
      */
-    uint32_t get_node_number (char *ip);
-
-    /*
-     * Returns the IP address of the node with a given node number.
-     * If the node number is not found, NODE_NUMBER_NOT_FOUND
-     *   is returned.
-     */
-    struct ip_address get_node_ip (uint32_t node_number);
+    uint32_t set_node_down (uint32_t node_number);
     
     /*
-     * Add a node ip and node number pairing to the metadata for this instance
+     * Set the node with the unique node_number to be "up" in the instance
      *   of DecaFS.
-     * If the ip address has already been assigned a node number, IP_EXISTS
-     *   is returned.
+     * @return V_META_SUCCESS on success
+     *         NODE_ALREADY_UP if the node was up when this function was called
      */
-    int add_node (char *ip, uint32_t node_number);
-    
-    /*
-     * Set the node with the specific ip address to be "down" 
-     *   of DecaFS.
-     * If barista_core was not started with the given IP address, IP_NOT_FOUND
-     *   is returned.
-     */
-    uint32_t set_node_down (char *ip);
-    
-    /*
-     * Set the node with the specific ip address to be "up" 
-     *   of DecaFS.
-     * If barista_core was not started with the given IP address, IP_NOT_FOUND
-     *   is returned.
-     */
-    uint32_t set_node_up (char *ip);
+    uint32_t set_node_up (uint32_t node_number);
 
     /* 
      * Determines whether or not a specific node is "up"
      */
-    bool is_node_up (char *ip);
+    bool is_node_up (uint32_t node_number);
     
     /*
      * Returns the number of active nodes.
@@ -133,20 +109,11 @@ class Volatile_Metadata {
     int get_active_node_count();
     
     /*
-     * Give the "state" of the system.
-     * nodes is filled in with the ip addresses for the active nodes (nodes
-     *   that were not set to "down").
-     * IP addresses of each node will be returned in sorted order.
-     * nodes will be reallocated to support the number of nodes that are up.
-     * The number of active nodes in the system is returned.
+     * Gives the "state" of the system.
+     * Returns an active_nodes struct that represents the node numbers active
+     *  in the current instance of DecaFS.
      */
-    uint32_t get_active_nodes (char ***nodes);
-
-    /*
-     * Determines whether or not a node exists in the system.
-     * @return true if node exists, else false
-     */
-    bool node_exists (uint32_t node_number);
+    struct active_nodes get_active_nodes ();
 
     /*
      *   Start a new file cursor if one doesn’t exist already.
