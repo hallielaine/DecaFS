@@ -59,16 +59,52 @@ void BaristaServer::clientDisconnected(ConnectionToClient* client) {
   printf("BaristaServer: a client disconnected!\n");
 }
 
-void BaristaServer::handleMessageFromClient(void* buf, ssize_t length, ConnectionToClient* client) {
+void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
 
-  printf("BaristaServer: a client sent a message!\n");
+  printf("BaristaServer: received a message from a client!\n");
 
-  // can call in barista core
-  // new_espresso_node
-  // espresso_disconnected
-  // read_chunk_response
-  // write_chunk_response
-  // delete_chunk_response 
+  uint32_t packet_size, flag;
+  void* buffer_ptr;
+  Packet *packet;
+
+  // get the next packet size
+  if (recv(client->sock_fd, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) <= 0) {
+    // TODO error
+  }
+
+  buffer_ptr = (char*)malloc(packet_size);
+  if (recv(client->sock_fd, buffer_ptr, packet_size, 0) != packet_size) {
+    // TODO error expected to read more bytes for a complete Packet message
+  } 
+   
+  flag = ((uint32_t*)buffer_ptr)[2];
+
+  switch (flag) {
+    case (READ_CHUNK_RESPONSE) : 
+    {
+      printf("\ngot a READ_CHUNK_RESPONSE packet\n");
+      ReadChunkResponse readResponse(buffer_ptr, packet_size);
+      std::cout << readResponse << std::endl;
+      // TODO call back to barista core 
+      break;
+    }
+    case (WRITE_CHUNK_RESPONSE) : 
+    {
+      printf("\ngot a WRITE_CHUNK_RESPONSE packet\n");
+      WriteChunkResponse writeResponse(buffer_ptr, packet_size);
+      std::cout << writeResponse << std::endl;
+      // TODO call back to barista core
+      break;
+    }
+    case (DELETE_CHUNK_RESPONSE) :
+    {
+      printf("\ngot a DELETE_CHUNK_RESPONSE packet\n");
+      DeleteChunkResponse deleteResponse(buffer_ptr, packet_size);
+      std::cout << deleteResponse << std::endl;
+      // TODO call back to barista core
+      break;
+    }
+  }
 }
 
 void BaristaServer::serverClosed() {

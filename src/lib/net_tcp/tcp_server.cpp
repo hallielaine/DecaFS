@@ -148,8 +148,7 @@ void TcpServer::check_for_messages() {
   int len_read;
   ConnectionToClient* client;
 
-  int max_len = 65536;
-  uint8_t* buf = (uint8_t*)malloc(max_len);
+  uint32_t buf;
 
   memcpy(&tmp_set, &m_client_set, sizeof(fd_set));
   safe_select(m_highest_socket+1, &tmp_set);
@@ -158,10 +157,10 @@ void TcpServer::check_for_messages() {
 
     client = it->second;
     if (FD_ISSET(client->sock_fd, &tmp_set)) {
-      len_read = recv(client->sock_fd, buf, max_len, 0);
+      len_read = recv(client->sock_fd, (void*)&buf, sizeof(buf), MSG_PEEK);
 
       if (len_read > 0) {
-        handleMessageFromClient(buf, len_read, client);
+        handleMessageFromClient(client);
       } else if (len_read == 0) {
         printf("TcpServer: length 0 message received from a client.");
       } else {

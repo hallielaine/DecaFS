@@ -54,7 +54,7 @@ class TcpServer {
       // getClientConenctions
       int getNumberOfClients();
       int getPort();
-      virtual void handleMessageFromClient(void* buf, ssize_t length, ConnectionToClient* client) = 0;
+      virtual void handleMessageFromClient(ConnectionToClient* client) = 0;
       //bool isClosed();
       bool isListening();
       void run();
