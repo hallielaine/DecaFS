@@ -69,66 +69,66 @@ extern "C" void sync () {
 // ------------------------Persistent Metadata Call Throughs---------------------------
 extern "C" int get_num_files (struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.get_num_files();
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size,
                               struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.get_filenames(filenames, size);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int decafs_file_sstat (char *pathname, struct decafs_file_stat *buf,
                                  struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.decafs_file_sstat (pathname, buf);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf,
                                  struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.decafs_file_stat (file_id, buf);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int decafs_stat (char *pathname, struct statvfs *buf,
                             struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.decafs_stat (pathname, buf);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int set_access_time (file_instance inst, struct timeval time,
                                 struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.set_access_time (inst, time);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
@@ -137,33 +137,33 @@ extern "C" int add_file (char *pathname,
                          uint32_t replica_size, struct timeval time,
                          struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.add_file (pathname, stripe_size,
                                       chunk_size, replica_size, time);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int delete_file_contents (uint32_t file_id, struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.delete_file_contents (file_id);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
 extern "C" int update_file_size (uint32_t file_id, int size_delta,
                                  struct client client) {
   int res;
-  if (get_metadata_lock (client.user_id, client.proc_id) < 0) {
+  if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
   res = persistent_metadata.update_file_size (file_id, size_delta);
-  release_metadata_lock (client.user_id, client.proc_id);
+  release_metadata_lock (client);
   return res;
 }
 
@@ -278,7 +278,7 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
   if (flags & O_RDWR) {
     // if we can't get a write lock, return that the file is in use so we can't
     // open it
-    if (get_exclusive_lock (client.user_id, client.proc_id, file_id) < 0) {
+    if (get_exclusive_lock (client, file_id) < 0) {
       return FILE_IN_USE;
     }
     printf ("\tobtained a write lock.\n");
@@ -287,7 +287,7 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
   else {
     // if we can't get a read lock, return that the file is in use so we can't
     // open it
-    if (get_shared_lock (client.user_id, client.proc_id, file_id) < 0) {
+    if (get_shared_lock (client, file_id) < 0) {
       return FILE_IN_USE;
     }
     printf ("\tobtained a read lock.\n");
@@ -313,8 +313,8 @@ extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client cli
   printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
  
   // If the client does not have permission to read, return an error
-  if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
-    if (has_shared_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
+  if (has_exclusive_lock (client, inst.file_id) <= 0) {
+    if (has_shared_lock (client, inst.file_id) <= 0) {
       return FILE_NOT_OPEN_FOR_READ;
     }
   }
@@ -366,7 +366,7 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
   printf ("\n(BARISTA) Write request (%d bytes)\n", (int)count);
   
   // If the client does not have permission to write, return an error
-  if (has_exclusive_lock (client.user_id, client.proc_id, inst.file_id) <= 0) {
+  if (has_exclusive_lock (client, inst.file_id) <= 0) {
     return FILE_NOT_OPEN_FOR_WRITE; 
   }
  
@@ -410,7 +410,7 @@ extern "C" int close_file (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
   // If we successfully closed the file, release the lock
   if (file_id > 0) {
-    release_lock (client.user_id, client.proc_id, file_id);
+    release_lock (client, file_id);
   }
   return file_id;
 }
@@ -422,14 +422,15 @@ extern "C" int delete_file (char *pathname, struct client client) {
   if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
     return FILE_NOT_FOUND;
   }
-
-  if (get_exclusive_lock (client.user_id, client.proc_id,
-                          file_info.file_id) < 0) {
-    return FILE_IN_USE;
+  
+  if (has_exclusive_lock (client, file_info.file_id) <= 0) {
+    if (get_exclusive_lock (client, file_info.file_id) < 0) {
+      return FILE_IN_USE;
+    }
   }
  
   process_delete_file (file_info.file_id);
-  release_lock (client.user_id, client.proc_id, file_info.file_id);
+  release_lock (client, file_info.file_id);
   
   return file_info.file_id;
 }

@@ -75,7 +75,7 @@ void process_arguments (int argc, char *argv[]) {
   // Add all espresso nodes to volatile_metadata
   // TODO: retry connections to espresso nodes on failure
   // TODO: 3 times with increased wait each time
-  for (int i = ESPRESSO; i < argc; i++) {
+  /*for (int i = ESPRESSO; i < argc; i++) {
     int res = network_add_client(argv[i]);
     if (res >= 0) {
       add_node(argv[i], res);
@@ -83,7 +83,7 @@ void process_arguments (int argc, char *argv[]) {
     else {
       fprintf(stderr, "Failed to connect to espresso node: %sn", argv[i]);
     }
-  }
+  }*/
 }
 
 const char *get_size_error_message (const char *type, const char *value) {

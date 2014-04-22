@@ -13,10 +13,10 @@ int main(int argc, char** argv) {
   printf("opening espresso node to network connections\n");
 
   // register espresso callback functions in network layer
-  register_read_data_callback(read_data);
+  /*register_read_data_callback(read_data);
   register_write_data_callback(write_data);
   register_delete_data_callback(delete_data);
-  
+  */
   char storage_file[] = ".data_storage";
   char *file = (char *)malloc(strlen (argv[FILESYSTEM]) +
                               strlen (storage_file) + 1);
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
   // the svc_main_loop function lives in network core and
   // calls registered espresso functions as it receives the rpcs
-  svc_main_loop(argc, argv);
+  //svc_main_loop(argc, argv);
 
   return 0;
 }
