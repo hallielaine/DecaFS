@@ -11,7 +11,7 @@
  *		Layer network_read_chunk() must be called.
  */
 ssize_t process_read_chunk (int fd, int file_id, int node_id, int stripe_id,
-     int chunk_num, int offset, int count);
+     int chunk_num, int offset, void* buf, int count);
 
 /*
  *	Write data to a chunk at a specific offset.

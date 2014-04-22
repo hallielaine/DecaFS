@@ -1,22 +1,22 @@
 #include "barista_server.h"
 
-BaristaServer* barista_server = NULL;
+BaristaServer* bs;
 
 BaristaServer* BaristaServer::init(int port) {
 
   static bool init = false;
 
   if (!init) {
-    barista_server = new BaristaServer(port);
+    bs = new BaristaServer(port);
     init = true;
   }
 
-  return barista_server;
+  return bs;
 }
 
 BaristaServer* BaristaServer::get() {
 
-  return barista_server;
+  return bs;
 }
 
 BaristaServer::BaristaServer(unsigned short port) 
