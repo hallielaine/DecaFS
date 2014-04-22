@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
            get_chunk_size());
 
                                     // TODO: Make port num an arg
-  barista_server = new BaristaServer(1034);
+  barista_server = BaristaServer::init(1234);
   barista_server->run();
 
   /* TEST CODE */

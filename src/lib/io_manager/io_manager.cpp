@@ -183,11 +183,14 @@ void IO_Manager::process_delete_file (uint32_t file_id) {
   for (std::vector<struct file_chunk>::iterator it = chunks.begin();
        it != chunks.end(); it++) {
     if (chunk_exists (*it)) {
-      // TODO: call access layer remove chunk here when implemented
+      int chunk_node = get_node_id (file_id, (*it).stripe_id, (*it).chunk_num);
+      process_delete_chunk (file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_node.erase (*it);
     }
     if (chunk_replica_exists (*it)) {
-      // TODO: call access layer remove chunk here when implemented
+      int chunk_node = get_replica_node_id (file_id, (*it).stripe_id,
+                                            (*it).chunk_num);
+      process_delete_chunk (file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_replica_node.erase (*it);
     }
   }
