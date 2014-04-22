@@ -2,6 +2,8 @@ BIN := decafs_barista
 OBJS := decafs_barista.o
 
 DECAFS_LIBS := network_core/libnetcore.a \
+               net_tcp/libnettcp.a \
+               network_core_new/libnetcore.a \
                decafs_types/libdecafs_types.a \
                access/libaccess.a \
                locking_strategy/liblocking_strategy.a \
