@@ -53,7 +53,6 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                    // ADD FD HERE
     chunk_result = process_read_chunk (0, file_id, node_id, stripe_id,
                                       chunk_id, chunk_offset, 
-                                      (uint8_t *)buf + bytes_read,
                                       read_size);
     
     printf ("\t\treceived %d from network call.\n", chunk_result);
@@ -183,11 +182,14 @@ void IO_Manager::process_delete_file (uint32_t file_id) {
   for (std::vector<struct file_chunk>::iterator it = chunks.begin();
        it != chunks.end(); it++) {
     if (chunk_exists (*it)) {
-      // TODO: call access layer remove chunk here when implemented
+      int chunk_node = get_node_id (file_id, (*it).stripe_id, (*it).chunk_num);
+      process_delete_chunk (file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_node.erase (*it);
     }
     if (chunk_replica_exists (*it)) {
-      // TODO: call access layer remove chunk here when implemented
+      int chunk_node = get_replica_node_id (file_id, (*it).stripe_id,
+                                            (*it).chunk_num);
+      process_delete_chunk (file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_replica_node.erase (*it);
     }
   }

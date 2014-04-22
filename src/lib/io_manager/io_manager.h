@@ -50,7 +50,8 @@ class IO_Manager {
     ssize_t process_read_stripe (uint32_t file_id, char *pathname,
                                  uint32_t stripe_id, uint32_t stripe_size,
                                  uint32_t chunk_size, const void *buf,
-                                 int offset, size_t count);
+                                 int offset, size_t count,
+                                 struct client client);
 
     /*
      *	Translates a write request into a series of chunk writes and handles
@@ -61,12 +62,13 @@ class IO_Manager {
     ssize_t process_write_stripe (uint32_t file_id, char *pathname,
                                   uint32_t stripe_id, uint32_t stripe_size,
                                   uint32_t chunk_size, const void *buf,
-                                  int offset, size_t count);
+                                  int offset, size_t count,
+                                  struct client client);
     
     /*
      *   Delete all chunks and replicas for a given file.
      */
-    void process_delete_file (uint32_t file_id);
+    void process_delete_file (uint32_t file_id, struct client client);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
