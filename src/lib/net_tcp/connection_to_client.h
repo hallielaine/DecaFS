@@ -6,9 +6,8 @@
 #include <netinet/in.h> 
 #include <stdio.h>
 
-class ConnectionToClient {
+struct ConnectionToClient {
 
-  public:
     uint32_t sock_fd;
     uint8_t handle;
     sockaddr_in addr;

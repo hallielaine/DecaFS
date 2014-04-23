@@ -47,7 +47,6 @@ void BaristaServer::clientConnected(ConnectionToClient* client) {
   ip_ptr[strlen(ip_ptr)-1] = (char)(node_id + 48);
   printf("client connected with ip_address: %s\n", ip_ptr);
 
-
   set_node_up(node_id);
   m_espresso_nodes[node_id] = client;
 
@@ -63,9 +62,8 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
 
   printf("BaristaServer: received a message from a client!\n");
 
-  uint32_t packet_size, flag;
+  int32_t packet_size, flag;
   void* buffer_ptr;
-  Packet *packet;
 
   // get the next packet size
   if (recv(client->sock_fd, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) <= 0) {

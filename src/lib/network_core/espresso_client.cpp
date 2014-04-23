@@ -20,7 +20,8 @@ void EspressoClient::handleMessageFromServer(int socket) {
 
   printf("EspressoClient: message received from Barista!\n");
 
-  uint32_t packet_size, flag, bytes_read;
+  uint32_t flag;
+  int32_t packet_size;
   void* buffer_ptr;
   Packet *packet;
 
