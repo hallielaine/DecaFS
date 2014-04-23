@@ -129,7 +129,7 @@ public:
   }
 
   T& operator[](const Key& key) {
-    T &v = entries[key];
+    T *v = entries[key];
     if (v == nullptr) {
       v = allocate();
       new (v) std::pair<Key, T>(key, T());
