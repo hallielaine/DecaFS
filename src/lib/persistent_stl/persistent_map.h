@@ -263,7 +263,9 @@ public:
     iterator search = find(key);
     if (search != end()) {
       erase(search);
+      return 1;
     }
+    return 0;
   }
 
   inline size_t count(const Key &key) const { return entries.count(key); }
