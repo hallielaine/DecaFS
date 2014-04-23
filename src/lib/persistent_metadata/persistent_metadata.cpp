@@ -1,7 +1,10 @@
 #include "persistent_metadata.h"
 
-Persistent_Metadata::Persistent_Metadata(char *metadata_path) {
+Persistent_Metadata::Persistent_Metadata() {
   next_file_id = ID_NOT_SET;
+}
+
+void Persistent_Metadata::init(char *metadata_path) {
   std::string id_to_node_file = std::string (metadata_path) + 
                                 std::string (id_metadata_filename);
   std::string metadata_file = std::string (metadata_path) + 

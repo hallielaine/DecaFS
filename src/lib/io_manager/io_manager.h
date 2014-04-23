@@ -26,8 +26,8 @@
 
 #define CHUNK_ID_INIT 1
 
-const char *node_metadata_filename = "io_manager_node_metadata.dat";
-const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
+static const char *node_metadata_filename = "io_manager_node_metadata.dat";
+static const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
 
 using namespace std;
 
@@ -48,7 +48,9 @@ class IO_Manager {
     void get_first_chunk (uint32_t *id, uint32_t chunk_size, int *chunk_offset, int offset);
 
   public:
-    IO_Manager(char *metadata_path);
+    IO_Manager();
+    
+    void init(char *metadata_path);
 
     /*
      *	Translates a read request from the stripe level to the chunk level.

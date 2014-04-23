@@ -26,8 +26,8 @@
 
 #define ID_NOT_SET 0
 
-const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
-const char *persistent_metadata_filename = ".persistent_metadata.dat";
+static const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
+static const char *persistent_metadata_filename = ".persistent_metadata.dat";
 
 struct persistent_metadata_info {
   uint32_t file_id;
@@ -56,8 +56,9 @@ class Persistent_Metadata {
     std::mutex file_id_mutex;
 
   public:
-    Persistent_Metadata(char *metadata_path);
-
+    Persistent_Metadata();
+ 
+    void init (char *metadata_path);
     /*
      *  Return the number of files that exist in DecaFS.
      */

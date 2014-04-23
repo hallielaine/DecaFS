@@ -1,6 +1,10 @@
 #include "io_manager.h"
 
-IO_Manager::IO_Manager(char *metadata_path) {
+IO_Manager::IO_Manager() {
+
+}
+
+void IO_Manager::init(char *metadata_path) {
   std::string node_metadata_file = std::string(metadata_path) +
                                    std::string(node_metadata_filename);
   std::string replica_metadata_file = std::string(metadata_path) +
