@@ -142,6 +142,10 @@ public:
     explicit inline iterator() {}
     explicit inline iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
       internal_it(it) {}
+    inline iterator(iterator &o) {
+      internal_it = o.internal_it;
+      return *this;
+    }
 
     iterator inline operator++() { return iterator(++internal_it); }
     iterator inline operator++(int) { return iterator(internal_it++); }
@@ -149,10 +153,6 @@ public:
     iterator inline operator--(int) { return iterator(internal_it--); }
     std::pair<Key, T>& operator*() const { return *(internal_it->second); }
     std::pair<Key, T>* operator->() const { return internal_it->second; }
-    inline iterator& operator=(iterator &o) {
-      internal_it = o.internal_it;
-      return *this;
-    }
     friend inline bool operator!=(const iterator &lhs, const iterator &rhs) {
       return lhs.internal_it != rhs.internal_it;
     }
@@ -171,7 +171,10 @@ public:
     explicit inline const_iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
       internal_it(it) {}
     inline const_iterator(iterator &it) : internal_it(it.internal_it) {}
-
+    inline const_iterator(const_iterator &o) {
+      internal_it = o.internal_it;
+      return *this;
+    }
 
     const_iterator inline operator++() { return const_iterator(++internal_it); }
     const_iterator inline operator++(int) { return const_iterator(internal_it++); }
@@ -179,10 +182,6 @@ public:
     const_iterator inline operator--(int) { return const_iterator(internal_it--); }
     const std::pair<Key, T>& operator*() const { return *(internal_it->second); }
     const std::pair<Key, T>* operator->() const { return internal_it->second; }
-    inline const_iterator& operator=(const_iterator &o) {
-      internal_it = o.internal_it;
-      return *this;
-    }
     friend inline bool operator!=(const const_iterator &lhs, const const_iterator &rhs) {
       return lhs.internal_it != rhs.internal_it;
     }
