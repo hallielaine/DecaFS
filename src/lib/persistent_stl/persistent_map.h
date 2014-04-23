@@ -129,12 +129,12 @@ public:
   }
 
   T& operator[](const Key& key) {
-    T *v = entries[key];
+    std::pair<Key, T> *v = entries[key];
     if (v == nullptr) {
       v = allocate();
       new (v) std::pair<Key, T>(key, T());
     }
-    return *v;
+    return v->second;
   }
 
   struct iterator : public std::iterator<std::bidirectional_iterator_tag,
