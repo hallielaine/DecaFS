@@ -164,6 +164,32 @@ public:
     typename std::map<Key, std::pair<Key, T>*>::iterator internal_it;
   };
 
+  struct reverse_iterator : public std::iterator<std::bidirectional_iterator_tag, std::pair<Key, T> > {
+    explicit inline reverse_iterator() {}
+    explicit inline reverse_iterator(typename std::map<Key, std::pair<Key, T>*>::reverse_iterator it) :
+      internal_it(it) {}
+    inline reverse_iterator(const reverse_iterator &o) {
+      internal_it = o.internal_it;
+    }
+
+    reverse_iterator inline operator++() { return reverse_iterator(++internal_it); }
+    reverse_iterator inline operator++(int) { return reverse_iterator(internal_it++); }
+    reverse_iterator inline operator--() { return reverse_iterator(--internal_it); }
+    reverse_iterator inline operator--(int) { return reverse_iterator(internal_it--); }
+    std::pair<Key, T>& operator*() const { return *(internal_it->second); }
+    std::pair<Key, T>* operator->() const { return internal_it->second; }
+    friend inline bool operator!=(const reverse_iterator &lhs, const reverse_iterator &rhs) {
+      return lhs.internal_it != rhs.internal_it;
+    }
+    friend inline bool operator==(const reverse_iterator &lhs, const reverse_iterator &rhs) {
+      return lhs.internal_it == rhs.internal_it;
+    }
+
+  private:
+    friend PersistentMap;
+    typename std::map<Key, std::pair<Key, T>*>::reverse_iterator internal_it;
+  };
+
   struct const_iterator : public std::iterator<std::bidirectional_iterator_tag,
                                                std::pair<Key, T> > {
     explicit inline const_iterator() {}
@@ -192,18 +218,46 @@ public:
     typename std::map<Key, std::pair<Key, T>*>::const_iterator internal_it;
   };
 
+  struct const_reverse_iterator : public std::iterator<std::bidirectional_iterator_tag,
+                                               std::pair<Key, T> > {
+    explicit inline const_reverse_iterator() {}
+    explicit inline const_reverse_iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
+      internal_it(it) {}
+    inline const_reverse_iterator(iterator &it) : internal_it(it.internal_it) {}
+    inline const_reverse_iterator(const const_reverse_iterator &o) {
+      internal_it = o.internal_it;
+    }
+
+    const_reverse_iterator inline operator++() { return const_reverse_iterator(++internal_it); }
+    const_reverse_iterator inline operator++(int) { return const_reverse_iterator(internal_it++); }
+    const_reverse_iterator inline operator--() { return const_reverse_iterator(--internal_it); }
+    const_reverse_iterator inline operator--(int) { return const_reverse_iterator(internal_it--); }
+    const std::pair<Key, T>& operator*() const { return *(internal_it->second); }
+    const std::pair<Key, T>* operator->() const { return internal_it->second; }
+    friend inline bool operator!=(const const_reverse_iterator &lhs, const const_reverse_iterator &rhs) {
+      return lhs.internal_it != rhs.internal_it;
+    }
+    friend inline bool operator==(const const_reverse_iterator &lhs, const const_reverse_iterator &rhs) {
+      return lhs.internal_it == rhs.internal_it;
+    }
+
+  private:
+    friend PersistentMap;
+    typename std::map<Key, std::pair<Key, T>*>::const_reverse_iterator internal_it;
+  };
+
   inline iterator begin() { return iterator(entries.begin()); }
   inline const_iterator begin() const { return const_iterator(entries.begin()); }
   inline const_iterator cbegin() const { return const_iterator(entries.cbegin()); }
   inline iterator end() { return iterator(entries.end()); }
   inline const_iterator end() const { return const_iterator(entries.end()); }
   inline const_iterator cend() const { return const_iterator(entries.cend()); }
-  inline iterator rbegin() { return iterator(entries.rbegin()); }
-  inline const_iterator rbegin() const { return const_iterator(entries.rbegin()); }
-  inline const_iterator crbegin() const { return const_iterator(entries.crbegin()); }
-  inline iterator rend() { return iterator(entries.rend()); }
-  inline const_iterator rend() const { return const_iterator(entries.rend()); }
-  inline const_iterator crend() const { return const_iterator(entries.crend()); }
+  inline reverse_iterator rbegin() { return reverse_iterator(entries.rbegin()); }
+  inline const_reverse_iterator rbegin() const { return const_reverse_iterator(entries.rbegin()); }
+  inline const_reverse_iterator crbegin() const { return const_reverse_iterator(entries.crbegin()); }
+  inline reverse_iterator rend() { return reverse_iterator(entries.rend()); }
+  inline const_reverse_iterator rend() const { return const_reverse_iterator(entries.rend()); }
+  inline const_reverse_iterator crend() const { return const_reverse_iterator(entries.crend()); }
 
   inline bool empty() const { return entries.empty(); }
   inline size_t size() const { return entries.size(); }
