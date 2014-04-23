@@ -142,9 +142,8 @@ public:
     explicit inline iterator() {}
     explicit inline iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
       internal_it(it) {}
-    inline iterator(iterator &o) {
+    inline iterator(const iterator &o) {
       internal_it = o.internal_it;
-      return *this;
     }
 
     iterator inline operator++() { return iterator(++internal_it); }
@@ -171,9 +170,8 @@ public:
     explicit inline const_iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
       internal_it(it) {}
     inline const_iterator(iterator &it) : internal_it(it.internal_it) {}
-    inline const_iterator(const_iterator &o) {
+    inline const_iterator(const const_iterator &o) {
       internal_it = o.internal_it;
-      return *this;
     }
 
     const_iterator inline operator++() { return const_iterator(++internal_it); }
