@@ -201,6 +201,12 @@ public:
   inline iterator end() { return iterator(entries.end()); }
   inline const_iterator end() const { return const_iterator(entries.end()); }
   inline const_iterator cend() const { return const_iterator(entries.cend()); }
+  inline iterator rbegin() { return iterator(entries.rbegin()); }
+  inline const_iterator rbegin() const { return const_iterator(entries.rbegin()); }
+  inline const_iterator crbegin() const { return const_iterator(entries.crbegin()); }
+  inline iterator rend() { return iterator(entries.rend()); }
+  inline const_iterator rend() const { return const_iterator(entries.rend()); }
+  inline const_iterator crend() const { return const_iterator(entries.crend()); }
 
   inline bool empty() const { return entries.empty(); }
   inline size_t size() const { return entries.size(); }
