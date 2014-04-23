@@ -4,10 +4,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <string>
 #include <vector>
 
 #include "decafs_types/limits.h"
 #include "decafs_types/file_types.h"
+#include "persistent_stl/persistent_map.h"
 #include "persistent_metadata/persistent_metadata.h"
 #include "volatile_metadata/volatile_metadata.h"
 #include "distribution_strategy/distribution_strategy.h"
@@ -23,13 +26,16 @@
 
 #define CHUNK_ID_INIT 1
 
+const char *node_metadata_filename = "io_manager_node_metadata.dat";
+const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
+
 using namespace std;
 
 class IO_Manager {
   private:
     // Variables
-    std::map<struct file_chunk, int> chunk_to_node;
-    std::map<struct file_chunk, int> chunk_to_replica_node;
+    PersistentMap<struct file_chunk, int> chunk_to_node;
+    PersistentMap<struct file_chunk, int> chunk_to_replica_node;
     
     // Helper Functions
     bool chunk_exists (struct file_chunk);
@@ -42,7 +48,7 @@ class IO_Manager {
     void get_first_chunk (uint32_t *id, uint32_t chunk_size, int *chunk_offset, int offset);
 
   public:
-    IO_Manager();
+    IO_Manager(char *metadata_path);
 
     /*
      *	Translates a read request from the stripe level to the chunk level.

@@ -13,6 +13,7 @@
 
 #include "decafs_types/limits.h"
 #include "decafs_types/file_types.h"
+#include "persistent_stl/persistent_map.h"
 
 #define P_META_SUCCESS 0
 
@@ -24,6 +25,9 @@
 #define NO_METADATA_LOCK -4
 
 #define ID_NOT_SET 0
+
+const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
+const char *persistent_metadata_filename = ".persistent_metadata.dat";
 
 struct persistent_metadata_info {
   uint32_t file_id;
@@ -39,8 +43,8 @@ using namespace std;
 class Persistent_Metadata {
   private:
     // Variables
-    std::map<int, string> file_id_to_pathname;
-    std::map<string, struct persistent_metadata_info> metadata;
+    PersistentMap<int, string> file_id_to_pathname;
+    PersistentMap<string, struct persistent_metadata_info> metadata;
 
     // Helper Functions
     bool get_file_name (uint32_t file_id, string *name);
@@ -52,7 +56,7 @@ class Persistent_Metadata {
     std::mutex file_id_mutex;
 
   public:
-    Persistent_Metadata();
+    Persistent_Metadata(char *metadata_path);
 
     /*
      *  Return the number of files that exist in DecaFS.

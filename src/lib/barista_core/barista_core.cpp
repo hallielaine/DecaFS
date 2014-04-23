@@ -247,7 +247,11 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
   if (argc < MIN_ARGS) {
     exit_failure (USAGE_ERROR);
   }
-  
+
+  io_manager = IO_Manager (argv[3]);
+  persistent_metadata = Persistent_Metadata (argv[3]);
+  volatile_metadata = Volatile_Metadata ();
+
   ret = set_stripe_size (atoi(argv[STRIPE_SIZE]));
   if (ret < 0) {
     exit_failure (get_size_error_message ("stripe", argv[STRIPE_SIZE]));

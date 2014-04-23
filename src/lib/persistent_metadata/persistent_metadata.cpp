@@ -1,7 +1,13 @@
 #include "persistent_metadata.h"
 
-Persistent_Metadata::Persistent_Metadata() {
+Persistent_Metadata::Persistent_Metadata(char *metadata_path) {
   next_file_id = ID_NOT_SET;
+  std::string id_to_node_file = std::string (metadata_path) + 
+                                std::string (id_metadata_filename);
+  std::string metadata_file = std::string (metadata_path) + 
+                              std::string (persistent_metadata_filename);
+  file_id_to_pathname.open(id_to_node_file.c_str());
+  metadata.open(metadata_file.c_str());
 }
 
 int Persistent_Metadata::get_num_files() {
@@ -10,7 +16,7 @@ int Persistent_Metadata::get_num_files() {
 
 int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size) {
   int current = 0;
-  std::map<string, struct persistent_metadata_info>::iterator it;
+  PersistentMap<string, struct persistent_metadata_info>::iterator it;
 
   it = metadata.begin();
 
