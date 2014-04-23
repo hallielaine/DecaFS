@@ -37,8 +37,6 @@ class PersistentMap {
       return allocation;
     }
 
-    puts("expanding the map file");
-
     int start_of_new = map_size / sizeof(std::pair<Key, T>);
     munmap(map, map_size);
     map_size += sizeof(std::pair<Key, T>) * 10;
