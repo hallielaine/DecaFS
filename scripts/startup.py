@@ -60,7 +60,7 @@ chunk_size = data["chunk_size"]
 
 # configure cmd line args for barista node
 barista_args = str(stripe_size) + " " + str(chunk_size) + " " + barista_node["metadata"]
-barista_args = barista_args + " " + str(len(espresso_nodes))
+barista_args = barista_args + " " + str(len(espresso_nodes)) + " " + str(system_port)
 print(barista_args)
 
 b_proc=None
