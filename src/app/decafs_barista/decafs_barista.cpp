@@ -6,8 +6,16 @@ int main (int argc, char *argv[]) {
   printf ("\tstripe_size: %d\n\tchunk_size: %d\n\n", get_stripe_size(),
            get_chunk_size());
 
-                                    // TODO: Make port num an arg
-  BaristaServer *barista_server = BaristaServer::init(1234);
+  int port = 0;
+  if (argc >= MIN_ARGS) {
+    port = atoi(argv[PORT]); 
+    printf("got port: %d\n", port);
+  } else {
+    fprintf(stderr, "port number not specified\n");
+    exit(-1);
+  }
+
+  BaristaServer *barista_server = BaristaServer::init(port);
   barista_server->run();
 
   /* TEST CODE */

@@ -1,17 +1,17 @@
 {
+  "system_port": "1024",
+  "max_file_size": "65536",
+  "stripe_size": "256",
+  "chunk_size": "128",
   "barista": {
     "ip": "192.168.1.100",
     "metadata": "decafs_metadata"
   },
   "espresso": [
       
-    {"ip": "192.168.1.101", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
-    {"ip": "192.168.1.102", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
-    {"ip": "192.168.1.103", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
-    {"ip": "192.168.1.104", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"}
-  ],
-
-  "max_file_size": "65536",
-  "stripe_size": "256",
-  "chunk_size": "128"
+    {"ip": "192.168.1.101", "id": "1", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
+    {"ip": "192.168.1.102", "id": "2", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
+    {"ip": "192.168.1.103", "id": "3", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"},
+    {"ip": "192.168.1.104", "id": "4", "metadata": "decafs_metadata", "filesystem": "decafs_filesystem"}
+  ]
 }

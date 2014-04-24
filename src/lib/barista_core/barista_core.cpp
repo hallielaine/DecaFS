@@ -1,10 +1,11 @@
 #include "barista_core.h"
 
-#define MIN_ARGS 5
+#define MIN_ARGS 6
 #define STRIPE_SIZE 1
 #define CHUNK_SIZE 2
 #define METADATA 3
-#define ESPRESSO 4
+#define PORT 4
+#define NUM_ESPRESSOS 5
 
 IO_Manager io_manager;
 Persistent_Metadata persistent_metadata;
@@ -248,8 +249,8 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
     exit_failure (USAGE_ERROR);
   }
 
-  io_manager.init (argv[3]);
-  persistent_metadata.init (argv[3]);
+  io_manager.init (argv[METADATA]);
+  persistent_metadata.init (argv[METADATA]);
 
   ret = set_stripe_size (atoi(argv[STRIPE_SIZE]));
   if (ret < 0) {
@@ -261,21 +262,9 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
     exit_failure (get_size_error_message ("chunk", argv[CHUNK_SIZE]));
   }
 
-  // TODO: Recreate metadata from file
-  // path to metadata file is in argv[METADATA]
-
-  // Add all espresso nodes to volatile_metadata
-  // TODO: retry connections to espresso nodes on failure
-  // TODO: 3 times with increased wait each time
-  /*for (int i = ESPRESSO; i < argc; i++) {
-    int res = network_add_client(argv[i]);
-    if (res >= 0) {
-      add_node(argv[i], res);
-    }
-    else {
-      fprintf(stderr, "Failed to connect to espresso node: %sn", argv[i]);
-    }
-  }*/
+  // TODO 
+  // #define NUM_ESPRESSOS 5
+  // pull num espressos from above and put into global int or whatever
 }
 
 extern "C" const char *get_size_error_message (const char *type, const char *value) {

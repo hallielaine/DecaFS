@@ -39,9 +39,15 @@ data = json.loads(json_data)
 espresso_nodes=[]
 espresso_ips=[]
 barista_node=None
+barista_ip=None
+system_port=None
+
+if data["system_port"]:
+  system_port = data["system_port"]
 
 if data["barista"]:
   barista_node=data["barista"]
+  barista_ip=barista_node["ip"]
 
 for node in data["espresso"]:
   espresso_nodes.append(node)
@@ -54,26 +60,29 @@ chunk_size = data["chunk_size"]
 
 # configure cmd line args for barista node
 barista_args = str(stripe_size) + " " + str(chunk_size) + " " + barista_node["metadata"]
-barista_args = barista_args + " " + " ".join(espresso_ips)
+barista_args = barista_args + " " + str(len(espresso_nodes))
 print(barista_args)
 
 b_proc=None
 e_procs=[]
 
+ip = barista_node["ip"]
+metadata = barista_node["metadata"]
+print("executing decafs_barista on " + ip)
+b_proc = subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_barista", barista_args], stdout=sys.stdout, stderr=sys.stderr)
+
+time.sleep(1)
+
 for (i, node) in enumerate(espresso_nodes):
    #TODO: check to make sure these exist
    ip = node["ip"]
+   node_id = node["id"]
    metadata = node["metadata"]
    filesystem = node["filesystem"]
 
    print("executing decafs_espresso on " + ip)
-   e_procs.append(subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_espresso", ip, metadata, filesystem], stdin=open(os.devnull), stdout=sys.stdout, stderr=sys.stderr))
+   e_procs.append(subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_espresso", node_id, metadata, filesystem, barista_ip, system_port], stdin=open(os.devnull), stdout=sys.stdout, stderr=sys.stderr))
 
-ip = barista_node["ip"]
-metadata = barista_node["metadata"]
-
-print("executing decafs_barista on " + ip)
-b_proc = subprocess.Popen(["ssh", "-t", "-t", ip, "./decafs_barista", barista_args], stdout=sys.stdout, stderr=sys.stderr)
 b_proc.communicate()
 print("decafs_barista exited")
 
