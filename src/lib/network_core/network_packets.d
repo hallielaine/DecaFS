@@ -1,0 +1,2 @@
+network_packets.o: network_packets.cpp network_packets.h packet_flags.h \
+ ../../lib/net_tcp/tcp_server.h ../../lib/net_tcp/connection_to_client.h

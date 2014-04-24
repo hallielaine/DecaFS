@@ -32,7 +32,7 @@ OUTFILE := $(BIN)$(LIB)
 default: $(OUTFILE)
 
 clean:
-	$(RM) *.o *.gcno *.gcda *.d $(OUTFILE)
+	$(RM) *.o *.gcno *.gcda $(OUTFILE)
 
 -include *.d
 
