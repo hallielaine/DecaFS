@@ -24,9 +24,14 @@ class BaristaServer : public TcpServer {
 
     uint32_t next_node_num;
 
+    // this contains the espresso nodes and decafs client connections until the
+    // connections send their initialization information to the server
+    std::map<ConnectionToClient*, int> m_pending_clients; 
     std::map<int, ConnectionToClient*> m_espresso_nodes;
-    std::map<int, ConnectionToClient*> m_decafs_clients;
-    ConnectionToClient* cl;
+    std::map<ConnectionToClient*, struct client> m_decafs_clients;
+
+    void addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc);
+    void addDecafsClient(DecafsClientInit decafs_client, ConnectionToClient* ctc);
 
   public:
     static BaristaServer* init(int port); 
@@ -41,8 +46,6 @@ class BaristaServer : public TcpServer {
 
     int numEspressoNodes();
     int sendToEspresso(int node_id, Packet packet); 
-    // for testing only
-    ConnectionToClient* getEspressoNode();
 }; 
 
 #endif // _BARISTA_SERVER_H_

@@ -33,6 +33,42 @@ class Packet {
     friend std::ostream& operator<<(std::ostream& stream, const Packet &packet);
 };
 
+// -------------------------- EspressoInit --------------
+class EspressoInit : public Packet {
+
+  private:
+    static const int data_size = sizeof(uint32_t);
+
+  protected:
+    virtual std::ostream& print(std::ostream&) const;
+
+  public:
+    uint32_t node_id; // only used for espresso_initialization
+
+    EspressoInit(void*buf, ssize_t size);
+    EspressoInit(int node_id);
+
+    friend std::ostream& operator<<(std::ostream& stream, const EspressoInit &packet);
+};
+
+// ------------------------- DecafsClientInit -------------------------
+class DecafsClientInit : public Packet {
+
+  private:
+    static const int data_size = sizeof(uint32_t);
+    
+  protected: 
+    virtual std::ostream& print(std::ostream&) const;
+
+  public: 
+    uint32_t user_id;
+
+    DecafsClientInit(void*buf, ssize_t size);
+    DecafsClientInit(int user_id);
+
+    friend std::ostream& operator<<(std::ostream& stream, const DecafsClientInit &packet);
+};
+
 // -------------------------- FilePacket -------------------------------
 class FilePacket : public Packet {
 
@@ -50,7 +86,7 @@ class FilePacket : public Packet {
     uint32_t stripe_id;
     uint32_t chunk_num;
     uint32_t offset;
-    uint32_t count;
+    int32_t count;
 
     FilePacket(void* buf, ssize_t size);
     FilePacket(int flag, int derived_size, uint32_t fd, uint32_t file_id, 

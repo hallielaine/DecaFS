@@ -75,6 +75,7 @@ int TcpClient::openConnection() {
   }
 
   m_connection_open = true;
+  connectionEstablished();
 
   return 1;
 }

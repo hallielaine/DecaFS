@@ -34,28 +34,37 @@ int BaristaServer::sendToEspresso(int node_id, Packet packet) {
 void BaristaServer::clientConnected(ConnectionToClient* client) {
 
   printf("BaristaServer: a client connected!\n");
+  m_pending_clients[client] = 1;  
 
-  // get ip address of client
-
-  //int ip_addr = client->addr.sin_addr.s_addr;
-  //char ip[INET_ADDRSTRLEN];
-  //inet_ntop(AF_INET, &ip_addr, ip, INET_ADDSTRLEN);
+  // not necessary here
   char* ip_ptr = inet_ntoa(client->addr.sin_addr);
-
-  int node_id = next_node_num++;
-
-  ip_ptr[strlen(ip_ptr)-1] = (char)(node_id + 48);
-  printf("client connected with ip_address: %s\n", ip_ptr);
-
-  set_node_up(node_id);
-  m_espresso_nodes[node_id] = client;
-
-  cl = client;
+  printf("client connected from ip_address: %s\n", ip_ptr);
 }
 
 void BaristaServer::clientDisconnected(ConnectionToClient* client) {
 
   printf("BaristaServer: a client disconnected!\n");
+  // TODO take care of client disconnections
+}
+
+void BaristaServer::addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc) {
+
+  if (m_pending_clients.count(ctc)) {
+    m_pending_clients.erase(ctc);
+    m_espresso_nodes[espresso_node.node_id] = ctc;
+    set_node_up(espresso_node.node_id);
+    printf("BaristaServer: espresso node: %d connected\n", espresso_node.node_id);
+  }
+}
+
+void BaristaServer::addDecafsClient(DecafsClientInit decafs_client, ConnectionToClient* ctc) {
+
+  if (m_pending_clients.count(ctc)) {
+    m_pending_clients.erase(ctc);
+    struct client dclient = client(inet_ntoa(ctc->addr.sin_addr), decafs_client.user_id, ctc);
+    m_decafs_clients[ctc] = dclient;
+    printf("a decafs client connected: ip<%s>, user_id:<%d>\n", dclient.ip.addr, dclient.user_id);
+  }
 }
 
 void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
@@ -77,7 +86,25 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
    
   flag = ((uint32_t*)buffer_ptr)[2];
 
+  // TODO this should be split into types based on what type of client ctc is
+  // ctc possibilities: pending, decafs_client, espresso_node
   switch (flag) {
+    case (ESPRESSO_INIT) :
+    {
+      printf("got a ESPRESSO_INIT packet\n");
+      EspressoInit espressoNode(buffer_ptr, packet_size);
+      std::cout << espressoNode << std::endl;
+      addEspressoNode(espressoNode, client);
+      break;
+    }
+    case (DECAFS_CLIENT_INIT) :
+    {
+      printf("got a DECAFS_CLIENT_INIT packet\n");
+      DecafsClientInit decafs_client(buffer_ptr, packet_size);
+      std::cout << decafs_client << std::endl;
+      addDecafsClient(decafs_client, client);
+      break;
+    }
     case (READ_CHUNK_RESPONSE) : 
     {
       printf("\ngot a READ_CHUNK_RESPONSE packet\n");
@@ -123,9 +150,4 @@ void BaristaServer::serverStopped() {
 int BaristaServer::numEspressoNodes() {
 
   return m_espresso_nodes.size();
-}
-
-// for testing only
-ConnectionToClient* BaristaServer::getEspressoNode() {
-  return cl;
 }

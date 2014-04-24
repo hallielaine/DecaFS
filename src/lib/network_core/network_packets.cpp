@@ -46,6 +46,58 @@ std::ostream& operator<<(std::ostream& stream, const Packet &p) {
   return p.print(stream); 
 }
 
+// ----------------------------- InitializationPacket ------------------
+
+EspressoInit::EspressoInit(void* buf, ssize_t size) : Packet(buf, size) {
+
+  uint32_t* base = (uint32_t*)(((uint8_t*)buf) + Packet::dataSize());
+  node_id = base[0];
+}
+
+EspressoInit::EspressoInit(int node_id) : Packet(ESPRESSO_INIT, data_size),
+  node_id(node_id) {
+
+  uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
+  base[0] = node_id;
+}
+
+std::ostream& EspressoInit::print(std::ostream& stream) const {
+
+  stream << "EspressoInitializationPacket" << std::endl;
+  stream << "\tnode_id: " << node_id << std::endl;
+  return Packet::print(stream); 
+}
+
+std::ostream& operator<<(std::ostream& stream, const EspressoInit &p) {
+  return p.print(stream); 
+}
+
+// -------------------------- DecafsClientInit -----------------------
+
+DecafsClientInit::DecafsClientInit(void* buf, ssize_t size) : Packet(buf, size) {
+
+  uint32_t* base = (uint32_t*)(((uint8_t*)buf) + Packet::dataSize());
+  user_id = base[0];
+}
+
+DecafsClientInit::DecafsClientInit(int user_id) : Packet(DECAFS_CLIENT_INIT, data_size),
+  user_id(user_id) {
+
+  uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
+  base[0] = user_id;
+}
+
+std::ostream& DecafsClientInit::print(std::ostream& stream) const {
+
+  stream << "DecafsClientInit" << std::endl;
+  stream << "\tuser_id: " << user_id << std::endl;
+  return Packet::print(stream); 
+}
+
+std::ostream& operator<<(std::ostream& stream, const DecafsClientInit &p) {
+  return p.print(stream); 
+}
+
 // ---------------------- FilePacket --------------------
 
 // constructor from data

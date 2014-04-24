@@ -28,7 +28,8 @@ int main(int argc, char** argv) {
 
   char* barista_hostname = argv[BARISTA_HOSTNAME];
   int barista_port = atoi(argv[BARISTA_PORT]);
-  EspressoClient espresso(barista_hostname, barista_port);  
+  int node_id = atoi(argv[NODE_ID]);
+  EspressoClient espresso(barista_hostname, barista_port, node_id);  
   espresso.openConnection();
   espresso.run();
 

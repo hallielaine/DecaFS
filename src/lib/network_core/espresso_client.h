@@ -9,8 +9,11 @@
 
 class EspressoClient : public TcpClient {
 
+  private:
+    uint32_t node_id;
+
   public:
-    EspressoClient(std::string hostname, unsigned short port);
+    EspressoClient(std::string hostname, unsigned short port, uint32_t node_id);
 
     void connectionClosed();
     void connectionEstablished();

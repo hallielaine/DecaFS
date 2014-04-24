@@ -1,7 +1,7 @@
 #include "espresso_client.h"
 
-EspressoClient::EspressoClient(std::string hostname, unsigned short port) :
-  TcpClient(hostname, port) 
+EspressoClient::EspressoClient(std::string hostname, unsigned short port, uint32_t node_id) :
+  TcpClient(hostname, port), node_id(node_id)
 {
   
 }
@@ -14,6 +14,8 @@ void EspressoClient::connectionClosed() {
 void EspressoClient::connectionEstablished() {
 
   printf("EspressoClient: connection to Barista established!\n");
+  EspressoInit init(node_id);
+  sendToServer(init.packet, init.packet_size);
 }
 
 void EspressoClient::handleMessageFromServer(int socket) {

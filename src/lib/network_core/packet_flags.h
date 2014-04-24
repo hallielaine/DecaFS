@@ -2,6 +2,12 @@
 #define _PACKET_TYPES_
 
 enum packet_flags {
+
+   // Initialization Packets
+
+   ESPRESSO_INIT = 33,
+   DECAFS_CLIENT_INIT = 34,
+
    // Client -> Barista
    OPEN = 1,
    READ = 2,

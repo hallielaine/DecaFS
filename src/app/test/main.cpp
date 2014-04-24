@@ -21,16 +21,16 @@ int main(int argc, char** argv) {
   std::thread barista_thread(&BaristaServer::run, barista_server); 
 
   // create an espresso node
-  EspressoClient espresso("localhost", port);
+  EspressoClient espresso("localhost", port, 1);
   espresso.setName("espresso_1");
   
-  EspressoClient espresso2("localhost", port);
+  EspressoClient espresso2("localhost", port, 2);
   espresso2.setName("espresso_2");
 
-  EspressoClient espresso3("localhost", port);
+  EspressoClient espresso3("localhost", port, 3);
   espresso3.setName("espresso_3");
 
-  EspressoClient espresso4("localhost", port);
+  EspressoClient espresso4("localhost", port, 4);
   espresso4.setName("espresso_4");
 
 
@@ -47,13 +47,13 @@ int main(int argc, char** argv) {
 
   sleep(1);
 
-  ConnectionToClient *client = barista_server->getEspressoNode();
-  printf("client is: %p\n", (void*)client);
+  //ConnectionToClient *client = barista_server->getEspressoNode();
+  //printf("client is: %p\n", (void*)client);
 
   int sent;
 
   // call open read write ...
-  struct ip_address ip;
+ /* struct ip_address ip;
   ConnectionToClient *ctc = new ConnectionToClient();
   struct client default_client = {ip, 1, ctc};
   int count, fd = open_file ("new_file.txt", O_RDWR, default_client);
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
   count = write_file (fd, buf, strlen (buf), default_client);
   printf ("(\n(BARISTA) wrote %d bytes.\n", count);
   close_file (fd, default_client);
-
+*/
   /*sent = network_write_chunk(client, 1, 2, 3, 4, 5, (void*)"hello!", 6);
   printf("write sent: %d bytes\n", sent);
 
