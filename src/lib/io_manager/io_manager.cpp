@@ -4,6 +4,16 @@ IO_Manager::IO_Manager() {
 
 }
 
+void IO_Manager::init(char *metadata_path) {
+  std::string node_metadata_file = std::string(metadata_path) +
+                                   std::string(node_metadata_filename);
+  std::string replica_metadata_file = std::string(metadata_path) +
+                                      std::string(replica_metadata_filename);
+  chunk_to_node.open (node_metadata_file.c_str());
+  chunk_to_replica_node.open (replica_metadata_file.c_str());
+  
+}
+
 ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
                                          uint32_t stripe_id, uint32_t stripe_size,
                                          uint32_t chunk_size, const void *buf,
@@ -240,7 +250,7 @@ bool IO_Manager::chunk_replica_exists (struct file_chunk chunk) {
 std::vector<struct file_chunk> IO_Manager::get_all_chunks (uint32_t file_id) {
   std::vector <struct file_chunk> chunks;
   
-  for (std::map<struct file_chunk, int>::iterator it = chunk_to_node.begin();
+  for (PersistentMap<struct file_chunk, int>::iterator it = chunk_to_node.begin();
          it != chunk_to_node.end(); it++) {
     struct file_chunk cur = it->first;
     if (cur.file_id == file_id) {
