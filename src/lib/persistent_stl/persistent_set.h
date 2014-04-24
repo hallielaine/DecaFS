@@ -49,7 +49,7 @@ class PersistentSet {
   void deallocate(Key *p) {
     int start = (p - map) / sizeof(Key);
 
-    memset(&p->first, 0, sizeof(Key));
+    memset(p, 0, sizeof(Key));
 
     if (unallocated_extents.empty()) {
       unallocated_extents.insert(std::make_pair(start, start + 1));
@@ -103,10 +103,10 @@ public:
     Key * const end = map + map_size / sizeof(Key);
     static char zeros[sizeof(Key)];
     for (Key *entry = begin; entry != end; ++entry) {
-      if (memcmp(&entry->first, zeros, sizeof(Key)) == 0) {
+      if (memcmp(entry, zeros, sizeof(Key)) == 0) {
         deallocate(entry);
       } else {
-        entries.insert(std::make_pair(entry->first, entry));
+        entries.insert(std::make_pair(*entry, entry));
       }
     }
 
@@ -130,8 +130,12 @@ public:
 
   struct const_iterator : public std::iterator<std::bidirectional_iterator_tag,
                                                Key> {
-    explicit inline const_iterator(typename std::map<Key, Key*>::iterator it) :
+    explicit inline const_iterator() {}
+    explicit inline const_iterator(typename std::map<Key, Key*>::const_iterator it) :
       internal_it(it) {}
+    inline const_iterator(const const_iterator &o) {
+      internal_it = o.internal_it;
+    }
 
     const_iterator inline operator++() { return const_iterator(++internal_it); }
     const_iterator inline operator++(int) { return const_iterator(internal_it++); }
@@ -153,12 +157,47 @@ public:
 
   typedef const_iterator iterator;
 
+  struct const_reverse_iterator : public std::iterator<std::bidirectional_iterator_tag,
+                                               Key> {
+    explicit inline const_reverse_iterator() {}
+    explicit inline const_reverse_iterator(typename std::map<Key, Key*>::const_reverse_iterator it) :
+      internal_it(it) {}
+    inline const_reverse_iterator(const const_reverse_iterator &o) {
+      internal_it = o.internal_it;
+    }
+
+    const_reverse_iterator inline operator++() { return const_reverse_iterator(++internal_it); }
+    const_reverse_iterator inline operator++(int) { return const_reverse_iterator(internal_it++); }
+    const_reverse_iterator inline operator--() { return const_reverse_iterator(--internal_it); }
+    const_reverse_iterator inline operator--(int) { return const_reverse_iterator(internal_it--); }
+    const Key& operator*() const { return *(internal_it->second); }
+    const Key* operator->() const { return internal_it->second; }
+    friend inline bool operator!=(const const_reverse_iterator &lhs, const const_reverse_iterator &rhs) {
+      return lhs.internal_it != rhs.internal_it;
+    }
+    friend inline bool operator==(const const_reverse_iterator &lhs, const const_reverse_iterator &rhs) {
+      return lhs.internal_it == rhs.internal_it;
+    }
+
+  private:
+    friend PersistentSet;
+    typename std::map<Key, Key*>::const_reverse_iterator internal_it;
+  };
+
+  typedef const_reverse_iterator reverse_iterator;
+
   inline iterator begin() { return iterator(entries.begin()); }
   inline const_iterator begin() const { return const_iterator(entries.begin()); }
   inline const_iterator cbegin() const { return const_iterator(entries.cbegin()); }
   inline iterator end() { return iterator(entries.end()); }
   inline const_iterator end() const { return const_iterator(entries.end()); }
   inline const_iterator cend() const { return const_iterator(entries.cend()); }
+  inline reverse_iterator rbegin() { return reverse_iterator(entries.rbegin()); }
+  inline const_reverse_iterator rbegin() const { return const_reverse_iterator(entries.rbegin()); }
+  inline const_reverse_iterator crbegin() const { return const_reverse_iterator(entries.crbegin()); }
+  inline reverse_iterator rend() { return reverse_iterator(entries.rend()); }
+  inline const_reverse_iterator rend() const { return const_reverse_iterator(entries.rend()); }
+  inline const_reverse_iterator crend() const { return const_reverse_iterator(entries.crend()); }
 
   inline bool empty() const { return entries.empty(); }
   inline size_t size() const { return entries.size(); }
@@ -166,8 +205,7 @@ public:
   /* can't return error, probably should avoid */
   void clear() {
     for (auto &entry : entries) {
-      using ::std::pair;
-      entry.second->~pair<Key, Key>();
+      entry.second->~Key();
     }
     entries.clear();
     munmap(map, map_size);
@@ -177,24 +215,24 @@ public:
 
   std::pair<iterator, bool> insert(const Key& value) {
     std::pair<typename std::map<Key, Key*>::iterator, bool> insertion =
-      entries.insert(std::make_pair(value.first, nullptr));
+      entries.insert(std::make_pair(value, nullptr));
     if (insertion.second) {
       insertion.first->second = allocate();
       new (insertion.first->second) Key(value);
-      return make_pair(iterator(insertion.first), true);
+      return std::make_pair(iterator(insertion.first), true);
     } else {
-      return make_pair(iterator(insertion.first), false);
+      return std::make_pair(iterator(insertion.first), false);
     }
   }
 
   iterator insert(const_iterator hint, const Key& value) {
-    typename std::map<Key, Key*>::iterator existing = entries.find(value.first);
+    typename std::map<Key, Key*>::iterator existing = entries.find(value);
     if (existing != entries.end()) {
       return iterator(existing);
     } else {
       Key* new_element = allocate();
       new (new_element) Key(value);
-      return iterator(entries.insert(hint.internal_it, make_pair(value.first, new_element)));
+      return iterator(entries.insert(hint.internal_it, std::make_pair(value, new_element)));
     }
   }
 
@@ -211,8 +249,7 @@ public:
   }
 
   iterator erase(const_iterator pos) {
-    using ::std::pair;
-    pos->~pair<Key, Key>();
+    pos->~Key();
     return iterator(entries.erase(pos.internal_it));
   }
 

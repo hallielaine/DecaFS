@@ -193,7 +193,7 @@ public:
   struct const_iterator : public std::iterator<std::bidirectional_iterator_tag,
                                                std::pair<Key, T> > {
     explicit inline const_iterator() {}
-    explicit inline const_iterator(typename std::map<Key, std::pair<Key, T>*>::iterator it) :
+    explicit inline const_iterator(typename std::map<Key, std::pair<Key, T>*>::const_iterator it) :
       internal_it(it) {}
     inline const_iterator(iterator &it) : internal_it(it.internal_it) {}
     inline const_iterator(const const_iterator &o) {
@@ -280,9 +280,9 @@ public:
     if (insertion.second) {
       insertion.first->second = allocate();
       new (insertion.first->second) std::pair<Key, T>(value);
-      return make_pair(iterator(insertion.first), true);
+      return std::make_pair(iterator(insertion.first), true);
     } else {
-      return make_pair(iterator(insertion.first), false);
+      return std::make_pair(iterator(insertion.first), false);
     }
   }
 
@@ -293,7 +293,7 @@ public:
     } else {
       std::pair<Key, T>* new_element = allocate();
       new (new_element) std::pair<Key, T>(value);
-      return iterator(entries.insert(hint.internal_it, make_pair(value.first, new_element)));
+      return iterator(entries.insert(hint.internal_it, std::make_pair(value.first, new_element)));
     }
   }
 
