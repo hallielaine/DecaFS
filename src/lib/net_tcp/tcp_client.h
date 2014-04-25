@@ -14,7 +14,7 @@
 
 class TcpClient {                          
 
-  private:
+  protected:
 
     std::string m_name;
 

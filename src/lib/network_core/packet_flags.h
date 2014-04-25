@@ -5,52 +5,42 @@ enum packet_flags {
 
    // Initialization Packets
 
-   ESPRESSO_INIT = 33,
-   DECAFS_CLIENT_INIT = 34,
+   ESPRESSO_INIT = 1,
+   DECAFS_CLIENT_INIT = 2,
 
    // Client -> Barista
-   OPEN = 1,
-   READ = 2,
-   WRITE = 3,
-   CLOSE = 4,
-   DELETE_FILE = 5,
-   SYNC = 6,
-   STAT_FS = 7,
-   MKDIR = 8,
-   OPENDIR = 9,
-   READDIR = 10,
+   OPEN = 3,
+   READ = 4,
+   WRITE = 5,
+   CLOSE = 6,
+   DELETE_FILE = 7,
+   SYNC = 8,
+   STAT_FS = 9,
+   MKDIR = 10,
+   OPENDIR = 11,
+   READDIR = 12,
 
    // Barista -> Client
-   OPEN_RESPONSE = 11,
-   READ_RESPONSE = 12,
-   WRITE_RESPONSE = 13,
-   CLOSE_RESPONSE = 14,
-   DELETE_FILE_RESPONSE = 15,
-   SYNC_RESPONSE = 16,
-   STAT_FS_RESPONSE = 17,
-   MKDIR_RESPONSE = 18,
-   OPENDIR_RESPONSE = 19,
-   READDIR_RESPONSE = 20,
+   OPEN_RESPONSE = 13,
+   READ_RESPONSE = 14,
+   WRITE_RESPONSE = 15,
+   CLOSE_RESPONSE = 16,
+   DELETE_FILE_RESPONSE = 17,
+   SYNC_RESPONSE = 18,
+   STAT_FS_RESPONSE = 19,
+   MKDIR_RESPONSE = 20,
+   OPENDIR_RESPONSE = 21,
+   READDIR_RESPONSE = 22,
 
    // Barista -> Espresso
-   READ_CHUNK = 21,
-   WRITE_CHUNK = 22,
-   DELETE_CHUNK = 23,
-
-   // Espresso -> Barista (ACKS)
-   //READ_CHUNK_ACK 24
-   //WRITE_CHUNK_ACK 25
-   //DELETE_CHUNK_ACK 26
+   READ_CHUNK = 23,
+   WRITE_CHUNK = 24,
+   DELETE_CHUNK = 25,
 
    // Espresso -> Barista
-   READ_CHUNK_RESPONSE = 27,
-   WRITE_CHUNK_RESPONSE = 28,
-   DELETE_CHUNK_RESPONSE = 29
-
-   // Barista -> Espresso (ACKS)
-   //READ_CHUNK_RESPONSE_ACK 30
-   //WRITE_CHUNK_RESPONSE_ACK 31
-   //DELETE_CHUNK_RESPONSE_ACK 32
+   READ_CHUNK_RESPONSE = 26,
+   WRITE_CHUNK_RESPONSE = 27,
+   DELETE_CHUNK_RESPONSE = 28
 };
 
 #endif // _PACKET_TYPES_
