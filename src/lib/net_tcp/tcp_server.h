@@ -28,9 +28,7 @@ class TcpServer {
       sockaddr_in m_address;
 
       fd_set m_server_set;
-      fd_set m_pending_client_set;
       fd_set m_client_set;
-      fd_set m_all_sets;
 
       // client information
       int next_client;

@@ -163,6 +163,9 @@ void TcpServer::check_for_messages() {
         handleMessageFromClient(client);
       } else if (len_read == 0) {
         printf("TcpServer: length 0 message received from a client.");
+        clientDisconnected(client);
+        FD_CLR(client->sock_fd, &m_client_set);
+        m_clients.erase(it);
       } else {
         perror("TcpServer read message");
       }
