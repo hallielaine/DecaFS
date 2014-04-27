@@ -76,7 +76,7 @@ class IO_Manager {
     /*
      *   Delete all chunks and replicas for a given file.
      */
-    void process_delete_file (uint32_t file_id);
+    void process_delete_file (uint32_t request_id, uint32_t file_id);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
