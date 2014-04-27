@@ -25,8 +25,11 @@ int network_delete_chunk(int32_t id, int file_id, int node_id, int stripe_id, in
 
 //int network_flush(ConnectionToClient* client);
 
+int send_open_result(struct client c, int result);
 int send_read_result(struct client c, int fd, ssize_t count, void* buf);
 int send_write_result(struct client c, int fd, ssize_t count);
+int send_close_result(struct client c, int result);
+
 int send_delete_result(struct client c, int fd);
 
 #endif // _BARISTA_NETWORK_HELPER_
