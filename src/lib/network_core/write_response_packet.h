@@ -5,13 +5,15 @@
 
 class WriteResponsePacket : public FilePacket {
 
+  private:
+    static const int dataSize = 2*sizeof(ssize_t);
+
   protected: 
     virtual std::ostream& print(std::ostream&) const;
 
   public:
     WriteResponsePacket(void* buf, ssize_t size);
-    WriteResponsePacket(uint32_t fd, uint32_t file_id, uint32_t stripe_id, 
-     uint32_t chunk_num, uint32_t offset, uint32_t count);
+    WriteResponsePacket(uint32_t fd, uint32_t count);
 
     friend std::ostream& operator<<(std::ostream& stream, const WriteResponsePacket &res);
 };
