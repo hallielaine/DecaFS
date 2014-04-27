@@ -9,6 +9,8 @@ OBJS = barista_network_helper.o \
        open_packet_response.o \
        read_packet.o \
        read_response_packet.o \
-       write_response_packet.o
+       write_response_packet.o \
+       close_packet.o \
+       close_response_packet.o
 
 include ../../lib.mk
