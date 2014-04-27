@@ -1,5 +1,5 @@
 #ifndef _BARISTA_NETWORK_HELPER_
-#define _bARISTA_NETWORK_HELPER_
+#define _BARISTA_NETWORK_HELPER_
 
 #include "net_tcp/tcp_server.h"
 #include "packet_flags.h"
@@ -15,7 +15,7 @@
 
 // sends a read chunk request to an espresso node
 // returns -1 on error
-int network_read_chunk(int32_t id, int fd, int file_id, int node_id, int stripe_id, 
+int network_read_chunk(int32_t id, int fd, int file_id, int node_id, int stripe_id,
  int chunk_num, int offset, int count);
 
 // sends a write chunk request to client
