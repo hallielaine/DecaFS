@@ -33,6 +33,18 @@ extern "C" uint32_t get_stripe_size ();
 extern "C" int set_stripe_size (uint32_t size);
 
 /*
+ * Returns the number of espresso nodes that should be connected for this
+ * instance of DecaFS.
+ */
+extern "C" uint32_t get_num_espressos ();
+
+/*
+ * Sets the number of espresso nodes to expect for this instance of DecaFS.
+ * If the number of espressos is already set, SIZE_ALREADY_SET is returned.
+ */
+extern "C" int set_num_espressos (uint32_t num_espressos);
+
+/*
  * Set the node with the unique node_number to be "down" in the instance
  *   of DecaFS.
  * @return V_META_SUCCESS on success

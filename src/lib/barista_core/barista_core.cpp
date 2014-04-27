@@ -197,6 +197,14 @@ extern "C" int set_stripe_size (uint32_t size) {
   return volatile_metadata.set_stripe_size(size);
 }
 
+extern "C" uint32_t get_num_espressos () {
+  return volatile_metadata.get_num_espressos();
+}
+
+extern "C" int set_num_espressos (uint32_t num_espressos) {
+  return volatile_metadata.set_num_espressos (num_espressos);
+}
+
 extern "C" uint32_t set_node_down (uint32_t node_number) {
   return volatile_metadata.set_node_down (node_number);
 }
@@ -348,10 +356,8 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
   if (ret < 0) {
     exit_failure (get_size_error_message ("chunk", argv[CHUNK_SIZE]));
   }
-
-  // TODO 
-  // #define NUM_ESPRESSOS 5
-  // pull num espressos from above and put into global int or whatever
+ 
+  set_num_espressos (atoi(argv[NUM_ESPRESSOS]));
 }
 
 extern "C" const char *get_size_error_message (const char *type, const char *value) {

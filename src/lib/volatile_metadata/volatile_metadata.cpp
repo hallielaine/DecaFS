@@ -8,6 +8,7 @@ Volatile_Metadata::Volatile_Metadata() {
   // Initialize stripe and chunk size
   chunk_size = 0;
   stripe_size = 0;
+  num_espressos = 0;
 }
 
 int Volatile_Metadata::set_chunk_size (uint32_t size) {
@@ -40,6 +41,18 @@ int Volatile_Metadata::set_stripe_size (uint32_t size) {
 
 uint32_t Volatile_Metadata::get_stripe_size() {
   return stripe_size;
+}
+
+int Volatile_Metadata::set_num_espressos (uint32_t num_espressos) {
+  if (num_espressos == 0) {
+    num_espressos = num_espressos;
+    return 1;
+  }
+  return SIZE_ALREADY_SET;
+}
+
+uint32_t Volatile_Metadata::get_num_espressos() {
+  return num_espressos;
 }
 
 uint32_t Volatile_Metadata::set_node_down (uint32_t node_number) {
