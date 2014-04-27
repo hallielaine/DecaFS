@@ -19,5 +19,6 @@ decafs_barista.o: decafs_barista.cpp decafs_barista.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/io_manager/io_manager_c_api.h \
+ ../../lib/network_core/network_packets.h \
  ../../lib/locking_strategy/locking_strategy.h \
  ../../lib/network_core/barista_server.h

@@ -25,6 +25,7 @@
 #include "volatile_metadata/volatile_metadata_c_api.h"
 
 #include "network_core/barista_network_helper.h"
+#include "network_core/network_packets.h"
 
 #include "access/access.h"
 #include "locking_strategy/locking_strategy.h"
@@ -34,6 +35,21 @@
 #define FILE_NOT_OPEN_FOR_READ -3
 
 #define STRIPE_ID_INIT 1
+
+struct request_info {
+  uint32_t chunks_expected;
+  uint32_t chunks_received;
+  
+  request_info (): chunks_expected (0), chunks_received (0) {}
+};
+
+struct read_request_info {
+  struct request_info info;
+  uint8_t *buf;
+  std::map<struct file_chunk, ReadChunkResponse *> response_packets;
+
+  read_request_info (): info (request_info()) {}
+};
 
 extern "C" const char *get_size_error_message (const char *type, const char *value);
 
@@ -63,6 +79,14 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
  *	nodes.
  */
 extern "C" ssize_t read_file (int fd, size_t count, struct client client);
+
+/*
+ * Aggregates the read_file futures and determines when the read is complete.
+ * Upon completion of a read, this function returns read information to the
+ * Network Layer.
+ */
+extern "C" void read_response_handler (ReadChunkResponse *read_response);
+
 
 /*
  *	If the process has an exclusive lock on the file, complete the

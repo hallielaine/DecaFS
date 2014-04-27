@@ -18,4 +18,5 @@ barista_core.o: barista_core.cpp barista_core.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/io_manager/io_manager_c_api.h \
+ ../../lib/network_core/network_packets.h \
  ../../lib/locking_strategy/locking_strategy.h

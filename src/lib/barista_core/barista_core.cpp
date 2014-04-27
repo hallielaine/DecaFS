@@ -11,6 +11,10 @@ IO_Manager io_manager;
 Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
 
+std::map<uint32_t, struct read_request_info> active_read_requests;
+std::map<uint32_t, struct request_info> active_write_requests;
+std::map<uint32_t, struct request_info> active_delete_requests;
+
 // ------------------------IO Manager Call Throughs---------------------------
 extern "C" ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
                                         char *pathname, uint32_t stripe_id,
@@ -247,6 +251,41 @@ void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
   *stripe_offset = offset;
 }
 
+bool read_request_exists (uint32_t request_id) {
+  return (active_read_requests.find (request_id) != active_read_requests.end());
+}
+
+bool write_request_exists (uint32_t request_id) {
+  return (active_write_requests.find (request_id) != active_write_requests.end());
+}
+
+bool delete_request_exists (uint32_t request_id) {
+  return (active_delete_requests.find (request_id) != active_delete_requests.end());
+}
+
+void check_read_complete (uint32_t request_id) {
+  assert (read_request_exists (request_id));
+  if (active_read_requests[request_id].info.chunks_expected == 0) {
+    return;
+  }
+
+  if (active_read_requests[request_id].info.chunks_expected ==
+      active_read_requests[request_id].info.chunks_received) {
+    uint8_t *buffer_offset = active_read_requests[request_id].buf;
+    std::map<struct file_chunk, ReadChunkResponse *>packet_map = 
+        active_read_requests[request_id].response_packets;
+    std::map<uint32_t, ReadChunkResponse *>::iterator it = packet_map.begin();
+    while (it != packet_map.end()) {
+      ReadChunkResponse *cur_packet = it->second;
+      memcpy (buffer_offset, cur_packet->data_buffer, cur_packet->count);
+      buffer_offset += cur_packet->count;
+      it++;
+      delete (cur_packet);
+    }
+    active_read_requests.erase (request_id);
+  }
+}
+
 // ------------------------Core Functions---------------------------
 extern "C" void barista_core_init (int argc, char *argv[]) {
   int ret;
@@ -339,11 +378,11 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
 extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
-  uint32_t stripe_id;
+  uint32_t stripe_id, num_chunks = 0;
   int file_offset, stripe_offset, bytes_read = 0, read_size = 0;
   uint8_t *buf;
   uint32_t request_id = get_new_request_id();
-
+  active_read_requests[request_id] = read_request_info ();  
 
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
@@ -382,17 +421,34 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
                stripe_id, read_size);
 
     // TODO: add pathname here, get from persistent meta
-    process_read_stripe (request_id, inst.file_id, (char *)"", stripe_id,
-                         stat.stripe_size, stat.chunk_size, (uint8_t *)buf + bytes_read,
-                         stripe_offset, read_size);
+    num_chunks += process_read_stripe (request_id, inst.file_id, (char *)"",
+                                       stripe_id, stat.stripe_size,
+                                       stat.chunk_size,
+                                       (uint8_t *)buf + bytes_read,
+                                       stripe_offset, read_size);
 
     set_file_cursor (fd, get_file_cursor (fd) + read_size, client);
     stripe_offset = 0;
     bytes_read += read_size;
     ++stripe_id;
   }
-    
+  
+  assert (read_request_exists (request_id)); 
+  active_read_requests[request_id].info.chunks_expected = num_chunks;
+  check_read_complete(request_id);
+
   return bytes_read;
+}
+
+extern "C" void read_response_handler (ReadChunkResponse *read_response) {
+  assert (read_request_exists (read_response->id));
+  
+  struct file_chunk chunk = {read_response->file_id, read_response->stripe_id,
+                             read_response->chunk_num};
+
+  active_read_requests[read_response->id].response_packets[chunk] = read_response;
+
+  check_read_complete(read_response->id);
 }
 
 extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client) {
