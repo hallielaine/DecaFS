@@ -32,8 +32,8 @@ extern "C" ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
                                           buf, offset, count);
 }
 
-extern "C" void process_delete_file (uint32_t file_id) {
-  io_manager.process_delete_file (file_id);
+extern "C" void process_delete_file (uint32_t request_id, uint32_t file_id) {
+  io_manager.process_delete_file (request_id, file_id);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
@@ -450,6 +450,7 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
 
 extern "C" int close_file (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
+  
   // If we successfully closed the file, release the lock
   if (file_id > 0) {
     release_lock (client, file_id);
@@ -459,6 +460,7 @@ extern "C" int close_file (int fd, struct client client) {
 
 extern "C" int delete_file (char *pathname, struct client client) {
   struct decafs_file_stat file_info;
+  uint32_t request_id = get_new_request_id();
   
   // If the file doesn't exist
   if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
@@ -471,7 +473,7 @@ extern "C" int delete_file (char *pathname, struct client client) {
     }
   }
  
-  process_delete_file (file_info.file_id);
+  process_delete_file (request_id, file_info.file_id);
   release_lock (client, file_info.file_id);
   
   return file_info.file_id;

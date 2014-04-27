@@ -30,7 +30,7 @@ extern "C" ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
 /*
  *   Delete all chunks and replicas for a given file.
  */
-extern "C" void process_delete_file (uint32_t file_id);
+extern "C" void process_delete_file (uint32_t request_id, uint32_t file_id);
 
 /*
  *	Set the storage location (node id) for a given chunk of a file.

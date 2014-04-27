@@ -167,7 +167,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
   return bytes_written;
 }
 
-void IO_Manager::process_delete_file (uint32_t file_id) {
+void IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id) {
   std::vector<struct file_chunk> chunks = get_all_chunks (file_id); 
 
   for (std::vector<struct file_chunk>::iterator it = chunks.begin();
