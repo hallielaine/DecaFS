@@ -39,16 +39,41 @@
 struct request_info {
   uint32_t chunks_expected;
   uint32_t chunks_received;
-  
-  request_info (): chunks_expected (0), chunks_received (0) {}
+  struct client client;
+  int fd;
+
+  request_info() : chunks_expected (0), chunks_received (0), fd (0) {}
+  request_info (struct client client, int fd) {
+      this->chunks_expected = 0;
+      this->chunks_received = 0;
+      this->client = client;
+      this->fd = fd;
+  }
 };
 
 struct read_request_info {
   struct request_info info;
+  int count;
   uint8_t *buf;
   std::map<struct file_chunk, ReadChunkResponse *> response_packets;
 
-  read_request_info (): info (request_info()) {}
+  read_request_info() : info (request_info()), count (0) {}
+  read_request_info (struct client client, int fd, int count, uint8_t *buf) {
+    this->info = request_info (client, fd);
+    this->count = count;
+    this->buf = buf;
+  }
+};
+
+struct write_request_info {
+  struct request_info info;
+  int count;
+  
+  write_request_info() : info (request_info()), count (0) {}
+  write_request_info (struct client client, int fd, int count) {
+    this->info = request_info (client, fd);
+    this->count = count;
+  }
 };
 
 extern "C" const char *get_size_error_message (const char *type, const char *value);
@@ -86,7 +111,6 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client);
  * Network Layer.
  */
 extern "C" void read_response_handler (ReadChunkResponse *read_response);
-
 
 /*
  *	If the process has an exclusive lock on the file, complete the

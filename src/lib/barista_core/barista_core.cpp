@@ -12,7 +12,7 @@ Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
 
 std::map<uint32_t, struct read_request_info> active_read_requests;
-std::map<uint32_t, struct request_info> active_write_requests;
+std::map<uint32_t, struct write_request_info> active_write_requests;
 std::map<uint32_t, struct request_info> active_delete_requests;
 
 // ------------------------IO Manager Call Throughs---------------------------
@@ -282,6 +282,10 @@ void check_read_complete (uint32_t request_id) {
       it++;
       delete (cur_packet);
     }
+    send_read_result (active_read_requests[request_id].info.client,
+                      active_read_requests[request_id].info.fd,
+                      active_read_requests[request_id].count,
+                      active_read_requests[request_id].buf); 
     active_read_requests.erase (request_id);
   }
 }
@@ -382,14 +386,15 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   int file_offset, stripe_offset, bytes_read = 0, read_size = 0;
   uint8_t *buf;
   uint32_t request_id = get_new_request_id();
-  active_read_requests[request_id] = read_request_info ();  
 
   assert (fd > 0);
-  inst = get_file_info((uint32_t)fd); 
   
   // Allocate space for the read request
   buf = (uint8_t *)malloc (count);
 
+  active_read_requests[request_id] = read_request_info (client, fd, count, buf);  
+  inst = get_file_info((uint32_t)fd); 
+  
   printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
  
   // If the client does not have permission to read, return an error
