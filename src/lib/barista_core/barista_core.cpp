@@ -274,7 +274,7 @@ void check_read_complete (uint32_t request_id) {
     uint8_t *buffer_offset = active_read_requests[request_id].buf;
     std::map<struct file_chunk, ReadChunkResponse *>packet_map = 
         active_read_requests[request_id].response_packets;
-    std::map<uint32_t, ReadChunkResponse *>::iterator it = packet_map.begin();
+    std::map<struct file_chunk, ReadChunkResponse *>::iterator it = packet_map.begin();
     while (it != packet_map.end()) {
       ReadChunkResponse *cur_packet = it->second;
       memcpy (buffer_offset, cur_packet->data_buffer, cur_packet->count);
