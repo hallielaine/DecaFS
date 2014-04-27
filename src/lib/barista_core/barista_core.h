@@ -53,14 +53,12 @@ struct request_info {
 
 struct read_request_info {
   struct request_info info;
-  int count;
   uint8_t *buf;
   std::map<struct file_chunk, ReadChunkResponse *> response_packets;
 
-  read_request_info() : info (request_info()), count (0) {}
-  read_request_info (struct client client, int fd, int count, uint8_t *buf) {
+  read_request_info() : info (request_info()) {}
+  read_request_info (struct client client, int fd, uint8_t *buf) {
     this->info = request_info (client, fd);
-    this->count = count;
     this->buf = buf;
   }
 };
@@ -68,11 +66,11 @@ struct read_request_info {
 struct write_request_info {
   struct request_info info;
   int count;
-  
+
   write_request_info() : info (request_info()), count (0) {}
-  write_request_info (struct client client, int fd, int count) {
+  write_request_info (struct client client, int fd, uint8_t *buf) {
     this->info = request_info (client, fd);
-    this->count = count;
+    this->count = 0;
   }
 };
 
@@ -121,6 +119,13 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response);
 extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client);
 
 /*
+ * Aggregates the write_file futures and determines when the write is complete.
+ * Upon completion of a write, this function returns write information to the
+ * Network Layer.
+ */
+extern "C" void write_response_handler (WriteChunkResponse *write_response);
+
+/*
  *	Release locks associate with a fd.
  */
 extern "C" int close_file (int fd, struct client client);
@@ -130,6 +135,13 @@ extern "C" int close_file (int fd, struct client client);
  *	@ return >= 0 success, < 0 failure
  */
 extern "C" int delete_file (char *pathname, struct client client);
+
+/*
+ * Aggregates the delete_file futures and determines when the delete is complete.
+ * Upon completion of a delete, this function returns delete information to the
+ * Network Layer.
+ */
+extern "C" void delete_response_handler (DeleteChunkResponse *delete_response);
 
 /*
  * Moves the file cursor to the location specificed by whence, plus offset
