@@ -8,10 +8,11 @@
  *	The correct behavior of this function depends on the
  *	Distribution and Replication strategies that are in place.
  */
-extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, uint32_t stripe_size,
-                                        uint32_t chunk_size, const void *buf,
-                                        int offset, size_t count);
+extern "C" ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                        char *pathname, uint32_t stripe_id,
+                                        uint32_t stripe_size, uint32_t chunk_size,
+                                        const void *buf, int offset,
+                                        size_t count);
 
 
 /*
@@ -20,10 +21,11 @@ extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
  *	The correct behavior of this function depends on the
  *	Distribution and Replication strategies that are in place.
  */
-extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, uint32_t stripe_size,
-                                         uint32_t chunk_size, const void *buf,
-                                         int offset, size_t count);
+extern "C" ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
+                                         char *pathname, uint32_t stripe_id,
+                                         uint32_t stripe_size, uint32_t chunk_size,
+                                         const void *buf, int offset,
+                                         size_t count);
     
 /*
  *   Delete all chunks and replicas for a given file.

@@ -12,22 +12,24 @@ Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
 
 // ------------------------IO Manager Call Throughs---------------------------
-extern "C" ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                        uint32_t stripe_id, uint32_t stripe_size,
-                                        uint32_t chunk_size, const void *buf,
-                                        int offset, size_t count) {
-    return io_manager.process_read_stripe (file_id, pathname, stripe_id,
-                                           stripe_size, chunk_size, buf,
-                                           offset, count);
+extern "C" ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                        char *pathname, uint32_t stripe_id,
+                                        uint32_t stripe_size, uint32_t chunk_size,
+                                        const void *buf, int offset,
+                                        size_t count) {
+    return io_manager.process_read_stripe (request_id, file_id, pathname,
+                                           stripe_id, stripe_size, chunk_size,
+                                           buf, offset, count);
 }
 
-extern "C" ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, uint32_t stripe_size,
-                                         uint32_t chunk_size, const void *buf,
-                                         int offset, size_t count) {
-  return io_manager.process_write_stripe (file_id, pathname, stripe_id,
-                                          stripe_size, chunk_size, buf,
-                                          offset, count);
+extern "C" ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
+                                         char *pathname, uint32_t stripe_id,
+                                         uint32_t stripe_size, uint32_t chunk_size,
+                                         const void *buf, int offset,
+                                         size_t count) {
+  return io_manager.process_write_stripe (request_id, file_id, pathname,
+                                          stripe_id, stripe_size, chunk_size,
+                                          buf, offset, count);
 }
 
 extern "C" void process_delete_file (uint32_t file_id) {
@@ -231,6 +233,9 @@ extern "C" struct file_instance get_file_info (uint32_t fd) {
   return volatile_metadata.get_file_info (fd);
 }
 
+extern "C" uint32_t get_new_request_id () {
+  return volatile_metadata.get_new_request_id ();
+}
 // ------------------------Helper Functions-------------------------
 void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
                        int offset) {
@@ -331,14 +336,20 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
   return cursor;
 }
 
-extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client client) {
+extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
   int file_offset, stripe_offset, bytes_read = 0, read_size = 0;
+  uint8_t *buf;
+  uint32_t request_id = get_new_request_id();
+
 
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
+  
+  // Allocate space for the read request
+  buf = (uint8_t *)malloc (count);
 
   printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
  
@@ -371,7 +382,7 @@ extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client cli
                stripe_id, read_size);
 
     // TODO: add pathname here, get from persistent meta
-    process_read_stripe (inst.file_id, (char *)"", stripe_id,
+    process_read_stripe (request_id, inst.file_id, (char *)"", stripe_id,
                          stat.stripe_size, stat.chunk_size, (uint8_t *)buf + bytes_read,
                          stripe_offset, read_size);
 
@@ -389,6 +400,7 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
   struct decafs_file_stat stat;
   uint32_t stripe_id;
   int file_offset, stripe_offset, bytes_written = 0, write_size = 0;
+  uint32_t request_id = get_new_request_id();
   
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
@@ -421,7 +433,7 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
     printf ("\tsending stripe %d for processing (%d bytes)\n", 
                stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
-    process_write_stripe (inst.file_id, (char *)"", stripe_id,
+    process_write_stripe (request_id, inst.file_id, (char *)"", stripe_id,
                           stat.stripe_size, stat.chunk_size,
                           (uint8_t *)buf + bytes_written, stripe_offset,
                           write_size);

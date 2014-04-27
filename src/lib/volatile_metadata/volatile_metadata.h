@@ -47,6 +47,8 @@ class Volatile_Metadata {
     
     uint32_t last_fd;
     std::mutex fd_mutex;
+    uint32_t request_id;
+    std::mutex request_id_mutex;
 
     // Helper Functions
     bool up_nodes_contains (uint32_t node_number);
@@ -149,6 +151,11 @@ class Volatile_Metadata {
      * Find the file_instance associated with a given fd.
      */
     struct file_instance get_file_info (uint32_t fd);
+    
+    /*
+     * Get a new request id for a client request.
+     */
+    uint32_t get_new_request_id();
 }; 
 
 #endif

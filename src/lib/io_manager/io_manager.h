@@ -26,9 +26,6 @@
 
 #define CHUNK_ID_INIT 1
 
-static const char *node_metadata_filename = "io_manager_node_metadata.dat";
-static const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
-
 using namespace std;
 
 class IO_Manager {
@@ -36,6 +33,9 @@ class IO_Manager {
     // Variables
     PersistentMap<struct file_chunk, int> chunk_to_node;
     PersistentMap<struct file_chunk, int> chunk_to_replica_node;
+
+    const char *node_metadata_filename = "io_manager_node_metadata.dat";
+    const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
     
     // Helper Functions
     bool chunk_exists (struct file_chunk);
@@ -57,10 +57,10 @@ class IO_Manager {
      *	The correct behavior of this function depends on the
      *	Distribution and Replication strategies that are in place.
      */
-    ssize_t process_read_stripe (uint32_t file_id, char *pathname,
-                                 uint32_t stripe_id, uint32_t stripe_size,
-                                 uint32_t chunk_size, const void *buf,
-                                 int offset, size_t count);
+    ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                 char *pathname, uint32_t stripe_id,
+                                 uint32_t stripe_size, uint32_t chunk_size,
+                                 const void *buf, int offset, size_t count);
 
     /*
      *	Translates a write request into a series of chunk writes and handles
@@ -68,10 +68,10 @@ class IO_Manager {
      *	The correct behavior of this function depends on the
      *	Distribution and Replication strategies that are in place.
      */
-    ssize_t process_write_stripe (uint32_t file_id, char *pathname,
-                                  uint32_t stripe_id, uint32_t stripe_size,
-                                  uint32_t chunk_size, const void *buf,
-                                  int offset, size_t count);
+    ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
+                                  char *pathname, uint32_t stripe_id,
+                                  uint32_t stripe_size, uint32_t chunk_size,
+                                  const void *buf, int offset, size_t count);
     
     /*
      *   Delete all chunks and replicas for a given file.

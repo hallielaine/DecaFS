@@ -62,7 +62,7 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
  *	Translates read request into chunks of requests to Espresso 
  *	nodes.
  */
-extern "C" ssize_t read_file (int fd, void *buf, size_t count, struct client client);
+extern "C" ssize_t read_file (int fd, size_t count, struct client client);
 
 /*
  *	If the process has an exclusive lock on the file, complete the
