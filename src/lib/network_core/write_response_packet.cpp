@@ -7,7 +7,7 @@ WriteResponsePacket::WriteResponsePacket(void* buf, ssize_t packet_size)
 
 WriteResponsePacket::WriteResponsePacket(uint32_t fd, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num, uint32_t offset, uint32_t count) 
- : FilePacket(WRITE_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
+ : FilePacket(0, WRITE_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
 
 }
 

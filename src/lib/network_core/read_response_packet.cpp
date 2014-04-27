@@ -6,7 +6,7 @@ ReadResponsePacket::ReadResponsePacket(void* buf, ssize_t packet_size)
 }
 
 ReadResponsePacket::ReadResponsePacket(uint32_t fd, uint32_t count, uint8_t * buf) 
- : FileDataPacket(READ_RESPONSE, 0, fd, 0, 0, 0, 0, count, buf) {
+ : FileDataPacket(0, READ_RESPONSE, 0, fd, 0, 0, 0, 0, count, buf) {
 
 }
 

@@ -1,13 +1,10 @@
 #include "network_packets.h"
 
-static int next_seq_num = 1;
-
 // -------------------- NetworkPacket --------------------------
 
 // serialization
-Packet::Packet(uint32_t flag, int derived_size) : flag(flag) {
+Packet::Packet(int32_t id, uint32_t flag, int derived_size) : id(id), flag(flag) {
 
-  seq_num = next_seq_num++;
   packet_size = header_size + derived_size;
   packet = (char*)malloc(packet_size);
 
@@ -16,7 +13,7 @@ Packet::Packet(uint32_t flag, int derived_size) : flag(flag) {
   // set packet header data
   uint32_t* ptr = (uint32_t*)packet;
   ptr[0] = packet_size;
-  ptr[1] = seq_num;
+  ptr[1] = id;
   ptr[2] = flag;
 }
 
@@ -25,7 +22,7 @@ Packet::Packet(void* buf, ssize_t size) :
   packet_size(size), packet(buf) {
 
   packet_size = ((uint32_t*)buf)[0];
-  seq_num = ((uint32_t*)buf)[1];
+  id = ((int32_t*)buf)[1];
   flag = ((uint32_t*)buf)[2];
 }
 
@@ -37,7 +34,7 @@ std::ostream& Packet::print(std::ostream& stream) const {
 
   stream << "Packet" << std::endl;
   stream << "\tpacket_size: " << packet_size << std::endl;
-  stream << "\tseq_num: " << seq_num << std::endl;
+  stream << "\tid: " << id << std::endl;
   stream << "\tflag: " << flag << std::endl;
   return stream; 
 }
@@ -54,7 +51,7 @@ EspressoInit::EspressoInit(void* buf, ssize_t size) : Packet(buf, size) {
   node_id = base[0];
 }
 
-EspressoInit::EspressoInit(int node_id) : Packet(ESPRESSO_INIT, data_size),
+EspressoInit::EspressoInit(int node_id) : Packet(0, ESPRESSO_INIT, data_size),
   node_id(node_id) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
@@ -80,7 +77,7 @@ DecafsClientInit::DecafsClientInit(void* buf, ssize_t size) : Packet(buf, size) 
   user_id = base[0];
 }
 
-DecafsClientInit::DecafsClientInit(int user_id) : Packet(DECAFS_CLIENT_INIT, data_size),
+DecafsClientInit::DecafsClientInit(int user_id) : Packet(0, DECAFS_CLIENT_INIT, data_size),
   user_id(user_id) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
@@ -102,9 +99,9 @@ std::ostream& operator<<(std::ostream& stream, const DecafsClientInit &p) {
 
 // constructor from data
 // serialization
-FilePacket::FilePacket(int flag, int derived_size, uint32_t fd, uint32_t file_id, 
+FilePacket::FilePacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
  uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, uint32_t count) 
- : Packet(flag, derived_size + data_size),
+ : Packet(id, flag, derived_size + data_size),
    fd(fd),
    file_id(file_id),
    stripe_id(stripe_id),
@@ -164,9 +161,9 @@ FileDataPacket::FileDataPacket(void* buf, ssize_t size) : FilePacket(buf, size) 
   data_buffer = ((uint8_t*)buf) + FilePacket::dataSize();
 }
 
-FileDataPacket::FileDataPacket(int flag, int derived_size, uint32_t fd, uint32_t file_id, 
+FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
  uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t* buf) 
- : FilePacket(flag, count, fd, file_id, stripe_id, chunk_num, offset, count) {
+ : FilePacket(id, flag, count, fd, file_id, stripe_id, chunk_num, offset, count) {
 
   data_buffer = buf;
 
@@ -203,9 +200,9 @@ ReadChunkRequest::ReadChunkRequest(void* buf, ssize_t packet_size)
 
 }
 
-ReadChunkRequest::ReadChunkRequest(uint32_t fd, uint32_t file_id, uint32_t stripe_id,
+ReadChunkRequest::ReadChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num, uint32_t offset, uint32_t count) 
- : FilePacket(READ_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
+ : FilePacket(id, READ_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
 
 }
 
@@ -226,9 +223,9 @@ WriteChunkResponse::WriteChunkResponse(void* buf, ssize_t packet_size)
 
 }
 
-WriteChunkResponse::WriteChunkResponse(uint32_t fd, uint32_t file_id, uint32_t stripe_id,
+WriteChunkResponse::WriteChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num, uint32_t offset, uint32_t count) 
- : FilePacket(WRITE_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
+ : FilePacket(id, WRITE_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
 
 }
 
@@ -249,9 +246,9 @@ WriteChunkRequest::WriteChunkRequest(void* buf, ssize_t packet_size)
 
 }
 
-WriteChunkRequest::WriteChunkRequest(uint32_t fd, uint32_t file_id, uint32_t stripe_id,
+WriteChunkRequest::WriteChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t * buf) 
- : FileDataPacket(WRITE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
+ : FileDataPacket(id, WRITE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }
 
@@ -272,9 +269,9 @@ ReadChunkResponse::ReadChunkResponse(void* buf, ssize_t packet_size)
 
 }
 
-ReadChunkResponse::ReadChunkResponse(uint32_t fd, uint32_t file_id, uint32_t stripe_id,
+ReadChunkResponse::ReadChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t * buf) 
- : FileDataPacket(READ_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
+ : FileDataPacket(id, READ_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }
 
@@ -295,9 +292,9 @@ DeleteChunkRequest::DeleteChunkRequest(void* buf, ssize_t size)
 
 }
 
-DeleteChunkRequest::DeleteChunkRequest(uint32_t file_id, uint32_t stripe_id,
+DeleteChunkRequest::DeleteChunkRequest(uint32_t id, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num)
- : FilePacket(DELETE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, -1, -1) {
+ : FilePacket(id, DELETE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, -1, -1) {
 
 }
 
@@ -318,9 +315,9 @@ DeleteChunkResponse::DeleteChunkResponse(void* buf, ssize_t size)
 
 }
 
-DeleteChunkResponse::DeleteChunkResponse(uint32_t file_id, uint32_t stripe_id,
+DeleteChunkResponse::DeleteChunkResponse(uint32_t id, uint32_t file_id, uint32_t stripe_id,
  uint32_t chunk_num)
- : FilePacket(DELETE_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, -1, -1) {
+ : FilePacket(id, DELETE_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, -1, -1) {
 
 }
 

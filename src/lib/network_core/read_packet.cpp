@@ -6,7 +6,7 @@ ReadRequest::ReadRequest(void* buf, ssize_t packet_size)
 }
 
 ReadRequest::ReadRequest(uint32_t fd, uint32_t count) 
- : FilePacket(READ, 0, fd, 0, 0, 0, 0, count) {
+ : FilePacket(0, READ, 0, fd, 0, 0, 0, 0, count) {
 
 }
 
