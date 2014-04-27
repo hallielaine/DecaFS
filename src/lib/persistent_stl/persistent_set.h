@@ -12,18 +12,18 @@
 #include <set>
 #include <utility>
 
-template<typename Key>
+template<typename Entry>
 class PersistentSet {
-  std::map<Key, Key*> entries;
+  std::map<Entry, Entry*> entries;
   std::set<std::pair<int, int> > unallocated_extents;
-  Key *map;
+  Entry *map;
   off_t map_size;
   int fd;
 
-  Key* allocate() {
+  Entry* allocate() {
     std::set<std::pair<int, int> >::iterator begin = unallocated_extents.begin();
     if (begin != unallocated_extents.end()) {
-      Key *allocation = map + begin->first;
+      Entry *allocation = map + begin->first;
 
       if (begin->first + 1 == begin->second) {
         unallocated_extents.erase(begin);
@@ -37,19 +37,19 @@ class PersistentSet {
       return allocation;
     }
 
-    int start_of_new = map_size / sizeof(Key);
+    int start_of_new = map_size / sizeof(Entry);
     munmap(map, map_size);
-    map_size += sizeof(Key) * 10;
+    map_size += sizeof(Entry) * 10;
     ftruncate(fd, map_size);
-    map = static_cast<Key*>(mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+    map = static_cast<Entry*>(mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     unallocated_extents.insert(std::make_pair(start_of_new + 1, start_of_new + 10));
     return map + start_of_new;
   }
 
-  void deallocate(Key *p) {
-    int start = (p - map) / sizeof(Key);
+  void deallocate(Entry *p) {
+    int start = (p - map) / sizeof(Entry);
 
-    memset(p, 0, sizeof(Key));
+    memset(p, 0, sizeof(Entry));
 
     if (unallocated_extents.empty()) {
       unallocated_extents.insert(std::make_pair(start, start + 1));
@@ -81,8 +81,10 @@ public:
   explicit inline PersistentSet() : fd(-1) {};
 
   inline ~PersistentSet() {
-    if (fd >= 0)
+    if (fd >= 0) {
+      flush();
       close();
+    }
   }
 
   int open(const char *filename) {
@@ -95,15 +97,15 @@ public:
       return -1;
 
     map_size = sd.st_size;
-    map = static_cast<Key*>(mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+    map = static_cast<Entry*>(mmap(NULL, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
     if (map == MAP_FAILED)
       return -1;
 
-    Key * const begin = map;
-    Key * const end = map + map_size / sizeof(Key);
-    static char zeros[sizeof(Key)];
-    for (Key *entry = begin; entry != end; ++entry) {
-      if (memcmp(entry, zeros, sizeof(Key)) == 0) {
+    Entry * const begin = map;
+    Entry * const end = map + map_size / sizeof(Entry);
+    static char zeros[sizeof(Entry)];
+    for (Entry *entry = begin; entry != end; ++entry) {
+      if (memcmp(entry, zeros, sizeof(Entry)) == 0) {
         deallocate(entry);
       } else {
         entries.insert(std::make_pair(*entry, entry));
@@ -129,9 +131,9 @@ public:
   }
 
   struct const_iterator : public std::iterator<std::bidirectional_iterator_tag,
-                                               Key> {
+                                               Entry> {
     explicit inline const_iterator() {}
-    explicit inline const_iterator(typename std::map<Key, Key*>::const_iterator it) :
+    explicit inline const_iterator(typename std::map<Entry, Entry*>::const_iterator it) :
       internal_it(it) {}
     inline const_iterator(const const_iterator &o) {
       internal_it = o.internal_it;
@@ -141,8 +143,8 @@ public:
     const_iterator inline operator++(int) { return const_iterator(internal_it++); }
     const_iterator inline operator--() { return const_iterator(--internal_it); }
     const_iterator inline operator--(int) { return const_iterator(internal_it--); }
-    const Key& operator*() const { return *(internal_it->second); }
-    const Key* operator->() const { return internal_it->second; }
+    const Entry& operator*() const { return *(internal_it->second); }
+    const Entry* operator->() const { return internal_it->second; }
     friend inline bool operator!=(const const_iterator &lhs, const const_iterator &rhs) {
       return lhs.internal_it != rhs.internal_it;
     }
@@ -152,15 +154,15 @@ public:
 
   private:
     friend PersistentSet;
-    typename std::map<Key, Key*>::const_iterator internal_it;
+    typename std::map<Entry, Entry*>::const_iterator internal_it;
   };
 
   typedef const_iterator iterator;
 
   struct const_reverse_iterator : public std::iterator<std::bidirectional_iterator_tag,
-                                               Key> {
+                                               Entry> {
     explicit inline const_reverse_iterator() {}
-    explicit inline const_reverse_iterator(typename std::map<Key, Key*>::const_reverse_iterator it) :
+    explicit inline const_reverse_iterator(typename std::map<Entry, Entry*>::const_reverse_iterator it) :
       internal_it(it) {}
     inline const_reverse_iterator(const const_reverse_iterator &o) {
       internal_it = o.internal_it;
@@ -170,8 +172,8 @@ public:
     const_reverse_iterator inline operator++(int) { return const_reverse_iterator(internal_it++); }
     const_reverse_iterator inline operator--() { return const_reverse_iterator(--internal_it); }
     const_reverse_iterator inline operator--(int) { return const_reverse_iterator(internal_it--); }
-    const Key& operator*() const { return *(internal_it->second); }
-    const Key* operator->() const { return internal_it->second; }
+    const Entry& operator*() const { return *(internal_it->second); }
+    const Entry* operator->() const { return internal_it->second; }
     friend inline bool operator!=(const const_reverse_iterator &lhs, const const_reverse_iterator &rhs) {
       return lhs.internal_it != rhs.internal_it;
     }
@@ -181,7 +183,7 @@ public:
 
   private:
     friend PersistentSet;
-    typename std::map<Key, Key*>::const_reverse_iterator internal_it;
+    typename std::map<Entry, Entry*>::const_reverse_iterator internal_it;
   };
 
   typedef const_reverse_iterator reverse_iterator;
@@ -205,33 +207,33 @@ public:
   /* can't return error, probably should avoid */
   void clear() {
     for (auto &entry : entries) {
-      entry.second->~Key();
+      entry.second->~Entry();
     }
     entries.clear();
     munmap(map, map_size);
     ftruncate(fd, 0);
-    map = static_cast<Key*>(mmap(NULL, 0, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+    map = static_cast<Entry*>(mmap(NULL, 0, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
   }
 
-  std::pair<iterator, bool> insert(const Key& value) {
-    std::pair<typename std::map<Key, Key*>::iterator, bool> insertion =
+  std::pair<iterator, bool> insert(const Entry& value) {
+    std::pair<typename std::map<Entry, Entry*>::iterator, bool> insertion =
       entries.insert(std::make_pair(value, nullptr));
     if (insertion.second) {
       insertion.first->second = allocate();
-      new (insertion.first->second) Key(value);
+      new (insertion.first->second) Entry(value);
       return std::make_pair(iterator(insertion.first), true);
     } else {
       return std::make_pair(iterator(insertion.first), false);
     }
   }
 
-  iterator insert(const_iterator hint, const Key& value) {
-    typename std::map<Key, Key*>::iterator existing = entries.find(value);
+  iterator insert(const_iterator hint, const Entry& value) {
+    typename std::map<Entry, Entry*>::iterator existing = entries.find(value);
     if (existing != entries.end()) {
       return iterator(existing);
     } else {
-      Key* new_element = allocate();
-      new (new_element) Key(value);
+      Entry* new_element = allocate();
+      new (new_element) Entry(value);
       return iterator(entries.insert(hint.internal_it, std::make_pair(value, new_element)));
     }
   }
@@ -244,12 +246,12 @@ public:
     }
   }
 
-  inline void insert(std::initializer_list<Key> ilist) {
+  inline void insert(std::initializer_list<Entry> ilist) {
     insert(ilist.begin(), ilist.end());
   }
 
   iterator erase(const_iterator pos) {
-    pos->~Key();
+    pos->~Entry();
     return iterator(entries.erase(pos.internal_it));
   }
 
@@ -264,7 +266,7 @@ public:
   }
 
 
-  size_t erase(const Key& key) {
+  size_t erase(const Entry& key) {
     iterator search = find(key);
     if (search != end()) {
       erase(search);
@@ -273,13 +275,13 @@ public:
     return 0;
   }
 
-  inline size_t count(const Key &key) const { return entries.count(key); }
+  inline size_t count(const Entry &key) const { return entries.count(key); }
 
-  inline iterator find(const Key &key) { return iterator(entries.find(key)); }
-  inline const_iterator find(const Key &key) const { return const_iterator(entries.find(key)); }
+  inline iterator find(const Entry &key) { return iterator(entries.find(key)); }
+  inline const_iterator find(const Entry &key) const { return const_iterator(entries.find(key)); }
 
-  inline iterator lower_bound(const Key &key) { return iterator(entries.lower_bound(key)); }
-  inline const_iterator lower_bound(const Key &key) const { return const_iterator(entries.lower_bound(key)); }
+  inline iterator lower_bound(const Entry &key) { return iterator(entries.lower_bound(key)); }
+  inline const_iterator lower_bound(const Entry &key) const { return const_iterator(entries.lower_bound(key)); }
 };
 
 #endif // PERSISTENT_SET_H_

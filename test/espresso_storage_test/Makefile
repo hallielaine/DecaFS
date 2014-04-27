@@ -2,7 +2,7 @@ GTEST_DIR := ../gtest
 USER_DIR := ../../src/lib/espresso_storage
 
 CXX := g++
-CXXFLAGS := -g -O3 -pthread -Wall -Wextra -Weffc++ \
+CXXFLAGS := -g -O3 -std=c++11 -pthread -Wall -Wextra -Weffc++ \
             -isystem $(GTEST_DIR)/include
 
 TESTS := espresso_storage_unittest
@@ -39,7 +39,7 @@ gtest_main.o : $(GTEST_SRCS)
 espresso_storage_unittest.o : espresso_storage_unittest.cc \
                               $(USER_DIR)/*.h \
                               $(GTEST_HEADERS)
-	$(CXX) $(CXXFLAGS) -I$(USER_DIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(USER_DIR)/.. -c $< -o $@
 
 $(USER_DIR)/libespresso_storage.a : $(USER_DIR)/*.cc $(USER_DIR)/*.h \
                                  $(USER_DIR)/Makefile

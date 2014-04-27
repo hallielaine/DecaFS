@@ -4,26 +4,25 @@
 
 #include "gtest/gtest.h"
 
-#include "espresso_storage.h"
-#include "espresso_state.h"
+#include "espresso_storage/espresso_storage.h"
+#include "espresso_storage/espresso_state.h"
 
 // MUST be greater than 4096 for some tests.
 const int TEST_FILE_SIZE = 50 * 1024;
 
 class StorageTest : public ::testing::Test {
-  private:
-    char temp_name[32];
   protected:
     virtual void SetUp() {
-      memcpy(temp_name, "espresso_storage_unittest.XXXXX", 32);
-      espresso_global_data_init(mkstemp(temp_name), TEST_FILE_SIZE);
+      espresso_global_data_init("./", TEST_FILE_SIZE);
     }
 
     virtual void TearDown() {
+      ftruncate(espresso_global_data.fd, 0);
       close(espresso_global_data.fd);
-      unlink(temp_name);
       espresso_global_data.metadata.clear();
+      espresso_global_data.metadata.close();
       espresso_global_data.free_extents.clear();
+      espresso_global_data.free_extents.close();
     }
 };
 

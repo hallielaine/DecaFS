@@ -81,8 +81,10 @@ public:
   explicit inline PersistentMap() : fd(-1) {};
 
   inline ~PersistentMap() {
-    if (fd >= 0)
+    if (fd >= 0) {
+      flush();
       close();
+    }
   }
 
   int open(const char *filename) {
