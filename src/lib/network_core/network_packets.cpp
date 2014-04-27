@@ -26,6 +26,11 @@ Packet::Packet(void* buf, ssize_t size) :
   flag = ((uint32_t*)buf)[2];
 }
 
+Packet::~Packet() {
+
+  free(packet);
+}
+
 int Packet::dataSize() {
   return header_size;
 }

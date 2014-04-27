@@ -30,6 +30,8 @@ class Packet {
     Packet(int32_t id, uint32_t flag, int derived_size);
     Packet(void* buf, ssize_t count);
 
+    virtual ~Packet();
+
     friend std::ostream& operator<<(std::ostream& stream, const Packet &packet);
 };
 
