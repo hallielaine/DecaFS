@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 
 #include "network_packets.h"
+#include "open_packet.h"
 
 #include "net_tcp/tcp_server.h"
 #include "volatile_metadata/volatile_metadata_c_api.h"

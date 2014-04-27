@@ -89,6 +89,14 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
   // TODO this should be split into types based on what type of client ctc is
   // ctc possibilities: pending, decafs_client, espresso_node
   switch (flag) {
+    case (OPEN) :
+    {
+       printf("goat a OPEN packet!\n");
+       OpenPacket op(buffer_ptr, packet_size);
+       std::cout << op << std::endl;
+       open_file(op.filepath, op.open_flags, m_decafs_clients[client]);
+       break;
+    }
     case (ESPRESSO_INIT) :
     {
       printf("got a ESPRESSO_INIT packet\n");
