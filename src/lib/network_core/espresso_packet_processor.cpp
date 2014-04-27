@@ -8,7 +8,7 @@ Packet* process_read_packet(ReadChunkRequest r) {
   bytes_read = read_chunk(r.fd, r.file_id, r.stripe_id, r.chunk_num, r.offset,
    buffer, r.count);
 
-  return new ReadChunkResponse(r.fd, r.file_id, r.stripe_id, r.chunk_num, r.offset,
+  return new ReadChunkResponse(r.id, r.fd, r.file_id, r.stripe_id, r.chunk_num, r.offset,
    bytes_read, buffer); 
 }
 
@@ -17,7 +17,7 @@ Packet* process_write_packet(WriteChunkRequest r) {
   ssize_t bytes_written = write_chunk(r.fd, r.file_id, r.stripe_id, r.chunk_num,
    r.offset, r.data_buffer, r.count);
 
-  return new WriteChunkResponse(r.fd, r.file_id, r.stripe_id, r.chunk_num, r.offset,
+  return new WriteChunkResponse(r.id, r.fd, r.file_id, r.stripe_id, r.chunk_num, r.offset,
    bytes_written);
 }
 
@@ -25,5 +25,5 @@ Packet* process_delete_packet(DeleteChunkRequest r) {
 
   // TODO check return val of delete_chunk, -1 error 0 success
   delete_chunk(r.fd, r.file_id, r.stripe_id, r.chunk_num);
-  return new DeleteChunkResponse(r.file_id, r.stripe_id, r.chunk_num);
+  return new DeleteChunkResponse(r.id, r.file_id, r.stripe_id, r.chunk_num);
 }

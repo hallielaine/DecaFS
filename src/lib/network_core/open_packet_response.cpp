@@ -6,7 +6,7 @@ OpenPacketResponse::OpenPacketResponse(void* buf, ssize_t size) : Packet(buf, si
   response = base[0];
 }
 
-OpenPacketResponse::OpenPacketResponse(int response) : Packet(OPEN_RESPONSE, data_size),
+OpenPacketResponse::OpenPacketResponse(int response) : Packet(0, OPEN_RESPONSE, data_size),
   response(response) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
