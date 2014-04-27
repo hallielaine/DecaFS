@@ -1,5 +1,7 @@
 espresso_core.o: espresso_core.cc espresso_core.h \
  ../../lib/espresso_storage/espresso_state.h \
+ ../../lib/persistent_stl/persistent_map.h \
+ ../../lib/persistent_stl/persistent_set.h \
  ../../lib/espresso_storage/espresso_types.h \
  ../../lib/espresso_storage/espresso_storage.h \
  ../../lib/network_core/espresso_client.h ../../lib/net_tcp/tcp_client.h \

@@ -91,17 +91,18 @@ extern "C" void barista_core_init (int argc, char *argv[]);
  *   O_RDWR open a file for both reading and writing
  *   O_APPEND start the file cursor at the end of the file
  *
- *	@ return the file id for the newly opened file (non-zero)
- *     FILE_IN_USE if the proper lock cannot be obtained
+ *	@post
+ *     open_file sends the file id for the newly opened file (non-zero)
+ *     to the client or FILE_IN_USE if the proper lock cannot be obtained
  */
-extern "C" int open_file (const char *pathname, int flags, struct client client);
+extern "C" void open_file (const char *pathname, int flags, struct client client);
 
 /*
  *	If the process has a lock on the file, complete the read.
  *	Translates read request into chunks of requests to Espresso 
  *	nodes.
  */
-extern "C" ssize_t read_file (int fd, size_t count, struct client client);
+extern "C" void read_file (int fd, size_t count, struct client client);
 
 /*
  * Aggregates the read_file futures and determines when the read is complete.
@@ -116,7 +117,7 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response);
  *	Translate write requests into chunks of requests to Espresso
  *	nodes.
  */
-extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client);
+extern "C" void write_file (int fd, const void *buf, size_t count, struct client client);
 
 /*
  * Aggregates the write_file futures and determines when the write is complete.
@@ -128,13 +129,13 @@ extern "C" void write_response_handler (WriteChunkResponse *write_response);
 /*
  *	Release locks associate with a fd.
  */
-extern "C" int close_file (int fd, struct client client);
+extern "C" void close_file (int fd, struct client client);
 
 /*
  *	Removes a file from DecaFS.
  *	@ return >= 0 success, < 0 failure
  */
-extern "C" int delete_file (char *pathname, struct client client);
+extern "C" void delete_file (char *pathname, struct client client);
 
 /*
  * Aggregates the delete_file futures and determines when the delete is complete.

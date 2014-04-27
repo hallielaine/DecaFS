@@ -284,9 +284,11 @@ void check_read_complete (uint32_t request_id) {
       it++;
       delete (cur_packet);
     }
-    send_read_result (active_read_requests[request_id].info.client,
-                      active_read_requests[request_id].info.fd, count,
-                      active_read_requests[request_id].buf); 
+    if (send_read_result (active_read_requests[request_id].info.client,
+                          active_read_requests[request_id].info.fd, count,
+                          active_read_requests[request_id].buf) < 0) {
+      printf ("\tRead result could not reach client.\n");
+    }
     active_read_requests.erase (request_id);
   }
 }
@@ -300,9 +302,11 @@ void check_write_complete (uint32_t request_id) {
 
   if (active_write_requests[request_id].info.chunks_expected ==
       active_write_requests[request_id].info.chunks_received) {
-    send_write_result (active_write_requests[request_id].info.client,
-                       active_write_requests[request_id].info.fd,
-                       active_write_requests[request_id].count); 
+    if (send_write_result (active_write_requests[request_id].info.client,
+                           active_write_requests[request_id].info.fd,
+                           active_write_requests[request_id].count) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
     active_write_requests.erase (request_id);
   }
 }
@@ -316,8 +320,11 @@ void check_delete_complete (uint32_t request_id) {
 
   if (active_delete_requests[request_id].chunks_expected ==
       active_delete_requests[request_id].chunks_received) {
-    send_delete_result (active_delete_requests[request_id].client,
-                        active_delete_requests[request_id].fd);
+    if (send_delete_result (active_delete_requests[request_id].client,
+                        active_delete_requests[request_id].fd, 0) < 0) {
+      printf ("\tDelete result could not reach client.\n");
+    }
+
     active_delete_requests.erase (request_id);
   }
 }
@@ -361,7 +368,7 @@ extern "C" void exit_failure (const char *message) {
   exit (EXIT_FAILURE);
 }
 
-extern "C" int open_file (const char *pathname, int flags, struct client client) {
+extern "C" void open_file (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
   struct decafs_file_stat stat;
   int cursor;
@@ -388,7 +395,9 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
     // if we can't get a write lock, return that the file is in use so we can't
     // open it
     if (get_exclusive_lock (client, file_id) < 0) {
-      return FILE_IN_USE;
+      if (send_open_result (client, FILE_IN_USE) < 0) {
+        printf ("\tOpen result could not reach client.\n");
+      }
     }
     printf ("\tobtained a write lock.\n");
   }
@@ -397,7 +406,9 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
     // if we can't get a read lock, return that the file is in use so we can't
     // open it
     if (get_shared_lock (client, file_id) < 0) {
-      return FILE_IN_USE;
+      if (send_open_result (client, FILE_IN_USE) < 0) {
+        printf ("\tOpen result could not reach client.\n");
+      }
     }
     printf ("\tobtained a read lock.\n");
   }
@@ -407,10 +418,13 @@ extern "C" int open_file (const char *pathname, int flags, struct client client)
     printf ("\tfile opened with O_APPEND, moving cursor to EOF.\n");
     set_file_cursor (cursor, stat.size, client);
   }
-  return cursor;
+
+  if (send_open_result (client, cursor) < 0) {
+    printf ("\tOpen result could not reach client.\n");
+  }
 }
 
-extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
+extern "C" void read_file (int fd, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id, num_chunks = 0;
@@ -431,14 +445,18 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   // If the client does not have permission to read, return an error
   if (has_exclusive_lock (client, inst.file_id) <= 0) {
     if (has_shared_lock (client, inst.file_id) <= 0) {
-      return FILE_NOT_OPEN_FOR_READ;
+      if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
+        printf ("\tRead result could not reach client.\n");
+      }
     }
   }
   
   decafs_file_stat (inst.file_id, &stat, client);
   
   if ((file_offset = get_file_cursor (fd)) < 0) {
-    return FILE_NOT_OPEN_FOR_READ; 
+    if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
+      printf ("\tRead result could not reach client.\n");
+    }
   }
   
   // TODO: make some assertion about max read size here
@@ -472,8 +490,6 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   assert (read_request_exists (request_id)); 
   active_read_requests[request_id].info.chunks_expected = num_chunks;
   check_read_complete(request_id);
-
-  return bytes_read;
 }
 
 extern "C" void read_response_handler (ReadChunkResponse *read_response) {
@@ -488,7 +504,7 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
   check_read_complete(read_response->id);
 }
 
-extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct client client) {
+extern "C" void write_file (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
   uint32_t stripe_id;
@@ -502,13 +518,17 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
   
   // If the client does not have permission to write, return an error
   if (has_exclusive_lock (client, inst.file_id) <= 0) {
-    return FILE_NOT_OPEN_FOR_WRITE; 
+    if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
   }
  
   decafs_file_stat (inst.file_id, &stat, client);
   
   if ((file_offset = get_file_cursor (fd)) < 0) {
-    return FILE_NOT_OPEN_FOR_WRITE; 
+    if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
   }
 
   // TODO: make some assertion about max write size here
@@ -537,8 +557,6 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
     bytes_written += write_size;
     ++stripe_id;
   }
-  
-  return bytes_written;
 }
 
 extern "C" void write_response_handler (WriteChunkResponse *write_response) {
@@ -550,35 +568,40 @@ extern "C" void write_response_handler (WriteChunkResponse *write_response) {
   check_write_complete(write_response->id);
 }
 
-extern "C" int close_file (int fd, struct client client) {
+extern "C" void close_file (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
   
   // If we successfully closed the file, release the lock
   if (file_id > 0) {
     release_lock (client, file_id);
   }
-  return file_id;
+  
+  if (send_close_result (client, file_id) < 0) {
+    printf ("\tClose result could not reach client.\n");
+  }
 }
 
-extern "C" int delete_file (char *pathname, struct client client) {
+extern "C" void delete_file (char *pathname, struct client client) {
   struct decafs_file_stat file_info;
   uint32_t request_id = get_new_request_id();
   
   // If the file doesn't exist
   if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
-    return FILE_NOT_FOUND;
+    if (send_delete_result (client, 0, FILE_NOT_FOUND) < 0) {
+      printf ("\tDelete result could not reach client.\n");
+    }
   }
   
   if (has_exclusive_lock (client, file_info.file_id) <= 0) {
     if (get_exclusive_lock (client, file_info.file_id) < 0) {
-      return FILE_IN_USE;
+      if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
+        printf ("\tDelete result could not reach client.\n");
+      }
     }
   }
  
   process_delete_file (request_id, file_info.file_id);
   release_lock (client, file_info.file_id);
-  
-  return file_info.file_id;
 }
 
 extern "C" void delete_response_handler (DeleteChunkResponse *delete_response) {
