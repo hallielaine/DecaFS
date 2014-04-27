@@ -12,7 +12,7 @@ Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
 
 std::map<uint32_t, struct read_request_info> active_read_requests;
-std::map<uint32_t, struct request_info> active_write_requests;
+std::map<uint32_t, struct write_request_info> active_write_requests;
 std::map<uint32_t, struct request_info> active_delete_requests;
 
 // ------------------------IO Manager Call Throughs---------------------------
@@ -271,6 +271,7 @@ void check_read_complete (uint32_t request_id) {
 
   if (active_read_requests[request_id].info.chunks_expected ==
       active_read_requests[request_id].info.chunks_received) {
+    int count = 0;
     uint8_t *buffer_offset = active_read_requests[request_id].buf;
     std::map<struct file_chunk, ReadChunkResponse *>packet_map = 
         active_read_requests[request_id].response_packets;
@@ -279,10 +280,45 @@ void check_read_complete (uint32_t request_id) {
       ReadChunkResponse *cur_packet = it->second;
       memcpy (buffer_offset, cur_packet->data_buffer, cur_packet->count);
       buffer_offset += cur_packet->count;
+      count += cur_packet->count;
       it++;
       delete (cur_packet);
     }
+    send_read_result (active_read_requests[request_id].info.client,
+                      active_read_requests[request_id].info.fd, count,
+                      active_read_requests[request_id].buf); 
     active_read_requests.erase (request_id);
+  }
+}
+
+void check_write_complete (uint32_t request_id) {
+  assert (write_request_exists (request_id));
+  
+  if (active_write_requests[request_id].info.chunks_expected == 0) {
+    return;
+  }
+
+  if (active_write_requests[request_id].info.chunks_expected ==
+      active_write_requests[request_id].info.chunks_received) {
+    send_write_result (active_write_requests[request_id].info.client,
+                       active_write_requests[request_id].info.fd,
+                       active_write_requests[request_id].count); 
+    active_write_requests.erase (request_id);
+  }
+}
+
+void check_delete_complete (uint32_t request_id) {
+  assert (delete_request_exists (request_id));
+  
+  if (active_delete_requests[request_id].chunks_expected == 0) {
+    return;
+  }
+
+  if (active_delete_requests[request_id].chunks_expected ==
+      active_delete_requests[request_id].chunks_received) {
+    send_delete_result (active_delete_requests[request_id].client,
+                        active_delete_requests[request_id].fd);
+    active_delete_requests.erase (request_id);
   }
 }
 
@@ -324,7 +360,6 @@ extern "C" void exit_failure (const char *message) {
   fprintf (stderr, "%s\n", message);
   exit (EXIT_FAILURE);
 }
-
 
 extern "C" int open_file (const char *pathname, int flags, struct client client) {
   uint32_t file_id;
@@ -382,14 +417,15 @@ extern "C" ssize_t read_file (int fd, size_t count, struct client client) {
   int file_offset, stripe_offset, bytes_read = 0, read_size = 0;
   uint8_t *buf;
   uint32_t request_id = get_new_request_id();
-  active_read_requests[request_id] = read_request_info ();  
 
   assert (fd > 0);
-  inst = get_file_info((uint32_t)fd); 
   
   // Allocate space for the read request
   buf = (uint8_t *)malloc (count);
 
+  active_read_requests[request_id] = read_request_info (client, fd, buf);  
+  inst = get_file_info((uint32_t)fd); 
+  
   printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
  
   // If the client does not have permission to read, return an error
@@ -445,7 +481,8 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
   
   struct file_chunk chunk = {read_response->file_id, read_response->stripe_id,
                              read_response->chunk_num};
-
+  
+  active_read_requests[read_response->id].info.chunks_received++;
   active_read_requests[read_response->id].response_packets[chunk] = read_response;
 
   check_read_complete(read_response->id);
@@ -504,6 +541,15 @@ extern "C" ssize_t write_file (int fd, const void *buf, size_t count, struct cli
   return bytes_written;
 }
 
+extern "C" void write_response_handler (WriteChunkResponse *write_response) {
+  assert (write_request_exists (write_response->id));
+  
+  active_write_requests[write_response->id].info.chunks_received++;
+  active_write_requests[write_response->id].count += write_response->count;
+
+  check_write_complete(write_response->id);
+}
+
 extern "C" int close_file (int fd, struct client client) {
   int file_id = close_file_cursor (fd, client);
   
@@ -533,6 +579,14 @@ extern "C" int delete_file (char *pathname, struct client client) {
   release_lock (client, file_info.file_id);
   
   return file_info.file_id;
+}
+
+extern "C" void delete_response_handler (DeleteChunkResponse *delete_response) {
+  assert (delete_request_exists (delete_response->id));
+  
+  active_delete_requests[delete_response->id].chunks_received++;
+
+  check_delete_complete(delete_response->id);
 }
 
 extern "C" int file_seek (int fd, uint32_t offset, int whence, struct client client) {
