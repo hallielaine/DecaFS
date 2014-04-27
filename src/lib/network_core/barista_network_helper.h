@@ -5,6 +5,10 @@
 #include "packet_flags.h"
 #include "network_packets.h"
 #include "barista_server.h"
+#include "open_packet_response.h"
+#include "write_response_packet.h"
+#include "read_response_packet.h"
+#include "close_response_packet.h"
 
 // pulled from network_core module architecture
 // modified to suit a non-blocking model
@@ -30,6 +34,6 @@ int send_read_result(struct client c, int fd, ssize_t count, void* buf);
 int send_write_result(struct client c, int fd, ssize_t count);
 int send_close_result(struct client c, int result);
 
-int send_delete_result(struct client c, int fd);
+int send_delete_result(struct client c, int fd, int result);
 
 #endif // _BARISTA_NETWORK_HELPER_

@@ -8,4 +8,8 @@ access.o: access.cpp access.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \
  ../../lib/net_tcp/connection_to_client.h \
- ../../lib/decafs_types/ip_address.h
+ ../../lib/decafs_types/ip_address.h \
+ ../../lib/network_core/open_packet_response.h \
+ ../../lib/network_core/write_response_packet.h \
+ ../../lib/network_core/read_response_packet.h \
+ ../../lib/network_core/close_response_packet.h

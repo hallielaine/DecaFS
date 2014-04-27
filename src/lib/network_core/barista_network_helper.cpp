@@ -38,21 +38,30 @@ int network_delete_chunk(int32_t id, int file_id, int node_id, int stripe_id, in
 }
 
 int send_open_result(struct client c, int result) {
-  return -1;
+
+  OpenPacketResponse response(result);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
 int send_read_result(struct client c, int fd, ssize_t count, void* buf) {
-  return -1;
+
+  ReadResponsePacket response(fd, count, (uint8_t*)buf);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
 int send_write_result(struct client c, int fd, ssize_t count) {
-  return -1;
+
+  WriteResponsePacket response(fd, count);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
 int send_close_result(struct client c, int result) {
-  return -1;
+  
+  CloseResponsePacket response(result);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
-int send_delete_result(struct client c, int fd) {
+int send_delete_result(struct client c, int fd, int result) {
+
   return -1;
 }

@@ -15,4 +15,8 @@ io_manager.o: io_manager.cpp io_manager.h ../../lib/decafs_types/limits.h \
  ../../lib/net_tcp/tcp_server.h ../../lib/net_tcp/connection_to_client.h \
  ../../lib/network_core/packet_flags.h \
  ../../lib/network_core/network_packets.h \
- ../../lib/network_core/barista_server.h
+ ../../lib/network_core/barista_server.h \
+ ../../lib/network_core/open_packet_response.h \
+ ../../lib/network_core/write_response_packet.h \
+ ../../lib/network_core/read_response_packet.h \
+ ../../lib/network_core/close_response_packet.h
