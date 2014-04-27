@@ -3,6 +3,7 @@
 Volatile_Metadata::Volatile_Metadata() {
   // initialize volatile metadata map for file cursor
   last_fd = FD_NOT_SET;
+  request_id = 0;
 
   // Initialize stripe and chunk size
   chunk_size = 0;
@@ -172,4 +173,14 @@ uint32_t Volatile_Metadata::get_new_fd() {
   fd_mutex.unlock();
 
   return new_fd;
+}
+
+uint32_t Volatile_Metadata::get_new_request_id() {
+  uint32_t new_request_id;
+
+  request_id_mutex.lock();
+  new_request_id = ++request_id;
+  request_id_mutex.unlock();
+
+  return new_request_id;
 }

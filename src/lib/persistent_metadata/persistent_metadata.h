@@ -26,9 +26,6 @@
 
 #define ID_NOT_SET 0
 
-static const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
-static const char *persistent_metadata_filename = ".persistent_metadata.dat";
-
 struct persistent_metadata_info {
   uint32_t file_id;
   uint32_t size;
@@ -45,6 +42,9 @@ class Persistent_Metadata {
     // Variables
     PersistentMap<int, string> file_id_to_pathname;
     PersistentMap<string, struct persistent_metadata_info> metadata;
+
+    const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
+    const char *persistent_metadata_filename = ".persistent_metadata.dat";
 
     // Helper Functions
     bool get_file_name (uint32_t file_id, string *name);

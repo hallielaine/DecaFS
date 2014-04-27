@@ -14,10 +14,11 @@ void IO_Manager::init(char *metadata_path) {
   
 }
 
-ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
-                                         uint32_t stripe_id, uint32_t stripe_size,
-                                         uint32_t chunk_size, const void *buf,
-                                         int offset, size_t count) {
+ssize_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                         char *pathname, uint32_t stripe_id,
+                                         uint32_t stripe_size, uint32_t chunk_size,
+                                         const void *buf, int offset,
+                                         size_t count) {
   uint32_t chunk_id, bytes_read = 0, read_size = 0;
   int chunk_offset, chunk_result, node_id;
   
@@ -80,10 +81,11 @@ ssize_t IO_Manager::process_read_stripe (uint32_t file_id, char *pathname,
   return bytes_read;
 }
 
-ssize_t IO_Manager::process_write_stripe (uint32_t file_id, char *pathname,
-                                          uint32_t stripe_id, uint32_t stripe_size,
-                                          uint32_t chunk_size, const void *buf,
-                                          int offset, size_t count) {
+ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
+                                          char *pathname, uint32_t stripe_id,
+                                          uint32_t stripe_size, uint32_t chunk_size,
+                                          const void *buf, int offset,
+                                          size_t count) {
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id, write_result;
 

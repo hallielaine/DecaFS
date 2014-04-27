@@ -100,4 +100,8 @@ extern "C" int set_file_cursor (uint32_t fd, uint32_t offset, struct client clie
  */
 extern "C" struct file_instance get_file_info (uint32_t fd);
 
+/*
+ * Get a new request id for a client request.
+ */
+extern "C" uint32_t get_new_request_id();
 #endif
