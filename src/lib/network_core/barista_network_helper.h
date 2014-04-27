@@ -9,7 +9,7 @@
 // pulled from network_core module architecture
 // modified to suit a non-blocking model
 
-// sends a read chunk request to client
+// sends a read chunk request to an espresso node
 // returns -1 on error
 int network_read_chunk(int32_t id, int fd, int file_id, int node_id, int stripe_id, 
  int chunk_num, int offset, int count);
@@ -24,5 +24,9 @@ int network_write_chunk(int32_t id, int fd, int file_id, int node_id, int stripe
 int network_delete_chunk(int32_t id, int file_id, int node_id, int stripe_id, int chunk_num);
 
 //int network_flush(ConnectionToClient* client);
+
+int send_read_result(struct client c, int fd, ssize_t count, void* buf);
+int send_write_result(struct client c, int fd, ssize_t count);
+int send_delete_result(struct client c, int fd);
 
 #endif // _BARISTA_NETWORK_HELPER_

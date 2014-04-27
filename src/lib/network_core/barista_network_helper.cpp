@@ -36,3 +36,15 @@ int network_delete_chunk(int32_t id, int file_id, int node_id, int stripe_id, in
   //return client->sendToClient(deleteRequest.packet, deleteRequest.packet_size);
   return b_srvr->sendToEspresso(node_id, deleteRequest);
 }
+
+int send_read_result(struct client c, int fd, ssize_t count, void* buf) {
+  return -1;
+}
+
+int send_write_result(struct client c, int fd, ssize_t count) {
+  return -1;
+}
+
+int send_delete_result(struct client c, int fd) {
+  return -1;
+}
