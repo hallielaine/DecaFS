@@ -12,9 +12,9 @@ int main(int argc, char** argv) {
                               strlen (storage_file) + 1);
   strcpy (file, argv[FILESYSTEM]);
   strcat (file, storage_file);
-  
+
   printf ("Opening storage file %s\n", file);
-  
+
   int storage_file_fd;
   if ((storage_file_fd  = open (file, O_RDWR | O_CREAT,
                                 S_IRUSR | S_IWUSR)) < 0) {
@@ -23,13 +23,13 @@ int main(int argc, char** argv) {
   }
 
   printf ("storage file open (%d)\n", storage_file_fd);
-   
-  espresso_global_data_init (storage_file_fd, NODE_STORAGE_SIZE);
+
+  espresso_global_data_init (argv[FILESYSTEM], NODE_STORAGE_SIZE);
 
   char* barista_hostname = argv[BARISTA_HOSTNAME];
   int barista_port = atoi(argv[BARISTA_PORT]);
   int node_id = atoi(argv[NODE_ID]);
-  EspressoClient espresso(barista_hostname, barista_port, node_id);  
+  EspressoClient espresso(barista_hostname, barista_port, node_id);
   espresso.openConnection();
   espresso.run();
 
