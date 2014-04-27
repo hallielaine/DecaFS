@@ -110,7 +110,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       printf("\ngot a READ_CHUNK_RESPONSE packet\n");
       ReadChunkResponse readResponse(buffer_ptr, packet_size);
       std::cout << readResponse << std::endl;
-      // TODO call back to barista core 
+      read_response_handler(&readResponse);
       break;
     }
     case (WRITE_CHUNK_RESPONSE) : 
@@ -118,7 +118,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       printf("\ngot a WRITE_CHUNK_RESPONSE packet\n");
       WriteChunkResponse writeResponse(buffer_ptr, packet_size);
       std::cout << writeResponse << std::endl;
-      // TODO call back to barista core
+      write_response_handler(&writeResponse);
       break;
     }
     case (DELETE_CHUNK_RESPONSE) :
@@ -126,7 +126,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       printf("\ngot a DELETE_CHUNK_RESPONSE packet\n");
       DeleteChunkResponse deleteResponse(buffer_ptr, packet_size);
       std::cout << deleteResponse << std::endl;
-      // TODO call back to barista core
+      delete_response_handler(&deleteResponse);
       break;
     }
   }

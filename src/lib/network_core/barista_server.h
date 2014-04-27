@@ -12,6 +12,7 @@
 
 #include "net_tcp/tcp_server.h"
 #include "volatile_metadata/volatile_metadata_c_api.h"
+#include "barista_core/barista_core.h"
 
 class BaristaServer : public TcpServer {
 
