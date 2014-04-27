@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
 
   printf ("storage file open (%d)\n", storage_file_fd);
 
-  espresso_global_data_init (argv[FILESYSTEM], NODE_STORAGE_SIZE);
+  espresso_global_data_init (argv[METADATA], NODE_STORAGE_SIZE);
 
   char* barista_hostname = argv[BARISTA_HOSTNAME];
   int barista_port = atoi(argv[BARISTA_PORT]);
