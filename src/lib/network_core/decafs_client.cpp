@@ -14,7 +14,7 @@ void DecafsClient::connectionClosed() {
 void DecafsClient::connectionEstablished() {
 
   printf("DecafsClient: connection to Barista established!\n");
-  EspressoInit init(user_id);
+  DecafsClientInit init(user_id);
   sendToServer(init.packet, init.packet_size);
 }
 
