@@ -14,7 +14,7 @@ class OpenPacket : public Packet {
     OpenPacket(int flags, char* pathname);
     OpenPacket(void* buf, ssize_t length);
 
-    int open_flags;
+    int32_t open_flags;
     char* filepath;
 
     friend std::ostream& operator<<(std::ostream& stream, const OpenPacket &packet);

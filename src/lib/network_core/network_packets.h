@@ -16,7 +16,7 @@ class Packet {
 
   protected:
     // returns how much of the packet buffer is filled by this class
-    virtual int dataSize();
+    virtual int dataSize() const;
     virtual std::ostream& print(std::ostream&) const;
 
   public:
@@ -78,7 +78,7 @@ class FilePacket : public Packet {
     static const int data_size = 6*sizeof(uint32_t);
 
   protected:
-    virtual int dataSize();
+    virtual int dataSize() const;
     virtual std::ostream& print(std::ostream&) const;
 
   public:
@@ -104,7 +104,7 @@ class FileDataPacket : public FilePacket {
     int data_size;
 
   protected:
-    virtual int dataSize();
+    virtual int dataSize() const;
     virtual std::ostream& print(std::ostream&) const;
 
   public:

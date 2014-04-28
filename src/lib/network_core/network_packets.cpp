@@ -31,7 +31,7 @@ Packet::~Packet() {
   //free(packet);
 }
 
-int Packet::dataSize() {
+int Packet::dataSize() const {
   return header_size;
 }
 
@@ -137,7 +137,7 @@ FilePacket::FilePacket(void* buf, ssize_t size) : Packet(buf, size) {
   count = base[5];
 }
 
-int FilePacket::dataSize() {
+int FilePacket::dataSize() const {
 
   return Packet::dataSize() + data_size;
 }
@@ -179,7 +179,7 @@ FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t
   // or is it the creators responsibility?
 }
 
-int FileDataPacket::dataSize() {
+int FileDataPacket::dataSize() const {
 
   return FilePacket::dataSize() + data_size;
 }
