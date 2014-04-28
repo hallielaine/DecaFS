@@ -69,7 +69,6 @@ void BaristaServer::addDecafsClient(DecafsClientInit decafs_client, ConnectionTo
 
 void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
 
-  printf("BaristaServer: received a message from a client!\n");
 
   int32_t packet_size, flag;
   void* buffer_ptr;
@@ -85,6 +84,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
   } 
    
   flag = ((uint32_t*)buffer_ptr)[2];
+  printf("BaristaServer: received a message from a client, with flag %d!\n", flag);
 
   // TODO this should be split into types based on what type of client ctc is
   // ctc possibilities: pending, decafs_client, espresso_node
