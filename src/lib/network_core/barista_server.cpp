@@ -63,7 +63,7 @@ void BaristaServer::addDecafsClient(DecafsClientInit decafs_client, ConnectionTo
     m_pending_clients.erase(ctc);
     struct client dclient = client(inet_ntoa(ctc->addr.sin_addr), decafs_client.user_id, ctc);
     m_decafs_clients[ctc] = dclient;
-    printf("a decafs client connected: ip<%s>, user_id:<%d>\n", dclient.ip.addr, dclient.user_id);
+    printf("BaristaServer: a decafs client connected: ip<%s>, user_id:<%d>\n", dclient.ip.addr, dclient.user_id);
   }
 }
 
@@ -91,7 +91,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
   switch (flag) {
     case (OPEN) :
     {
-       printf("goat a OPEN packet!\n");
+       printf("got a OPEN packet!\n");
        OpenPacket op(buffer_ptr, packet_size);
        std::cout << op << std::endl;
        open_file(op.filepath, op.open_flags, m_decafs_clients[client]);

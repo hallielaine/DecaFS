@@ -16,6 +16,7 @@ void DecafsClient::connectionEstablished() {
   printf("DecafsClient: connection to Barista established!\n");
   DecafsClientInit init(user_id);
   sendToServer(init.packet, init.packet_size);
+  printf("DecafsClient: DecafsClientInit has been sent!\n");
 }
 
 // want spin / close 
