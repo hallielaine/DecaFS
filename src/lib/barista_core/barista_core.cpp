@@ -404,6 +404,7 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
       if (send_open_result (client, FILE_IN_USE) < 0) {
         printf ("\tOpen result could not reach client.\n");
       }
+      return;
     }
     printf ("\tobtained a write lock.\n");
   }
@@ -415,6 +416,7 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
       if (send_open_result (client, FILE_IN_USE) < 0) {
         printf ("\tOpen result could not reach client.\n");
       }
+      return;
     }
     printf ("\tobtained a read lock.\n");
   }
@@ -454,6 +456,7 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
       if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
         printf ("\tRead result could not reach client.\n");
       }
+      return;
     }
   }
   
@@ -463,6 +466,7 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
     if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
+    return;
   }
   
   // TODO: make some assertion about max read size here
@@ -527,6 +531,7 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
+    return;
   }
  
   decafs_file_stat (inst.file_id, &stat, client);
@@ -535,6 +540,7 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
+    return;
   }
 
   // TODO: make some assertion about max write size here
@@ -596,6 +602,7 @@ extern "C" void delete_file (char *pathname, struct client client) {
     if (send_delete_result (client, 0, FILE_NOT_FOUND) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
+    return;
   }
   
   if (has_exclusive_lock (client, file_info.file_id) <= 0) {
@@ -603,6 +610,7 @@ extern "C" void delete_file (char *pathname, struct client client) {
       if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
         printf ("\tDelete result could not reach client.\n");
       }
+      return;
     }
   }
  
