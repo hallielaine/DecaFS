@@ -28,7 +28,7 @@ Packet::Packet(void* buf, ssize_t size) :
 
 Packet::~Packet() {
 
-  free(packet);
+  //free(packet);
 }
 
 int Packet::dataSize() {
