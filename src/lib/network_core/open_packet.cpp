@@ -26,8 +26,10 @@ OpenPacket::OpenPacket(void* buf, ssize_t length) : Packet(buf, length) {
 std::ostream& OpenPacket::print(std::ostream &stream) const {
 
   stream << "OpenPacket" << std::endl;
-  stream << "flags: " << open_flags << std::endl;
-  stream << "filepath: " << filepath << std::endl;
+  stream << "\tflags: " << open_flags << std::endl;
+  stream << "filepath: ";
+  stream.write(filepath, strlen(filepath));
+  stream << std::endl;
   return Packet::print(stream);
 }
 
