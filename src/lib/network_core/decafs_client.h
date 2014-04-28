@@ -4,10 +4,22 @@
 #include <iostream>
 
 #include "net_tcp/tcp_client.h"
+#include "espresso_packet_processor.h"
+
+// NETWORK PACKETS
 #include "network_packets.h"
+
 #include "open_packet.h"
 #include "open_packet_response.h"
-#include "espresso_packet_processor.h"
+
+#include "write_packet.h"
+#include "write_response_packet.h"
+
+#include "close_packet.h"
+#include "close_response_packet.h"
+
+#include "read_packet.h"
+#include "read_response_packet.h"
 
 class DecafsClient : public TcpClient {
 
@@ -22,9 +34,9 @@ class DecafsClient : public TcpClient {
     void handleMessageFromServer(int socket);
 
     int open(const char* pathname, int flags);
-    //ssize_t read(int fd, void* buf, ssize_t count);
-    //ssize_t write(int fd, const void buf*, ssize_t count);
-    //int clode(fd);
+    ssize_t read(int fd, void* buf, ssize_t count);
+    ssize_t write(int fd, void* buf, ssize_t count);
+    int close(int fd);
     //void delete_file(char* pathname);
     //void sync();
     //int file_stat(const char* path, struct stat *buf);

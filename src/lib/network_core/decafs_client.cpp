@@ -19,21 +19,14 @@ void DecafsClient::connectionEstablished() {
   printf("DecafsClient: DecafsClientInit has been sent!\n");
 }
 
-// want spin / close 
-// need to modify run loop in tcp server
-
 int DecafsClient::open(const char* pathname, int flags) {
 
   char tmppath[256];
   strncpy(tmppath, pathname, 256);
-  // create open packet
   OpenPacket op(flags, tmppath); 
-  // send the packet
   // TODO need to check for errors
   sendToServer(op.packet, op.packet_size);
 
-  // wait for open response packet
-  //recv(
   fd_set tmp_set;
   FD_ZERO(&tmp_set);
   FD_SET(m_socket_number, &tmp_set);
@@ -59,6 +52,109 @@ int DecafsClient::open(const char* pathname, int flags) {
 
   OpenPacketResponse orp(buffer, packet_size);
   return orp.response;
+}
+
+int DecafsClient::close(int fd) {
+
+  ClosePacket cp(fd); 
+  // TODO need to check for errors
+  sendToServer(cp.packet, cp.packet_size);
+
+  fd_set tmp_set;
+  FD_ZERO(&tmp_set);
+  FD_SET(m_socket_number, &tmp_set);
+  if (select(m_socket_number+1, &tmp_set, NULL, NULL, NULL) < 0) {
+    perror("select");
+  }
+
+  // recv the packet
+  // check for length of packet
+  int32_t packet_size; 
+  if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
+
+  }
+
+  char* buffer = (char*) malloc(packet_size);
+  // TODO check for errors
+  recv(m_socket_number, buffer, packet_size, 0);
+ 
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != CLOSE_RESPONSE) {
+    // error, should only receive response here
+  }
+
+  CloseResponsePacket crp(buffer, packet_size);
+  return crp.result;
+}
+
+ssize_t DecafsClient::write(int fd, void* buf, ssize_t count) {
+
+  WritePacket wp(fd, count, (uint8_t*)buf);
+  // TODO need to check for errors
+  sendToServer(wp.packet, wp.packet_size);
+
+  fd_set tmp_set;
+  FD_ZERO(&tmp_set);
+  FD_SET(m_socket_number, &tmp_set);
+  if (select(m_socket_number+1, &tmp_set, NULL, NULL, NULL) < 0) {
+    perror("select");
+  }
+
+  // recv the packet
+  // check for length of packet
+  int32_t packet_size; 
+  if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
+
+  }
+
+  char* buffer = (char*) malloc(packet_size);
+  // TODO check for errors
+  recv(m_socket_number, buffer, packet_size, 0);
+ 
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != WRITE_RESPONSE) {
+    // error, should only receive response here
+  }
+
+  WriteResponsePacket wrp(buffer, packet_size);
+  return wrp.count;
+}
+
+ssize_t DecafsClient::read(int fd, void* buf, ssize_t count) {
+
+  ReadRequest rp(fd, count);
+  // TODO need to check for errors
+  sendToServer(rp.packet, rp.packet_size);
+
+  fd_set tmp_set;
+  FD_ZERO(&tmp_set);
+  FD_SET(m_socket_number, &tmp_set);
+  if (select(m_socket_number+1, &tmp_set, NULL, NULL, NULL) < 0) {
+    perror("select");
+  }
+
+  // recv the packet
+  // check for length of packet
+  int32_t packet_size; 
+  if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
+
+  }
+
+  char* buffer = (char*) malloc(packet_size);
+  // TODO check for errors
+  recv(m_socket_number, buffer, packet_size, 0);
+ 
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != READ_RESPONSE) {
+    // error, should only receive response here
+  }
+
+  ReadResponsePacket rrp(buffer, packet_size);
+
+  // copy data to the users buffer
+  memcpy(buf, rrp.data_buffer, rrp.count);
+
+  return rrp.count;
 }
 
 void DecafsClient::handleMessageFromServer(int socket) {
