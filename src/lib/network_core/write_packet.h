@@ -1,6 +1,8 @@
 #ifndef _WRITE_PACKET_H_
 #define _WRITE_PACKET_H_
 
+#include "network_packets.h"
+
 class WritePacket : public FileDataPacket {
 
   protected:

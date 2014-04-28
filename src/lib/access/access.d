@@ -5,6 +5,9 @@ access.o: access.cpp access.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/network_core/open_packet.h \
+ ../../lib/network_core/write_packet.h \
+ ../../lib/network_core/read_packet.h \
+ ../../lib/network_core/close_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \

@@ -97,6 +97,30 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
        open_file(op.filepath, op.open_flags, m_decafs_clients[client]);
        break;
     }
+    case (READ) :
+    {
+       printf("got a READ packet!\n");
+       ReadRequest rp(buffer_ptr, packet_size);
+       std::cout << rp << std::endl;
+       read_file(rp.fd, rp.count, m_decafs_clients[client]);
+       break;
+    }
+    case (WRITE) :
+    {
+       printf("got a WRITE packet!\n");
+       WritePacket wp(buffer_ptr, packet_size);
+       std::cout << wp << std::endl;
+       write_file(wp.fd, wp.data_buffer, wp.count, m_decafs_clients[client]);
+       break;
+    }
+    case (CLOSE) :
+    {
+       printf("got a CLOSE packet!\n");
+       ClosePacket cp(buffer_ptr, packet_size);
+       std::cout << cp << std::endl;
+       close_file(cp.fd, m_decafs_clients[client]);
+       break;
+    }
     case (ESPRESSO_INIT) :
     {
       printf("got a ESPRESSO_INIT packet\n");

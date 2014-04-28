@@ -6,7 +6,7 @@ ClosePacket::ClosePacket(void* buf, ssize_t size) : Packet(buf, size) {
   fd = base[0];
 }
 
-ClosePacket::ClosePacket(int fd) : Packet(0, ESPRESSO_INIT, data_size),
+ClosePacket::ClosePacket(int fd) : Packet(0, CLOSE, data_size),
   fd(fd) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());

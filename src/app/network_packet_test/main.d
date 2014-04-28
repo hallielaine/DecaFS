@@ -3,6 +3,9 @@ main.o: main.cpp ../../lib/network_core/barista_server.h \
  ../../lib/network_core/packet_flags.h ../../lib/net_tcp/tcp_server.h \
  ../../lib/net_tcp/connection_to_client.h \
  ../../lib/network_core/open_packet.h \
+ ../../lib/network_core/write_packet.h \
+ ../../lib/network_core/read_packet.h \
+ ../../lib/network_core/close_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \

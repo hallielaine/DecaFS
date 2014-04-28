@@ -19,6 +19,9 @@ decafs_barista.o: decafs_barista.cpp decafs_barista.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/network_core/open_packet.h \
+ ../../lib/network_core/write_packet.h \
+ ../../lib/network_core/read_packet.h \
+ ../../lib/network_core/close_packet.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \
  ../../lib/network_core/read_response_packet.h \

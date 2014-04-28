@@ -17,6 +17,9 @@ io_manager.o: io_manager.cpp io_manager.h ../../lib/decafs_types/limits.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/network_core/open_packet.h \
+ ../../lib/network_core/write_packet.h \
+ ../../lib/network_core/read_packet.h \
+ ../../lib/network_core/close_packet.h \
  ../../lib/barista_core/barista_core.h ../../lib/decafs_types/messages.h \
  ../../lib/io_manager/io_manager.h \
  ../../lib/io_manager/io_manager_c_api.h \

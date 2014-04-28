@@ -6,7 +6,7 @@ WritePacket::WritePacket(void* buf, ssize_t packet_size)
 }
 
 WritePacket::WritePacket(uint32_t fd, uint32_t count, uint8_t * buf) 
- : FileDataPacket(WRITE, 0, fd, 0, 0, 0, 0, count, buf) {
+ : FileDataPacket(0, WRITE, 0, fd, 0, 0, 0, 0, count, buf) {
 
 }
 

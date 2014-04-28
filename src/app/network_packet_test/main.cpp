@@ -40,6 +40,23 @@ extern "C" uint32_t set_node_up (uint32_t node_number) {
 // open_file 
 extern "C" void open_file (const char *pathname, int flags, struct client client) {
 
+  send_open_result(client, 1); 
+}
+
+extern "C" void read_file (int fd, size_t count, struct client client) {
+
+  char fake_buffer[2500];
+  send_read_result(client, fd, count, fake_buffer);
+}
+
+extern "C" void write_file (int fd, const void *buf, size_t count, struct client client) {
+
+  send_write_result(client, fd, count);
+}
+
+extern "C" void close_file (int fd, struct client client) {
+
+  send_close_result(client, 0);
 }
 
 // read_response_handler
@@ -67,14 +84,35 @@ int main(int argc, char** argv) {
   std::thread espresso_thread(&EspressoClient::run, &espresso);
 
   // hostname, port, user_id
-  DecafsClient dc("localhost", port, 2);
-  dc.openConnection();
+  DecafsClient client("localhost", port, 2);
+  client.openConnection();
 
   sleep(1);
 
   // OPEN
-  dc.open("test", 0);
+  std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
+  int fd = client.open("testfile", O_RDONLY);
+  std::cout << "open returned: " << fd << std::endl;
+  sleep(1);
 
+  // WRITE
+  std::cout << "------------ DECAFS CLIENT WRITE TEST ----------" << std::endl;
+  char testwrite[] = "testing network write.";
+  int bytes_written = client.write(fd, testwrite, strlen(testwrite));
+  std::cout << "write returned: " << bytes_written << std::endl;
+  sleep(1);
+
+  // READ
+  std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
+  char testread[100];
+  int bytes_read = client.read(fd, testread, 100);
+  std::cout << "read returned: " << bytes_read << std::endl;
+  sleep(1);
+
+  // CLOSE
+  std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
+  int close = client.close(fd);
+  std::cout << "close returned: " << close << std::endl;
   sleep(1);
 
   barista_server->close();

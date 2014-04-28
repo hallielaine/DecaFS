@@ -10,6 +10,7 @@ OBJS = barista_network_helper.o \
        read_packet.o \
        read_response_packet.o \
        write_response_packet.o \
+       write_packet.o \
        close_packet.o \
        close_response_packet.o \
        delete_file_packet.o

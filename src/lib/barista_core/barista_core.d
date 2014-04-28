@@ -18,6 +18,9 @@ barista_core.o: barista_core.cpp barista_core.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/network_core/barista_server.h \
  ../../lib/network_core/open_packet.h \
+ ../../lib/network_core/write_packet.h \
+ ../../lib/network_core/read_packet.h \
+ ../../lib/network_core/close_packet.h \
  ../../lib/barista_core/barista_core.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \
