@@ -1,6 +1,8 @@
 #ifndef _BARISTA_NETWORK_HELPER_
 #define _BARISTA_NETWORK_HELPER_
 
+#include <stdio.h>
+
 #include "net_tcp/tcp_server.h"
 #include "packet_flags.h"
 #include "network_packets.h"
