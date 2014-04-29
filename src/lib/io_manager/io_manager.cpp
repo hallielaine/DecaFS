@@ -9,17 +9,16 @@ void IO_Manager::init(char *metadata_path) {
                                    std::string(node_metadata_filename);
   std::string replica_metadata_file = std::string(metadata_path) +
                                       std::string(replica_metadata_filename);
-  chunk_to_node.open (node_metadata_file.c_str());
-  chunk_to_replica_node.open (replica_metadata_file.c_str());
-  
+  //chunk_to_node.open (node_metadata_file.c_str());
+  //chunk_to_replica_node.open (replica_metadata_file.c_str());
 }
 
-ssize_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
-                                         char *pathname, uint32_t stripe_id,
-                                         uint32_t stripe_size, uint32_t chunk_size,
-                                         const void *buf, int offset,
-                                         size_t count) {
-  uint32_t chunk_id, bytes_read = 0, read_size = 0;
+uint32_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                          char *pathname, uint32_t stripe_id,
+                                          uint32_t stripe_size, uint32_t chunk_size,
+                                          const void *buf, int offset,
+                                          size_t count) {
+  uint32_t chunk_id, bytes_read = 0, read_size = 0, num_chunks = 0;
   int chunk_offset, chunk_result, node_id;
   
   assert ((count - offset) <= stripe_size);
@@ -76,16 +75,20 @@ ssize_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
       chunk_offset = 0;
       bytes_read += read_size;
       chunk_id++;
+      num_chunks++;
     }
   }
-  return bytes_read;
+  return num_chunks;
 }
 
-ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
-                                          char *pathname, uint32_t stripe_id,
-                                          uint32_t stripe_size, uint32_t chunk_size,
-                                          const void *buf, int offset,
-                                          size_t count) {
+void IO_Manager::process_write_stripe (uint32_t request_id,
+                                       uint32_t replica_request_id,
+                                       uint32_t *chunks_written,
+                                       uint32_t *replica_chunks_written,
+                                       uint32_t file_id, char *pathname,
+                                       uint32_t stripe_id, uint32_t stripe_size,
+                                       uint32_t chunk_size, const void *buf,
+                                       int offset, size_t count) {
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id, write_result;
 
@@ -142,7 +145,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
                           // ADD FD HERE
       printf ("\tprocessing chunk replica %d (sending to node %d)\n", chunk_id, 
                  replica_node_id);
-      write_result = process_write_chunk (request_id, 0, file_id, replica_node_id, stripe_id,
+      write_result = process_write_chunk (replica_request_id, 0, file_id, replica_node_id, stripe_id,
                                           chunk_id, chunk_offset, (uint8_t *)buf
                                           + bytes_written, write_size);
       // if the replica write failed
@@ -153,7 +156,7 @@ ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
         replica_node_id = put_replica (file_id, pathname, stripe_id,
                                        chunk_id);
         // Re-write the data
-        process_write_chunk (request_id, 0, file_id, replica_node_id, stripe_id,
+        process_write_chunk (replica_request_id, 0, file_id, replica_node_id, stripe_id,
                              chunk_id, chunk_offset, (uint8_t *)buf
                              + bytes_written, write_size);
       }
@@ -161,14 +164,15 @@ ssize_t IO_Manager::process_write_stripe (uint32_t request_id, uint32_t file_id,
       chunk_offset = 0;
       bytes_written += write_size;
       chunk_id++;
+      (*chunks_written)++;
+      (*replica_chunks_written)++;
     }
   }
-
-  return bytes_written;
 }
 
-void IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id) {
+uint32_t IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id) {
   std::vector<struct file_chunk> chunks = get_all_chunks (file_id); 
+  uint32_t num_chunks = 0;
 
   for (std::vector<struct file_chunk>::iterator it = chunks.begin();
        it != chunks.end(); it++) {
@@ -176,14 +180,17 @@ void IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id) {
       int chunk_node = get_node_id (file_id, (*it).stripe_id, (*it).chunk_num);
       process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_node.erase (*it);
+      num_chunks++;
     }
     if (chunk_replica_exists (*it)) {
       int chunk_node = get_replica_node_id (file_id, (*it).stripe_id,
                                             (*it).chunk_num);
       process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
       chunk_to_replica_node.erase (*it);
+      num_chunks++;
     }
   }
+  return num_chunks;
 }
 
 int IO_Manager::set_node_id (uint32_t file_id, uint32_t stripe_id,
@@ -252,7 +259,8 @@ bool IO_Manager::chunk_replica_exists (struct file_chunk chunk) {
 std::vector<struct file_chunk> IO_Manager::get_all_chunks (uint32_t file_id) {
   std::vector <struct file_chunk> chunks;
   
-  for (PersistentMap<struct file_chunk, int>::iterator it = chunk_to_node.begin();
+  //for (PersistentMap<struct file_chunk, int>::iterator it = chunk_to_node.begin();
+  for (map<struct file_chunk, int>::iterator it = chunk_to_node.begin();
          it != chunk_to_node.end(); it++) {
     struct file_chunk cur = it->first;
     if (cur.file_id == file_id) {

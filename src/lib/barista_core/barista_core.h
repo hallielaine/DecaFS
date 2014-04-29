@@ -41,36 +41,52 @@ struct request_info {
   uint32_t chunks_expected;
   uint32_t chunks_received;
   struct client client;
-  int fd;
 
-  request_info() : chunks_expected (0), chunks_received (0), fd (0) {}
-  request_info (struct client client, int fd) {
+  request_info() : chunks_expected (0), chunks_received (0) {}
+  request_info (struct client client) {
       this->chunks_expected = 0;
       this->chunks_received = 0;
       this->client = client;
-      this->fd = fd;
   }
 };
 
 struct read_request_info {
   struct request_info info;
+  int fd;
   uint8_t *buf;
   std::map<struct file_chunk, ReadChunkResponse *> response_packets;
 
-  read_request_info() : info (request_info()) {}
+  read_request_info() : info (request_info()), fd (0) {}
   read_request_info (struct client client, int fd, uint8_t *buf) {
-    this->info = request_info (client, fd);
+    this->info = request_info (client);
+    this->fd = fd;
     this->buf = buf;
+  }
+};
+
+struct write_request {
+  uint32_t request_id;
+  uint32_t replica_request_id;
+
+  bool operator <(const write_request &other) const {
+    return ((this->request_id < other.request_id) ? true :
+                (this->replica_request_id < other.replica_request_id) ? 
+                 true : false);
   }
 };
 
 struct write_request_info {
   struct request_info info;
+  struct request_info replica_info;
+  int fd;
   int count;
 
-  write_request_info() : info (request_info()), count (0) {}
-  write_request_info (struct client client, int fd, uint8_t *buf) {
-    this->info = request_info (client, fd);
+  write_request_info() : info (request_info()), replica_info (request_info()),
+                         fd (0), count (0) {}
+  write_request_info (struct client client, int fd) {
+    this->info = request_info (client);
+    this->replica_info = request_info (client);
+    this->fd = fd;
     this->count = 0;
   }
 };
