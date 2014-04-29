@@ -42,8 +42,9 @@ int send_open_result(struct client c, int result) {
 
 int send_read_result(struct client c, int fd, ssize_t count, void* buf) {
 
-  printf("read_result called with: fd <%d>, and count <%d>\n", fd, count);
+  printf("read_result: called with: fd <%d>, and count <%d>\n", fd, count);
   ReadResponsePacket response(fd, count, (uint8_t*)buf);
+  printf("read_result: read response packet created\n");
   return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
