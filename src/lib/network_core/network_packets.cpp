@@ -194,7 +194,11 @@ std::ostream& FileDataPacket::print(std::ostream& stream) const {
 
   stream << "FileDataPacket" << std::endl;
   stream << "data_buffer: ";
-  stream.write((const char*)data_buffer, count);
+  if (data_buffer) {
+    stream.write((const char*)data_buffer, count);
+  } else {
+    stream << "<NULL>";
+  }
   stream << std::endl;
 
   return FilePacket::print(stream);
