@@ -29,11 +29,16 @@ TEST_F(MapTest, SimpleInsertFindErase) {
   EXPECT_TRUE(insert.second);
   EXPECT_EQ(1, insert.first->first);
   EXPECT_EQ(2, insert.first->second);
+  EXPECT_EQ(1, pm.size());
+
   auto find = pm.find(1);
   EXPECT_EQ(1, find->first);
   EXPECT_EQ(2, find->second);
+
   auto erase = pm.erase(find);
   EXPECT_EQ(pm.end(), erase);
+  EXPECT_EQ(0, pm.size());
+
   pm.clear();
   EXPECT_EQ(0, pm.size());
   pm.close();
@@ -45,13 +50,20 @@ TEST_F(MapTest, ReopenInsertFindErase) {
   EXPECT_TRUE(insert.second);
   EXPECT_EQ(1, insert.first->first);
   EXPECT_EQ(2, insert.first->second);
+  EXPECT_EQ(1, pm.size());
+
   pm.close();
   pm.open(testfile);
+  EXPECT_EQ(1, pm.size());
+
   auto find = pm.find(1);
   EXPECT_EQ(1, find->first);
   EXPECT_EQ(2, find->second);
+
   auto erase = pm.erase(find);
   EXPECT_EQ(pm.end(), erase);
+  EXPECT_EQ(0, pm.size());
+
   pm.clear();
   EXPECT_EQ(0, pm.size());
   pm.close();
@@ -65,6 +77,7 @@ TEST_F(MapTest, SimpleArrayAccess) {
   EXPECT_EQ(3, pm[1]);
   pm[7] = 9;
   EXPECT_EQ(9, pm[7]);
+  EXPECT_EQ(2, pm.size());
   pm.clear();
   EXPECT_EQ(0, pm.size());
   pm.close();
@@ -78,13 +91,16 @@ TEST_F(MapTest, ReopenArrayAccess) {
   EXPECT_EQ(3, pm[1]);
   pm[7] = 9;
   EXPECT_EQ(9, pm[7]);
+  EXPECT_EQ(2, pm.size());
 
   pm.close();
   pm.open(testfile);
+  EXPECT_EQ(2, pm.size());
 
   EXPECT_EQ(3, pm[1]);
   EXPECT_EQ(9, pm[7]);
 
+  EXPECT_EQ(2, pm.size());
   pm.clear();
   EXPECT_EQ(0, pm.size());
   pm.close();
