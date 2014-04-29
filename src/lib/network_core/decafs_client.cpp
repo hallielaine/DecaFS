@@ -149,10 +149,13 @@ ssize_t DecafsClient::read(int fd, void* buf, ssize_t count) {
     // error, should only receive response here
   }
 
+  std::cout << "DecafsClient: received ReadResponsePacket from Barista" << std::endl;
   ReadResponsePacket rrp(buffer, packet_size);
 
   // copy data to the users buffer
-  memcpy(buf, rrp.data_buffer, rrp.count);
+  if (rrp.count > 0) {
+    memcpy(buf, rrp.data_buffer, rrp.count);
+  }
 
   return rrp.count;
 }
