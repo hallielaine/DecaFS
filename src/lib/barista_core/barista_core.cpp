@@ -477,7 +477,7 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   
   // TODO: make some assertion about max read size here
   // If we are trying to read past EOF, return 0 bytes read
-  if (file_offset >= stat.size) {
+  if (file_offset >= (int)stat.size) {
     if (send_read_result (client, fd, 0, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
       return;
