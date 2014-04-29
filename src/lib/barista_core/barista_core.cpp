@@ -4,8 +4,8 @@
 #define STRIPE_SIZE 1
 #define CHUNK_SIZE 2
 #define METADATA 3
-#define PORT 4
-#define NUM_ESPRESSOS 5
+#define NUM_ESPRESSOS 4
+#define PORT 5
 
 IO_Manager io_manager;
 Persistent_Metadata persistent_metadata;
