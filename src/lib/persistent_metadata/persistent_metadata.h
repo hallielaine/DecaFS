@@ -26,34 +26,51 @@
 
 #define ID_NOT_SET 0
 
+using namespace std;
+
 struct persistent_metadata_info {
   uint32_t file_id;
   uint32_t size;
   uint32_t stripe_size;
   uint32_t chunk_size;
   uint32_t replica_size;
+  string pathname;
   struct timeval last_access_time;
-};
 
-using namespace std;
+  persistent_metadata_info () : file_id (0), size (0), stripe_size (0),
+                                chunk_size (0), replica_size (0) {}
+  persistent_metadata_info (uint32_t file_id, uint32_t size,
+                            uint32_t stripe_size, uint32_t chunk_size,
+                            uint32_t replica_size, string pathname,
+                            struct timeval last_access_time) {
+    this->file_id = file_id;
+    this->size = size;
+    this->stripe_size = stripe_size;
+    this->chunk_size = chunk_size;
+    this->replica_size = replica_size;
+    this->pathname = pathname;
+    this->last_access_time = last_access_time;
+  }
+};
 
 class Persistent_Metadata {
   private:
     // Variables
-    PersistentMap<int, string> file_id_to_pathname;
-    PersistentMap<string, struct persistent_metadata_info> metadata;
+    //PersistentMap<string, uint32_t> pathname_to_file_id;
+    //PersistentMap<uint32_t, struct persistent_metadata_info> metadata;
+    map<string, uint32_t> pathname_to_file_id;
+    map<uint32_t, struct persistent_metadata_info> metadata;
 
-    const char *id_metadata_filename = ".file_id_to_pathname_metadata.dat";
+    const char *path_metadata_filename = ".file_id_to_pathname_metadata.dat";
     const char *persistent_metadata_filename = ".persistent_metadata.dat";
 
     // Helper Functions
-    bool get_file_name (uint32_t file_id, string *name);
-    bool metadata_contains (char *pathname);
-    bool file_id_exists (int id);
+    bool metadata_contains (uint32_t id);
+    bool pathname_exists (char *pathname);
     uint32_t get_new_file_id();
     
     uint32_t next_file_id;
-    std::mutex file_id_mutex;
+    mutex file_id_mutex;
 
   public:
     Persistent_Metadata();
@@ -118,7 +135,7 @@ class Persistent_Metadata {
      *  @return the size of the new file on success
      *          FILE_NOT_FOUND on failure
      */
-     int update_file_size (uint32_t file_id, int size_delta); 
+    int update_file_size (uint32_t file_id, int size_delta); 
 };
 
 #endif

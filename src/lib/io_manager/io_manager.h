@@ -31,8 +31,10 @@ using namespace std;
 class IO_Manager {
   private:
     // Variables
-    PersistentMap<struct file_chunk, int> chunk_to_node;
-    PersistentMap<struct file_chunk, int> chunk_to_replica_node;
+    //PersistentMap<struct file_chunk, int> chunk_to_node;
+    //PersistentMap<struct file_chunk, int> chunk_to_replica_node;
+    map<struct file_chunk, int> chunk_to_node;
+    map<struct file_chunk, int> chunk_to_replica_node;
 
     const char *node_metadata_filename = "io_manager_node_metadata.dat";
     const char *replica_metadata_filename = "io_manager_replica_metadata.dat";
@@ -56,27 +58,44 @@ class IO_Manager {
      *	Translates a read request from the stripe level to the chunk level.
      *	The correct behavior of this function depends on the
      *	Distribution and Replication strategies that are in place.
+     *
+     *   @return the number of chunks that participated in the read
      */
-    ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
-                                 char *pathname, uint32_t stripe_id,
-                                 uint32_t stripe_size, uint32_t chunk_size,
-                                 const void *buf, int offset, size_t count);
+    uint32_t process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                  char *pathname, uint32_t stripe_id,
+                                  uint32_t stripe_size, uint32_t chunk_size,
+                                  const void *buf, int offset, size_t count);
 
     /*
      *	Translates a write request into a series of chunk writes and handles
      *	replication. 
      *	The correct behavior of this function depends on the
      *	Distribution and Replication strategies that are in place.
+     *
+     *   All requests sent to the access module for primary storage writes must be
+     *   send with request_id.
+     *   All requests sent to the access module for replica writes must bes sent with
+     *   replica_request_id.
+     *
+     *   The number of requests sent to the access module for primary storage writes
+     *   must be returned in chunks_written.
+     *   The number of requests sent to the access module for replica writes must
+     *   be returned in replica_chunks_written.
      */
-    ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
-                                  char *pathname, uint32_t stripe_id,
-                                  uint32_t stripe_size, uint32_t chunk_size,
-                                  const void *buf, int offset, size_t count);
+    void process_write_stripe (uint32_t request_id, uint32_t replica_request_id,
+                               uint32_t *chunks_written,
+                               uint32_t *replica_chunks_written,
+                               uint32_t file_id, char *pathname,
+                               uint32_t stripe_id, uint32_t stripe_size,
+                               uint32_t chunk_size, const void *buf,
+                               int offset, size_t count);
     
     /*
      *   Delete all chunks and replicas for a given file.
+     *
+     *   @return the number of chunks that participated in the delete
      */
-    void process_delete_file (uint32_t request_id, uint32_t file_id);
+    uint32_t process_delete_file (uint32_t request_id, uint32_t file_id);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.

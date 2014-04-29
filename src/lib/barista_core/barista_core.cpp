@@ -12,32 +12,39 @@ Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
 
 std::map<uint32_t, struct read_request_info> active_read_requests;
-std::map<uint32_t, struct write_request_info> active_write_requests;
+
+std::map<uint32_t, struct write_request> write_request_lookups;
+std::map<struct write_request, struct write_request_info> active_write_requests;
+
 std::map<uint32_t, struct request_info> active_delete_requests;
 
 // ------------------------IO Manager Call Throughs---------------------------
-extern "C" ssize_t process_read_stripe (uint32_t request_id, uint32_t file_id,
-                                        char *pathname, uint32_t stripe_id,
-                                        uint32_t stripe_size, uint32_t chunk_size,
-                                        const void *buf, int offset,
-                                        size_t count) {
+extern "C" uint32_t process_read_stripe (uint32_t request_id, uint32_t file_id,
+                                         char *pathname, uint32_t stripe_id,
+                                         uint32_t stripe_size, uint32_t chunk_size,
+                                         const void *buf, int offset,
+                                         size_t count) {
     return io_manager.process_read_stripe (request_id, file_id, pathname,
                                            stripe_id, stripe_size, chunk_size,
                                            buf, offset, count);
 }
 
-extern "C" ssize_t process_write_stripe (uint32_t request_id, uint32_t file_id,
-                                         char *pathname, uint32_t stripe_id,
-                                         uint32_t stripe_size, uint32_t chunk_size,
-                                         const void *buf, int offset,
-                                         size_t count) {
-  return io_manager.process_write_stripe (request_id, file_id, pathname,
-                                          stripe_id, stripe_size, chunk_size,
-                                          buf, offset, count);
+extern "C" void process_write_stripe (uint32_t request_id, uint32_t replica_request_id,
+                                      uint32_t *chunks_written,
+                                      uint32_t *replica_chunks_written,
+                                      uint32_t file_id, char *pathname,
+                                      uint32_t stripe_id, uint32_t stripe_size,
+                                      uint32_t chunk_size, const void *buf,
+                                      int offset, size_t count) {
+  io_manager.process_write_stripe (request_id, replica_request_id,
+                                   chunks_written, replica_chunks_written,
+                                   file_id, pathname,
+                                   stripe_id, stripe_size, chunk_size,
+                                   buf, offset, count);
 }
 
-extern "C" void process_delete_file (uint32_t request_id, uint32_t file_id) {
-  io_manager.process_delete_file (request_id, file_id);
+extern "C" uint32_t process_delete_file (uint32_t request_id, uint32_t file_id) {
+  return io_manager.process_delete_file (request_id, file_id);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
@@ -270,7 +277,11 @@ bool read_request_exists (uint32_t request_id) {
 }
 
 bool write_request_exists (uint32_t request_id) {
-  return (active_write_requests.find (request_id) != active_write_requests.end());
+  if (write_request_lookups.find (request_id) == write_request_lookups.end()) {
+    return false;
+  }
+  struct write_request request = write_request_lookups[request_id];
+  return (active_write_requests.find (request) != active_write_requests.end());
 }
 
 bool delete_request_exists (uint32_t request_id) {
@@ -299,7 +310,7 @@ void check_read_complete (uint32_t request_id) {
       delete (cur_packet);
     }
     if (send_read_result (active_read_requests[request_id].info.client,
-                          active_read_requests[request_id].info.fd, count,
+                          active_read_requests[request_id].fd, count,
                           active_read_requests[request_id].buf) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
@@ -309,19 +320,24 @@ void check_read_complete (uint32_t request_id) {
 
 void check_write_complete (uint32_t request_id) {
   assert (write_request_exists (request_id));
+  struct write_request request = write_request_lookups[request_id];
   
-  if (active_write_requests[request_id].info.chunks_expected == 0) {
+  if (active_write_requests[request].info.chunks_expected == 0) {
     return;
   }
 
-  if (active_write_requests[request_id].info.chunks_expected ==
-      active_write_requests[request_id].info.chunks_received) {
-    if (send_write_result (active_write_requests[request_id].info.client,
-                           active_write_requests[request_id].info.fd,
-                           active_write_requests[request_id].count) < 0) {
+  if (active_write_requests[request].info.chunks_expected ==
+      active_write_requests[request].info.chunks_received &&
+      active_write_requests[request].replica_info.chunks_expected ==
+      active_write_requests[request].replica_info.chunks_received) {
+    if (send_write_result (active_write_requests[request].info.client,
+                           active_write_requests[request].fd,
+                           active_write_requests[request].count) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
-    active_write_requests.erase (request_id);
+    active_write_requests.erase (request);
+    write_request_lookups.erase (request.request_id);
+    write_request_lookups.erase (request.replica_request_id);
   }
 }
 
@@ -335,7 +351,7 @@ void check_delete_complete (uint32_t request_id) {
   if (active_delete_requests[request_id].chunks_expected ==
       active_delete_requests[request_id].chunks_received) {
     if (send_delete_result (active_delete_requests[request_id].client,
-                        active_delete_requests[request_id].fd, 0) < 0) {
+                            0, 0) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
 
@@ -451,7 +467,6 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   // Allocate space for the read request
   buf = (uint8_t *)malloc (count);
 
-  active_read_requests[request_id] = read_request_info (client, fd, buf);  
   inst = get_file_info((uint32_t)fd); 
   
   printf ("\n(BARISTA) Read request (%d bytes)\n", (int)count);
@@ -489,6 +504,8 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
     }
   }
 
+  // Save the request id.
+  active_read_requests[request_id] = read_request_info (client, fd, buf);  
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size,
                     file_offset);
 
@@ -537,11 +554,15 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
 extern "C" void write_file (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;
-  uint32_t stripe_id;
+  uint32_t stripe_id, num_chunks = 0, num_replica_chunks = 0;
+  uint32_t chunks_written, replica_chunks_written;
   int file_offset, stripe_offset, bytes_written = 0, write_size = 0;
   uint32_t request_id = get_new_request_id();
-  
+  uint32_t replica_request_id = get_new_request_id();
+  struct write_request request = {request_id, replica_request_id};
+
   assert (fd > 0);
+  
   inst = get_file_info((uint32_t)fd); 
 
   printf ("\n(BARISTA) Write request (%d bytes) from file %d\n",
@@ -568,7 +589,12 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     }
     return;
   }
-
+  
+  // Save the request id
+  write_request_lookups[request_id] = request;
+  write_request_lookups[replica_request_id] = request;
+  active_write_requests[request] = write_request_info (client, fd);  
+  
   // TODO: make some assertion about max write size here
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
           
@@ -583,10 +609,15 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     printf ("\tsending stripe %d for processing (%d bytes)\n", 
                stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
-    process_write_stripe (request_id, inst.file_id, (char *)"", stripe_id,
+    process_write_stripe (request_id, replica_request_id,
+                          &chunks_written, &replica_chunks_written,
+                          inst.file_id, (char *)"", stripe_id,
                           stat.stripe_size, stat.chunk_size,
                           (uint8_t *)buf + bytes_written, stripe_offset,
                           write_size);
+    
+    num_chunks += chunks_written;
+    num_replica_chunks += replica_chunks_written;
 
     update_file_size (inst.file_id, write_size, client);
     set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
@@ -594,14 +625,26 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     bytes_written += write_size;
     ++stripe_id;
   }
+  assert (write_request_exists (request_id)); 
+  active_write_requests[request].info.chunks_expected = num_chunks;
+  active_write_requests[request].replica_info.chunks_expected =
+                                              num_replica_chunks;
+  check_write_complete(request_id);
 }
 
 extern "C" void write_response_handler (WriteChunkResponse *write_response) {
   assert (write_request_exists (write_response->id));
-  
-  active_write_requests[write_response->id].info.chunks_received++;
-  active_write_requests[write_response->id].count += write_response->count;
+  struct write_request request = write_request_lookups[write_response->id];
 
+  // If this is a primary chunk response
+  if (write_response->id == request.request_id) {
+    active_write_requests[request].info.chunks_received++;
+    active_write_requests[request].count += write_response->count;
+  }
+  // Replica response
+  else {
+    active_write_requests[request].replica_info.chunks_received++;
+  }
   check_write_complete(write_response->id);
 }
 
@@ -620,7 +663,7 @@ extern "C" void close_file (int fd, struct client client) {
 
 extern "C" void delete_file (char *pathname, struct client client) {
   struct decafs_file_stat file_info;
-  uint32_t request_id = get_new_request_id();
+  uint32_t num_chunks = 0, request_id = get_new_request_id();
   
   // If the file doesn't exist
   if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
@@ -639,7 +682,13 @@ extern "C" void delete_file (char *pathname, struct client client) {
     }
   }
  
-  process_delete_file (request_id, file_info.file_id);
+  // Save the request id.
+  active_delete_requests[request_id] = request_info (client);  
+  num_chunks = process_delete_file (request_id, file_info.file_id);
+  assert (delete_request_exists (request_id)); 
+  active_delete_requests[request_id].chunks_expected = num_chunks;
+  check_delete_complete(request_id);
+  
   release_lock (client, file_info.file_id);
 }
 
