@@ -163,7 +163,11 @@ std::ostream& operator<<(std::ostream& stream, const FilePacket &packet) {
 
 FileDataPacket::FileDataPacket(void* buf, ssize_t size) : FilePacket(buf, size) {
 
-  data_buffer = ((uint8_t*)buf) + FilePacket::dataSize();
+  if (count > 0) {
+    data_buffer = ((uint8_t*)buf) + FilePacket::dataSize();
+  } else {
+    data_buffer = NULL;
+  }
 }
 
 FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
@@ -174,7 +178,9 @@ FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t
 
   uint8_t* data_loc = ((uint8_t*)packet) + FilePacket::dataSize();
 
-  memcpy(data_loc, buf, count);
+  if (count > 0) {
+    memcpy(data_loc, buf, count);
+  }
   // TODO do i need to free buf?
   // or is it the creators responsibility?
 }
