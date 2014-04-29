@@ -467,7 +467,7 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   }
   
   if (decafs_file_stat (inst.file_id, &stat, client) < 0) {
-    if (send_write_result (client, 0, UNABLE_TO_STAT_FILE, NULL) < 0) {
+    if (send_read_result (client, 0, UNABLE_TO_STAT_FILE, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
     return;
