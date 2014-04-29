@@ -56,7 +56,7 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
 
 extern "C" void close_file (int fd, struct client client) {
 
-  send_close_result(client, 0);
+  send_close_result(client, -1);
 }
 
 // read_response_handler

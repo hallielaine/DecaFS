@@ -6,13 +6,13 @@
 class CloseResponsePacket : public Packet {
 
   private:
-    static const int data_size = sizeof(uint32_t);
+    static const int data_size = sizeof(int32_t);
 
   protected:
     virtual std::ostream& print(std::ostream&) const;
 
   public:
-    uint32_t result;
+    int32_t result;
 
     CloseResponsePacket(void*buf, ssize_t size);
     CloseResponsePacket(int result);

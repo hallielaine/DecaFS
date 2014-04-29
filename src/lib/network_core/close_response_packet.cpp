@@ -9,7 +9,7 @@ CloseResponsePacket::CloseResponsePacket(void* buf, ssize_t size) : Packet(buf, 
 CloseResponsePacket::CloseResponsePacket(int result) : Packet(0, ESPRESSO_INIT, data_size),
   result(result) {
 
-  uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
+  int32_t* base = (int32_t*)(((uint8_t*)packet) + Packet::dataSize());
   base[0] = result;
 }
 
