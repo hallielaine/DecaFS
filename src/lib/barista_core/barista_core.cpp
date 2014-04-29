@@ -249,14 +249,20 @@ extern "C" uint32_t get_new_request_id () {
   return volatile_metadata.get_new_request_id ();
 }
 // ------------------------Helper Functions-------------------------
+/*
+ * Determines the first stripe and stripe offset required for processing based
+ * on the global offset, in context of stripe size.
+ */
 void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
                        int offset) {
+  int offset_remaining = offset;
   *id = STRIPE_ID_INIT;
-  while (offset > (int)stripe_size) {
+
+  while (offset_remaining > (int)stripe_size) {
     (*id)++;
-    offset -= stripe_size;
+    offset_remaining -= stripe_size;
   }
-  *stripe_offset = offset;
+  *stripe_offset = offset_remaining;
 }
 
 bool read_request_exists (uint32_t request_id) {
@@ -470,7 +476,16 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   }
   
   // TODO: make some assertion about max read size here
-  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
+  // If we are trying to read past EOF, return 0 bytes read
+  if (file_offset >= stat.size) {
+    if (send_read_result (client, fd, 0, NULL) < 0) {
+      printf ("\tRead result could not reach client.\n");
+      return;
+    }
+  }
+
+  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size,
+                    file_offset);
 
   while (bytes_read < (int)count) {
     printf ("file cursor: %d\n", get_file_cursor(fd));
