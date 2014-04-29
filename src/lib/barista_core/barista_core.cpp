@@ -249,14 +249,20 @@ extern "C" uint32_t get_new_request_id () {
   return volatile_metadata.get_new_request_id ();
 }
 // ------------------------Helper Functions-------------------------
+/*
+ * Determines the first stripe and stripe offset required for processing based
+ * on the global offset, in context of stripe size.
+ */
 void get_first_stripe (uint32_t *id, int *stripe_offset, uint32_t stripe_size,
                        int offset) {
+  int offset_remaining = offset;
   *id = STRIPE_ID_INIT;
-  while (offset > (int)stripe_size) {
+
+  while (offset_remaining > (int)stripe_size) {
     (*id)++;
-    offset -= stripe_size;
+    offset_remaining -= stripe_size;
   }
-  *stripe_offset = offset;
+  *stripe_offset = offset_remaining;
 }
 
 bool read_request_exists (uint32_t request_id) {
@@ -404,6 +410,7 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
       if (send_open_result (client, FILE_IN_USE) < 0) {
         printf ("\tOpen result could not reach client.\n");
       }
+      return;
     }
     printf ("\tobtained a write lock.\n");
   }
@@ -415,6 +422,7 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
       if (send_open_result (client, FILE_IN_USE) < 0) {
         printf ("\tOpen result could not reach client.\n");
       }
+      return;
     }
     printf ("\tobtained a read lock.\n");
   }
@@ -454,6 +462,7 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
       if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
         printf ("\tRead result could not reach client.\n");
       }
+      return;
     }
   }
   
@@ -463,10 +472,20 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
     if (send_read_result (client, 0, FILE_NOT_OPEN_FOR_READ, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
+    return;
   }
   
   // TODO: make some assertion about max read size here
-  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
+  // If we are trying to read past EOF, return 0 bytes read
+  if (file_offset >= (int)stat.size) {
+    if (send_read_result (client, fd, 0, NULL) < 0) {
+      printf ("\tRead result could not reach client.\n");
+      return;
+    }
+  }
+
+  get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size,
+                    file_offset);
 
   while (bytes_read < (int)count) {
     printf ("file cursor: %d\n", get_file_cursor(fd));
@@ -527,6 +546,7 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
+    return;
   }
  
   decafs_file_stat (inst.file_id, &stat, client);
@@ -535,6 +555,7 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
+    return;
   }
 
   // TODO: make some assertion about max write size here
@@ -596,6 +617,7 @@ extern "C" void delete_file (char *pathname, struct client client) {
     if (send_delete_result (client, 0, FILE_NOT_FOUND) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
+    return;
   }
   
   if (has_exclusive_lock (client, file_info.file_id) <= 0) {
@@ -603,6 +625,7 @@ extern "C" void delete_file (char *pathname, struct client client) {
       if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
         printf ("\tDelete result could not reach client.\n");
       }
+      return;
     }
   }
  
