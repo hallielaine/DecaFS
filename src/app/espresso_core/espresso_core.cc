@@ -24,6 +24,7 @@ int main(int argc, char** argv) {
 
   printf ("storage file open (%d)\n", storage_file_fd);
 
+  printf("metadata path is: %s\n", argv[METADATA]);
   espresso_global_data_init (argv[METADATA], NODE_STORAGE_SIZE);
 
   char* barista_hostname = argv[BARISTA_HOSTNAME];
@@ -32,10 +33,6 @@ int main(int argc, char** argv) {
   EspressoClient espresso(barista_hostname, barista_port, node_id);
   espresso.openConnection();
   espresso.run();
-
-  // the svc_main_loop function lives in network core and
-  // calls registered espresso functions as it receives the rpcs
-  //svc_main_loop(argc, argv);
 
   return 0;
 }

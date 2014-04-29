@@ -43,8 +43,22 @@ void BaristaServer::clientConnected(ConnectionToClient* client) {
 
 void BaristaServer::clientDisconnected(ConnectionToClient* client) {
 
-  printf("BaristaServer: a client disconnected!\n");
-  // TODO take care of client disconnections
+  // remove the 0 bytes from message
+  recv(client->sock_fd, NULL, 0, 0);
+
+  if (m_pending_clients.count(client)) {
+    printf("BaristaServer: a pending connection disconnected!\n");
+    m_pending_clients.erase(client);
+  } else if (m_decafs_clients.count(client)) {
+    printf("BaristaServer: a decafs client disconnected!\n");
+    m_decafs_clients.erase(client);
+  } else if (m_espresso_nodes_rev.count(client)) {
+    int node_id = m_espresso_nodes_rev[client];
+    printf("BaristaServer: espresso node %d disconnected!\n", node_id);
+    m_espresso_nodes_rev.erase(client);
+    m_espresso_nodes.erase(node_id);
+    set_node_down(node_id);
+  }
 }
 
 void BaristaServer::addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc) {
@@ -52,6 +66,7 @@ void BaristaServer::addEspressoNode(EspressoInit espresso_node, ConnectionToClie
   if (m_pending_clients.count(ctc)) {
     m_pending_clients.erase(ctc);
     m_espresso_nodes[espresso_node.node_id] = ctc;
+    m_espresso_nodes_rev[ctc] = espresso_node.node_id;
     set_node_up(espresso_node.node_id);
     printf("BaristaServer: espresso node: %d connected\n", espresso_node.node_id);
   }
