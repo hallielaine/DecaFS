@@ -33,6 +33,7 @@
 #define FILE_IN_USE -1
 #define FILE_NOT_OPEN_FOR_WRITE -2
 #define FILE_NOT_OPEN_FOR_READ -3
+#define UNABLE_TO_STAT_FILE -4
 
 #define STRIPE_ID_INIT 1
 

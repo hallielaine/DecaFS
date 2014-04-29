@@ -1,5 +1,5 @@
 {
-  "system_port": "1234",
+  "system_port": "1288",
   "max_file_size": "65536",
   "stripe_size": "256",
   "chunk_size": "128",

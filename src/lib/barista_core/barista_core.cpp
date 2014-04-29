@@ -539,7 +539,8 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
   assert (fd > 0);
   inst = get_file_info((uint32_t)fd); 
 
-  printf ("\n(BARISTA) Write request (%d bytes)\n", (int)count);
+  printf ("\n(BARISTA) Write request (%d bytes) from file %d\n",
+             (int)count, (int)inst.file_id);
   
   // If the client does not have permission to write, return an error
   if (has_exclusive_lock (client, inst.file_id) <= 0) {
@@ -548,8 +549,13 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     }
     return;
   }
- 
-  decafs_file_stat (inst.file_id, &stat, client);
+
+  if (decafs_file_stat (inst.file_id, &stat, client) < 0) {
+    if (send_write_result (client, 0, UNABLE_TO_STAT_FILE) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
+    return;
+  }
   
   if ((file_offset = get_file_cursor (fd)) < 0) {
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
@@ -562,7 +568,6 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
           
   while (bytes_written < (int)count) {
-    printf ("file cursor: %d\n", get_file_cursor(fd));
     if (count - bytes_written > stat.stripe_size - stripe_offset) {
       write_size = stat.stripe_size - stripe_offset;
     }

@@ -9,7 +9,7 @@
 
 int main(int argc, char** argv) {
 
-  int port = 1234;
+  int port = 1288;
 
   DecafsClient client("192.168.1.100", port, 2);
   client.openConnection();
