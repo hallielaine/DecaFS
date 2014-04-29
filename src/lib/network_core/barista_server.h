@@ -33,6 +33,7 @@ class BaristaServer : public TcpServer {
     // connections send their initialization information to the server
     std::map<ConnectionToClient*, int> m_pending_clients; 
     std::map<int, ConnectionToClient*> m_espresso_nodes;
+    std::map<ConnectionToClient*, int> m_espresso_nodes_rev;
     std::map<ConnectionToClient*, struct client> m_decafs_clients;
 
     void addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc);

@@ -105,7 +105,7 @@ std::ostream& operator<<(std::ostream& stream, const DecafsClientInit &p) {
 // constructor from data
 // serialization
 FilePacket::FilePacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
- uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, uint32_t count) 
+ uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, int32_t count) 
  : Packet(id, flag, derived_size + data_size),
    fd(fd),
    file_id(file_id),
@@ -163,18 +163,24 @@ std::ostream& operator<<(std::ostream& stream, const FilePacket &packet) {
 
 FileDataPacket::FileDataPacket(void* buf, ssize_t size) : FilePacket(buf, size) {
 
-  data_buffer = ((uint8_t*)buf) + FilePacket::dataSize();
+  if (count > 0) {
+    data_buffer = ((uint8_t*)buf) + FilePacket::dataSize();
+  } else {
+    data_buffer = NULL;
+  }
 }
 
 FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
- uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t* buf) 
- : FilePacket(id, flag, count, fd, file_id, stripe_id, chunk_num, offset, count) {
+ uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t* buf) 
+ : FilePacket(id, flag, std::max(0, count), fd, file_id, stripe_id, chunk_num, offset, count) {
 
   data_buffer = buf;
 
   uint8_t* data_loc = ((uint8_t*)packet) + FilePacket::dataSize();
 
-  memcpy(data_loc, buf, count);
+  if (count > 0) {
+    memcpy(data_loc, buf, count);
+  }
   // TODO do i need to free buf?
   // or is it the creators responsibility?
 }
@@ -206,7 +212,7 @@ ReadChunkRequest::ReadChunkRequest(void* buf, ssize_t packet_size)
 }
 
 ReadChunkRequest::ReadChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, uint32_t count) 
+ uint32_t chunk_num, uint32_t offset, int32_t count) 
  : FilePacket(id, READ_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
 
 }
@@ -229,7 +235,7 @@ WriteChunkResponse::WriteChunkResponse(void* buf, ssize_t packet_size)
 }
 
 WriteChunkResponse::WriteChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, uint32_t count) 
+ uint32_t chunk_num, uint32_t offset, int32_t count) 
  : FilePacket(id, WRITE_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count) {
 
 }
@@ -252,7 +258,7 @@ WriteChunkRequest::WriteChunkRequest(void* buf, ssize_t packet_size)
 }
 
 WriteChunkRequest::WriteChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t * buf) 
+ uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t * buf) 
  : FileDataPacket(id, WRITE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }
@@ -275,7 +281,7 @@ ReadChunkResponse::ReadChunkResponse(void* buf, ssize_t packet_size)
 }
 
 ReadChunkResponse::ReadChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, uint32_t count, uint8_t * buf) 
+ uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t * buf) 
  : FileDataPacket(id, READ_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }
