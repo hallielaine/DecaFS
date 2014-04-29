@@ -500,8 +500,8 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   if (file_offset >= (int)stat.size) {
     if (send_read_result (client, fd, 0, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
-      return;
     }
+    return;
   }
 
   // Save the request id.

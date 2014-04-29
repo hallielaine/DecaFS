@@ -34,8 +34,6 @@ int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], in
 }
 
 int Persistent_Metadata::decafs_file_sstat (char *pathname, struct decafs_file_stat *buf) {
-  int id;
-
   if (pathname_exists (pathname)) {
     return decafs_file_stat (pathname_to_file_id[string(pathname)], buf);
   }
