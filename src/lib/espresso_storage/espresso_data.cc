@@ -27,7 +27,7 @@ ssize_t read_data(int fd UNUSED, int file_id, int stripe_id, int chunk_num,
 
   // do not read past the end of the chunk
   if (count > a->second.size - offset)
-    return -1;
+    count = a->second.size - offset;
 
   // seek to chunk at offset
   if (lseek(espresso_global_data.fd, a->second.offset + offset, SEEK_SET) == -1)
