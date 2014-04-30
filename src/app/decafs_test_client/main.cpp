@@ -1,3 +1,4 @@
+
 #include "network_core/barista_server.h"
 #include "network_core/espresso_client.h"
 #include "../decafs_barista/decafs_barista.h"
@@ -39,6 +40,24 @@ int main(int argc, char** argv) {
   // CLOSE
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   int close = client.close(fd);
+  std::cout << "close returned: " << close << std::endl;
+  sleep(1);
+  
+  // OPEN
+  std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
+  fd = client.open("testfile", O_RDWR);
+  std::cout << "open returned: " << fd << std::endl;
+  sleep(1);
+
+  // READ
+  std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
+  bytes_read = client.read(fd, testread, 100);
+  std::cout << "read returned: " << bytes_read << std::endl;
+  sleep(10);
+
+  // CLOSE
+  std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
+  close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
   sleep(1);
 

@@ -518,8 +518,8 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
       read_size = count - bytes_read;
     }
 
-    printf ("\tsending stripe (%d) information for processing (%d bytes)\n", 
-               stripe_id, read_size);
+    printf ("\t(request: %d) sending stripe (%d) information for processing (%d bytes)\n", 
+               request_id, stripe_id, read_size);
 
     // TODO: add pathname here, get from persistent meta
     num_chunks += process_read_stripe (request_id, inst.file_id, (char *)"",
@@ -606,8 +606,8 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
       write_size = count - bytes_written;
     }
 
-    printf ("\tsending stripe %d for processing (%d bytes)\n", 
-               stripe_id, write_size);
+    printf ("\t(request: (%d,%d)) sending stripe %d for processing (%d bytes)\n", 
+               request_id, replica_request_id, stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
     process_write_stripe (request_id, replica_request_id,
                           &chunks_written, &replica_chunks_written,
@@ -683,8 +683,10 @@ extern "C" void delete_file (char *pathname, struct client client) {
   }
  
   // Save the request id.
-  active_delete_requests[request_id] = request_info (client);  
+  active_delete_requests[request_id] = request_info (client); 
+  printf ("(request: %d) processing delete file %s\n", request_id, pathname);
   num_chunks = process_delete_file (request_id, file_info.file_id);
+
   assert (delete_request_exists (request_id)); 
   active_delete_requests[request_id].chunks_expected = num_chunks;
   check_delete_complete(request_id);
