@@ -403,14 +403,24 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
 
   // If the file does not exist
   if ((decafs_file_sstat ((char *)pathname, &stat, client)) == FILE_NOT_FOUND) {
-    printf ("\tfile not found... creating now\n");  
-    // Create the file
-    struct timeval time;
-    gettimeofday(&time, NULL);
-                        // change 4th param to get_replica_size()
-                        // implement in vmeta
-    file_id = add_file ((char *)pathname, get_stripe_size(), get_chunk_size(),
-                        get_chunk_size(), time, client);
+    // If we are going to write to the file, create it
+    if (flags & O_RDWR) {
+      printf ("\tfile not found... creating now\n");  
+      // Create the file
+      struct timeval time;
+      gettimeofday(&time, NULL);
+                          // change 4th param to get_replica_size()
+                          // implement in vmeta
+      file_id = add_file ((char *)pathname, get_stripe_size(), get_chunk_size(),
+                          get_chunk_size(), time, client);
+    }
+    // We can't read from nothing!
+    else {
+      if (send_open_result (client, FILE_NOT_FOUND_FOR_READING) < 0) {
+        printf ("\tOpen result could not reach client.\n");
+      }
+      return;
+   }
   }
   else {
     file_id = stat.file_id;
