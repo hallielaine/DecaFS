@@ -343,16 +343,22 @@ void check_write_complete (uint32_t request_id) {
 
 void check_delete_complete (uint32_t request_id) {
   assert (delete_request_exists (request_id));
-  
+
   if (active_delete_requests[request_id].chunks_expected == 0) {
     return;
   }
 
   if (active_delete_requests[request_id].chunks_expected ==
       active_delete_requests[request_id].chunks_received) {
-    if (send_delete_result (active_delete_requests[request_id].client,
-                            0, 0) < 0) {
+    uint32_t file_id = active_delete_requests[request_id].file_id;
+    struct client client = active_delete_requests[request_id].client;
+
+    if (send_delete_result (client, 0, 0) < 0) {
       printf ("\tDelete result could not reach client.\n");
+    }
+    
+    while (delete_file_contents (file_id, client) == NO_METADATA_LOCK) {
+      ; // retry metadata deletion until we succeed
     }
 
     active_delete_requests.erase (request_id);
