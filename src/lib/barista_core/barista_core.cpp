@@ -636,7 +636,8 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     
     num_chunks += chunks_written;
     num_replica_chunks += replica_chunks_written;
-
+    
+    // TODO (?): Move the file size update and cursor to check_write_complete()
     update_file_size (inst.file_id, write_size, client);
     set_file_cursor (fd, get_file_cursor (fd) + write_size, client);
     stripe_offset = 0;
