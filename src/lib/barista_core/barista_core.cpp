@@ -515,7 +515,8 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   }
 
   // Save the request id.
-  active_read_requests[request_id] = read_request_info (client, fd, buf);  
+  active_read_requests[request_id] = read_request_info (client, inst.file_id,
+                                                        fd, buf);  
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size,
                     file_offset);
 
@@ -603,7 +604,8 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
   // Save the request id
   write_request_lookups[request_id] = request;
   write_request_lookups[replica_request_id] = request;
-  active_write_requests[request] = write_request_info (client, fd);  
+  active_write_requests[request] = write_request_info (client, inst.file_id,
+                                                       fd);  
   
   // TODO: make some assertion about max write size here
   get_first_stripe (&stripe_id, &stripe_offset, stat.stripe_size, file_offset);
@@ -693,7 +695,7 @@ extern "C" void delete_file (char *pathname, struct client client) {
   }
  
   // Save the request id.
-  active_delete_requests[request_id] = request_info (client); 
+  active_delete_requests[request_id] = request_info (client, file_info.file_id); 
   printf ("(request: %d) processing delete file %s\n", request_id, pathname);
   num_chunks = process_delete_file (request_id, file_info.file_id);
 
