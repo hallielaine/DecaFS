@@ -691,13 +691,11 @@ extern "C" void delete_file (char *pathname, struct client client) {
     return;
   }
   
-  if (has_exclusive_lock (client, file_info.file_id) <= 0) {
-    if (get_exclusive_lock (client, file_info.file_id) < 0) {
-      if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
-        printf ("\tDelete result could not reach client.\n");
-      }
-      return;
+  if (get_exclusive_lock (client, file_info.file_id) < 0) {
+    if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
+      printf ("\tDelete result could not reach client.\n");
     }
+    return;
   }
  
   // Save the request id.
