@@ -155,9 +155,9 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
     case (READ_CHUNK_RESPONSE) : 
     {
       printf("\ngot a READ_CHUNK_RESPONSE packet\n");
-      ReadChunkResponse readResponse(buffer_ptr, packet_size);
-      std::cout << readResponse << std::endl;
-      read_response_handler(&readResponse);
+      auto readResponse = new ReadChunkResponse(buffer_ptr, packet_size);
+      std::cout << *readResponse << std::endl;
+      read_response_handler(readResponse);
       break;
     }
     case (WRITE_CHUNK_RESPONSE) : 
