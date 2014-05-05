@@ -360,8 +360,12 @@ void check_delete_complete (uint32_t request_id) {
     while (delete_file_contents (file_id, client) == NO_METADATA_LOCK) {
       ; // retry metadata deletion until we succeed
     }
+    
+    // release the lock on the file
+    release_lock (client, file_id);
 
     active_delete_requests.erase (request_id);
+  
   }
 }
 
@@ -707,8 +711,6 @@ extern "C" void delete_file (char *pathname, struct client client) {
   assert (delete_request_exists (request_id)); 
   active_delete_requests[request_id].chunks_expected = num_chunks;
   check_delete_complete(request_id);
-  
-  release_lock (client, file_info.file_id);
 }
 
 extern "C" void delete_response_handler (DeleteChunkResponse *delete_response) {
