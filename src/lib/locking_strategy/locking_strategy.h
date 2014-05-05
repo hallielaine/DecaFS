@@ -1,6 +1,9 @@
 #ifndef LOCKING_STRATEGY_H_
 #define LOCKING_STRATEGY_H_
 
+#define LOCK_SUCCESS (0)
+#define LOCK_ERROR (-1)
+
 #ifdef __cplusplus
 extern "C" {
 #endif
