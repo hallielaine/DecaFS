@@ -59,6 +59,12 @@ extern "C" void close_file (int fd, struct client client) {
   send_close_result(client, -1);
 }
 
+extern "C" int file_seek(int fd, uint32_t offset, int whence, struct client client) {
+
+  send_seek_result(client, 0);
+  return -1; // file_seek should not have a return value
+}
+
 // read_response_handler
 extern "C" void read_response_handler (ReadChunkResponse *read_response) {
 
@@ -100,6 +106,12 @@ int main(int argc, char** argv) {
   char testwrite[] = "testing network write.";
   int bytes_written = client.write(fd, testwrite, strlen(testwrite));
   std::cout << "write returned: " << bytes_written << std::endl;
+  sleep(1);
+
+  // SEEK
+  std::cout << "------------ DECAFS CLIENT LSEEK TEST ----------" << std::endl;
+  int seek_result = client.lseek(fd, 0, SEEK_SET);
+  std::cout << "lseek returned: " << seek_result << std::endl;  
   sleep(1);
 
   // READ

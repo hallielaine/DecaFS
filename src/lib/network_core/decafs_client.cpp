@@ -51,6 +51,7 @@ int DecafsClient::open(const char* pathname, int flags) {
   }
 
   OpenPacketResponse orp(buffer, packet_size);
+  std::cout << orp << std::endl;
   return orp.response;
 }
 
@@ -83,6 +84,7 @@ off_t DecafsClient::lseek(int fd, off_t offset, int whence) {
   }
 
   LseekResponsePacket lrp(buffer, packet_size);
+  std::cout << lrp << std::endl;
   return lrp.result;
 }
 
@@ -116,6 +118,7 @@ int DecafsClient::close(int fd) {
   }
 
   CloseResponsePacket crp(buffer, packet_size);
+  std::cout << crp << std::endl;
   return crp.result;
 }
 
@@ -149,6 +152,7 @@ ssize_t DecafsClient::write(int fd, void* buf, ssize_t count) {
   }
 
   WriteResponsePacket wrp(buffer, packet_size);
+  std::cout << wrp << std::endl;
   return wrp.count;
 }
 
@@ -189,6 +193,7 @@ ssize_t DecafsClient::read(int fd, void* buf, ssize_t count) {
     memcpy(buf, rrp.data_buffer, rrp.count);
   }
 
+  std::cout << rrp << std::endl;
   return rrp.count;
 }
 
