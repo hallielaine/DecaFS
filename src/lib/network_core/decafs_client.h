@@ -2,6 +2,7 @@
 #define _DECAFS_CLIENT_H_
 
 #include <iostream>
+#include <dirent.h>
 
 #include "net_tcp/tcp_client.h"
 #include "espresso_packet_processor.h"
@@ -23,6 +24,9 @@
 
 #include "lseek_packet.h"
 #include "lseek_response_packet.h"
+
+#include "opendir_packet.h"
+#include "opendir_response_packet.h"
 
 class DecafsClient : public TcpClient {
 
@@ -47,7 +51,7 @@ class DecafsClient : public TcpClient {
     //int file_fstat(int fd, struct stat *buf);
     //void statfs(char *pathname, struct *statvfs);
     //int mkdir(const char* dirname);
-    //DIR* opendir(const char* name);
+    DIR* opendir(const char* name);
     //struct dirent* readdir(DIR *dirp);
 };
 

@@ -1,5 +1,27 @@
 #include "decafs_client.h"
 
+// --------------- HELPER FUNCTIONS ----------------
+int wait_for_packet(int socket) {
+
+  fd_set tmpset;
+  FD_ZERO(&tmpset);
+  FD_SET(socket, &tmpset);
+  
+  if (select(socket+1, &tmpset, NULL, NULL, NULL) < 0) {
+    perror("DecafsClient select:");
+  }
+
+  // check for length of packet
+  int32_t packet_size; 
+  if (recv(socket, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
+    perror("DecafsClient recv:");
+  }
+ 
+  return packet_size;
+}
+
+
+// --------------------- DECAFS CLIENT -----------------
 DecafsClient::DecafsClient(std::string hostname, unsigned short port, uint32_t user_id) :
   TcpClient(hostname, port), user_id(user_id)
 {
@@ -17,6 +39,31 @@ void DecafsClient::connectionEstablished() {
   DecafsClientInit init(user_id);
   sendToServer(init.packet, init.packet_size);
   printf("DecafsClient: DecafsClientInit has been sent!\n");
+}
+
+DIR* DecafsClient::opendir(const char* path) {
+
+  char tmppath[256];
+  memcpy(tmppath, path, strlen(path)+1); 
+
+  OpendirPacket odp(tmppath);
+  sendToServer(odp.packet, odp.packet_size);
+
+  int length = wait_for_packet(m_socket_number);
+
+  char* buffer = (char*)malloc(length);
+  recv(m_socket_number, buffer, length, 0);
+
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != OPENDIR_RESPONSE) {
+  
+  }
+
+  OpendirResponsePacket odrp(buffer, length);
+  std::cout << odrp << std::endl;
+ 
+  // TODO add return type
+  return NULL;//odrp.dirp;
 }
 
 int DecafsClient::open(const char* pathname, int flags) {
@@ -69,7 +116,7 @@ off_t DecafsClient::lseek(int fd, off_t offset, int whence) {
 
   // recv the packet
   // check for length of packet
-  int32_t packet_size; 
+  int32_t packet_size;
   if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
 
   }
