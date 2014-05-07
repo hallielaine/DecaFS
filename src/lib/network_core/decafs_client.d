@@ -5,4 +5,4 @@ decafs_client.o: decafs_client.cpp decafs_client.h \
  ../../lib/espresso_storage/espresso_storage.h open_packet.h \
  open_packet_response.h write_packet.h write_response_packet.h \
  close_packet.h close_response_packet.h read_packet.h \
- read_response_packet.h
+ read_response_packet.h lseek_packet.h lseek_response_packet.h

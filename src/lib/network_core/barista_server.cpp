@@ -176,6 +176,14 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       delete_response_handler(&deleteResponse);
       break;
     }
+    case (LSEEK) : 
+    {
+      printf("\ngot a LSEEK request packet\n");
+      LseekPacket seek(buffer_ptr, packet_size);
+      std::cout << seek << std::endl;
+      file_seek(seek.fd, seek.offset, seek.whence, m_decafs_clients[client]);
+      break;
+    }
   }
 }
 

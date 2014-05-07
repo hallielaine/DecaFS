@@ -60,6 +60,12 @@ int send_close_result(struct client c, int result) {
   return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
+int send_seek_result(struct client c, int result) {
+
+  LseekResponsePacket response(result);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
+}
+
 int send_delete_result(struct client c, int fd, int result) {
 
   return -1;

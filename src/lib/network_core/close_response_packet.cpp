@@ -6,7 +6,7 @@ CloseResponsePacket::CloseResponsePacket(void* buf, ssize_t size) : Packet(buf, 
   result = base[0];
 }
 
-CloseResponsePacket::CloseResponsePacket(int result) : Packet(0, ESPRESSO_INIT, data_size),
+CloseResponsePacket::CloseResponsePacket(int result) : Packet(0, CLOSE_RESPONSE, data_size),
   result(result) {
 
   int32_t* base = (int32_t*)(((uint8_t*)packet) + Packet::dataSize());

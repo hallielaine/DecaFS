@@ -54,6 +54,38 @@ int DecafsClient::open(const char* pathname, int flags) {
   return orp.response;
 }
 
+off_t DecafsClient::lseek(int fd, off_t offset, int whence) {
+
+  LseekPacket sp(fd, offset, whence);
+  sendToServer(sp.packet, sp.packet_size);
+
+  fd_set tmp_set;
+  FD_ZERO(&tmp_set);
+  FD_SET(m_socket_number, &tmp_set);
+  if (select(m_socket_number+1, &tmp_set, NULL, NULL, NULL) < 0) {
+    perror("select");
+  }
+
+  // recv the packet
+  // check for length of packet
+  int32_t packet_size; 
+  if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
+
+  }
+
+  char* buffer = (char*) malloc(packet_size);
+  // TODO check for errors
+  recv(m_socket_number, buffer, packet_size, 0);
+ 
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != LSEEK_RESPONSE) {
+    // error, should only receive response here
+  }
+
+  LseekResponsePacket lrp(buffer, packet_size);
+  return lrp.result;
+}
+
 int DecafsClient::close(int fd) {
 
   ClosePacket cp(fd); 

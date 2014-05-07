@@ -1,7 +1,7 @@
 barista_server.o: barista_server.cpp barista_server.h network_packets.h \
  packet_flags.h ../../lib/net_tcp/tcp_server.h \
  ../../lib/net_tcp/connection_to_client.h open_packet.h write_packet.h \
- read_packet.h close_packet.h \
+ read_packet.h close_packet.h lseek_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \
@@ -24,6 +24,7 @@ barista_server.o: barista_server.cpp barista_server.h network_packets.h \
  ../../lib/network_core/write_response_packet.h \
  ../../lib/network_core/read_response_packet.h \
  ../../lib/network_core/close_response_packet.h \
+ ../../lib/network_core/lseek_response_packet.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/locking_strategy/locking_strategy.h

@@ -21,6 +21,9 @@
 #include "read_packet.h"
 #include "read_response_packet.h"
 
+#include "lseek_packet.h"
+#include "lseek_response_packet.h"
+
 class DecafsClient : public TcpClient {
 
   private:
@@ -37,6 +40,7 @@ class DecafsClient : public TcpClient {
     ssize_t read(int fd, void* buf, ssize_t count);
     ssize_t write(int fd, void* buf, ssize_t count);
     int close(int fd);
+    off_t lseek(int fd, off_t offset, int whence);
     //void delete_file(char* pathname);
     //void sync();
     //int file_stat(const char* path, struct stat *buf);
