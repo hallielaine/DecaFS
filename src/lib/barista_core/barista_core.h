@@ -119,6 +119,11 @@ extern "C" void barista_core_init (int argc, char *argv[]);
 extern "C" void open_file (const char *pathname, int flags, struct client client);
 
 /*
+ *	opens a directory stream corresponding to the directory name.
+ */
+extern "C" decafs_dir* open_dir (const char* name);
+
+/*
  *	If the process has a lock on the file, complete the read.
  *	Translates read request into chunks of requests to Espresso 
  *	nodes.

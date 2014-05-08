@@ -474,6 +474,11 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
   }
 }
 
+extern "C" decafs_dir* open_dir (const char* name) {
+
+  return NULL;
+}
+
 extern "C" void read_file (int fd, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;

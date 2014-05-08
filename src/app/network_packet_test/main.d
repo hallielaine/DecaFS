@@ -7,6 +7,7 @@ main.o: main.cpp ../../lib/network_core/barista_server.h \
  ../../lib/network_core/read_packet.h \
  ../../lib/network_core/close_packet.h \
  ../../lib/network_core/lseek_packet.h \
+ ../../lib/network_core/opendir_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \
@@ -28,6 +29,7 @@ main.o: main.cpp ../../lib/network_core/barista_server.h \
  ../../lib/network_core/read_response_packet.h \
  ../../lib/network_core/close_response_packet.h \
  ../../lib/network_core/lseek_response_packet.h \
+ ../../lib/network_core/opendir_response_packet.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/network_core/network_packets.h \
  ../../lib/locking_strategy/locking_strategy.h \

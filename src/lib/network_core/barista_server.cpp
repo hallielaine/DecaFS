@@ -110,6 +110,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       OpendirPacket op(buffer_ptr, packet_size);
       std::cout << op << std::endl;
       // TODO call opendir
+      open_dir(op.filepath);
       break;
     }
     case (OPEN) :
