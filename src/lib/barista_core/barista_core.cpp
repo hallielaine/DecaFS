@@ -322,7 +322,10 @@ void check_write_complete (uint32_t request_id) {
   assert (write_request_exists (request_id));
   struct write_request request = write_request_lookups[request_id];
   
+  printf ("(BARISTA) Check write complete\n");
+
   if (active_write_requests[request].info.chunks_expected == 0) {
+    printf ("\tall stripes have not been sent yet, write not complete.\n");
     return;
   }
 
@@ -330,6 +333,7 @@ void check_write_complete (uint32_t request_id) {
       active_write_requests[request].info.chunks_received &&
       active_write_requests[request].replica_info.chunks_expected ==
       active_write_requests[request].replica_info.chunks_received) {
+    printf ("\tWRITE COMPLETE\n");
     if (send_write_result (active_write_requests[request].info.client,
                            active_write_requests[request].fd,
                            active_write_requests[request].count) < 0) {
@@ -338,6 +342,14 @@ void check_write_complete (uint32_t request_id) {
     active_write_requests.erase (request);
     write_request_lookups.erase (request.request_id);
     write_request_lookups.erase (request.replica_request_id);
+  }
+  else {
+    printf ("\t%d/%d chunks received\n",
+             active_write_requests[request].info.chunks_received,
+             active_write_requests[request].info.chunks_expected);
+    printf ("\t%d/%d replicas received\n",
+             active_write_requests[request].replica_info.chunks_received,
+             active_write_requests[request].replica_info.chunks_expected);
   }
 }
 
@@ -631,6 +643,10 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
     printf ("\t(request: (%d,%d)) sending stripe %d for processing (%d bytes)\n", 
                request_id, replica_request_id, stripe_id, write_size);
     // TODO: add pathname here, get from persistent meta
+    
+    chunks_written = 0;
+    replica_chunks_written = 0;
+
     process_write_stripe (request_id, replica_request_id,
                           &chunks_written, &replica_chunks_written,
                           inst.file_id, (char *)"", stripe_id,
@@ -657,7 +673,11 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
 
 extern "C" void write_response_handler (WriteChunkResponse *write_response) {
   assert (write_request_exists (write_response->id));
+
   struct write_request request = write_request_lookups[write_response->id];
+
+  printf ("(BARISTA) Processing write response for file %d.\n",
+             active_write_requests[request].info.file_id);
 
   // If this is a primary chunk response
   if (write_response->id == request.request_id) {
