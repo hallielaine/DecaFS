@@ -1,16 +1,19 @@
 #include "opendir_response_packet.h"
 
-OpendirResponsePacket::OpendirResponsePacket(int flags, char* filepath) 
- : Packet(0, OPENDIR_RESPONSE, strlen(filepath) + 1) {
+OpendirResponsePacket::OpendirResponsePacket(decafs_dir* dirents) 
+ : Packet(0, OPENDIR_RESPONSE, 2*sizeof(int32_t) + dirents->total*sizeof(decafs_dirent)) {
 
- // char* base = (char*)(((uint8_t*)packet) + Packet::dataSize());
 
-  //memcpy(base, filepath, strlen(filepath) + 1);
+
+  dirp = (decafs_dir*)(((uint8_t*)packet) + Packet::dataSize());
+  dirp->current = dirents->current;
+  dirp->total = dirents->total;
+  memcpy(dirp->entries, dirents->entries, dirp->total*sizeof(decafs_dirent));
 }
 
 OpendirResponsePacket::OpendirResponsePacket(void* buf, ssize_t length) : Packet(buf, length) {
 
-  //filepath = &((char*)packet)[Packet::dataSize()];
+  dirp = (decafs_dir*)(&((char*)packet)[Packet::dataSize()]);
 }
 
 std::ostream& OpendirResponsePacket::print(std::ostream &stream) const {

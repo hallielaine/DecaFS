@@ -9,6 +9,32 @@
 #include "ip_address.h"
 
 /*
+ * DIR equivalent for DecaFS
+ */
+struct decafs_dir {
+  int current;
+  int total;
+  struct decafs_dirent *entries;
+
+  decafs_dir(int current, int total, decafs_dirent* entries) :
+   current(current), total(total), entries(entries) {}
+  decafs_dir(int total, decafs_dirent* entries) : decafs_dir(0, total, entries) {}
+
+};
+
+struct decafs_dirent {
+  uint32_t file_id; // id unknown for directories
+  unsigned char d_type; // 'f' file, 'd' directory
+  char d_name[256]; // entry name
+
+  decafs_dirent(uint32_t file_id, unsigned char d_type, char* name) :
+   file_id(file_id), d_type(d_type) {
+ 
+    memcpy(d_name, name, strlen(name) + 1);
+  }
+};
+
+/*
  * Stores information about a specific instance of an open file in
  * DecaFS.
  */

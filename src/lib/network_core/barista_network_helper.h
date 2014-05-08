@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "decafs_types/file_types.h"
+
 #include "net_tcp/tcp_server.h"
 #include "packet_flags.h"
 #include "network_packets.h"

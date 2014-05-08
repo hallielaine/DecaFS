@@ -70,3 +70,9 @@ int send_delete_result(struct client c, int fd, int result) {
 
   return -1;
 }
+
+int send_opendir_result(struct client c, decafs_dir* dirp) {
+
+  OpendirResponsePacket response(dirp);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
+}
