@@ -41,7 +41,7 @@ void DecafsClient::connectionEstablished() {
   printf("DecafsClient: DecafsClientInit has been sent!\n");
 }
 
-DIR* DecafsClient::opendir(const char* path) {
+decafs_dir* DecafsClient::opendir(const char* path) {
 
   char tmppath[256];
   memcpy(tmppath, path, strlen(path)+1); 
@@ -63,7 +63,7 @@ DIR* DecafsClient::opendir(const char* path) {
   std::cout << odrp << std::endl;
  
   // TODO add return type
-  return NULL;//odrp.dirp;
+  return odrp.dirp;
 }
 
 int DecafsClient::open(const char* pathname, int flags) {
@@ -293,4 +293,37 @@ void DecafsClient::handleMessageFromServer(int socket) {
           sendToServer(packet->packet, packet->packet_size);
         }
     }
+}
+
+void DecafsClient::delete_file(char* pathname) {
+
+  printf("DecafsClient: delete_file not implemented!\n");
+}
+
+void DecafsClient::sync() {
+
+  printf("DecafsClient: sync not implemented!\n");
+}
+
+int DecafsClient::file_stat(const char* path, struct stat *buf) {
+
+  printf("DecafsClient: file_stat not implemented!\n");
+  return -1;
+}
+
+int DecafsClient::file_fstat(int fd, struct stat *buf) {
+
+  printf("DecafsClient: file_fstat not implemented!\n");
+  return -1;
+}
+
+void DecafsClient::statfs(char* pathname, struct statvfs* stats) {
+
+  printf("DecafsClient: statfs not implemented!\n");
+}
+
+int DecafsClient::mkdir(const char* name) {
+
+  printf("DecafsClient: mkdir not implemented!\n");
+  return -1;
 }

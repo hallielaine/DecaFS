@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <dirent.h>
+#include <sys/statvfs.h>
 
 #include "net_tcp/tcp_client.h"
 #include "espresso_packet_processor.h"
@@ -45,14 +46,13 @@ class DecafsClient : public TcpClient {
     ssize_t write(int fd, void* buf, ssize_t count);
     int close(int fd);
     off_t lseek(int fd, off_t offset, int whence);
-    //void delete_file(char* pathname);
-    //void sync();
-    //int file_stat(const char* path, struct stat *buf);
-    //int file_fstat(int fd, struct stat *buf);
-    //void statfs(char *pathname, struct *statvfs);
-    //int mkdir(const char* dirname);
-    DIR* opendir(const char* name);
-    //struct dirent* readdir(DIR *dirp);
+    void delete_file(char* pathname);
+    void sync();
+    int file_stat(const char* path, struct stat *buf);
+    int file_fstat(int fd, struct stat *buf);
+    void statfs(char *pathname, struct statvfs*);
+    int mkdir(const char* dirname);
+    decafs_dir* opendir(const char* name);
 };
 
 #endif // _ESPRESSO_CLIENT_H_
