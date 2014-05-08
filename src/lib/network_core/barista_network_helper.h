@@ -12,6 +12,7 @@
 #include "read_response_packet.h"
 #include "close_response_packet.h"
 #include "lseek_response_packet.h"
+#include "opendir_response_packet.h"
 
 // pulled from network_core module architecture
 // modified to suit a non-blocking model
@@ -38,5 +39,6 @@ int send_write_result(struct client c, int fd, ssize_t count);
 int send_close_result(struct client c, int result);
 int send_delete_result(struct client c, int fd, int result);
 int send_seek_result(struct client c, int result);
+int send_opendir_result(struct client c); 
 
 #endif // _BARISTA_NETWORK_HELPER_

@@ -8,6 +8,7 @@ access.o: access.cpp access.h \
  ../../lib/network_core/write_packet.h \
  ../../lib/network_core/read_packet.h \
  ../../lib/network_core/close_packet.h \
+ ../../lib/network_core/lseek_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \
@@ -27,4 +28,5 @@ access.o: access.cpp access.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \
  ../../lib/network_core/read_response_packet.h \
- ../../lib/network_core/close_response_packet.h
+ ../../lib/network_core/close_response_packet.h \
+ ../../lib/network_core/lseek_response_packet.h
