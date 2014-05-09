@@ -171,18 +171,14 @@ FileDataPacket::FileDataPacket(void* buf, ssize_t size) : FilePacket(buf, size) 
 }
 
 FileDataPacket::FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
- uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t* buf) 
+ uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, int32_t count, const uint8_t* buf) 
  : FilePacket(id, flag, std::max(0, count), fd, file_id, stripe_id, chunk_num, offset, count) {
 
-  data_buffer = buf;
-
-  uint8_t* data_loc = ((uint8_t*)packet) + FilePacket::dataSize();
+  data_buffer = ((uint8_t*)packet) + FilePacket::dataSize();
 
   if (count > 0) {
-    memcpy(data_loc, buf, count);
+    memcpy(data_buffer, buf, count);
   }
-  // TODO do i need to free buf?
-  // or is it the creators responsibility?
 }
 
 int FileDataPacket::dataSize() const {
@@ -262,7 +258,7 @@ WriteChunkRequest::WriteChunkRequest(void* buf, ssize_t packet_size)
 }
 
 WriteChunkRequest::WriteChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t * buf) 
+ uint32_t chunk_num, uint32_t offset, int32_t count, const uint8_t * buf) 
  : FileDataPacket(id, WRITE_CHUNK, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }
@@ -285,7 +281,7 @@ ReadChunkResponse::ReadChunkResponse(void* buf, ssize_t packet_size)
 }
 
 ReadChunkResponse::ReadChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id,
- uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t * buf) 
+ uint32_t chunk_num, uint32_t offset, int32_t count, const uint8_t * buf) 
  : FileDataPacket(id, READ_CHUNK_RESPONSE, 0, fd, file_id, stripe_id, chunk_num, offset, count, buf) {
 
 }

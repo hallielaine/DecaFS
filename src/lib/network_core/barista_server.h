@@ -53,7 +53,7 @@ class BaristaServer : public TcpServer {
     void serverStopped();
 
     int numEspressoNodes();
-    int sendToEspresso(int node_id, Packet packet); 
+    int sendToEspresso(int node_id, const Packet& packet); 
 }; 
 
 #endif // _BARISTA_SERVER_H_

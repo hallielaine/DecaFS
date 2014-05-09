@@ -26,7 +26,7 @@ BaristaServer::BaristaServer(unsigned short port)
   next_node_num = 1;
 }
 
-int BaristaServer::sendToEspresso(int node_id, Packet packet) {
+int BaristaServer::sendToEspresso(int node_id, const Packet& packet) {
 
   return m_espresso_nodes[node_id]->sendToClient(packet.packet, packet.packet_size); 
 }

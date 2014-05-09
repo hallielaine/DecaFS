@@ -8,7 +8,8 @@ OpenPacket::OpenPacket(int flags, const char* filename)
   base[0] = open_flags; 
 
   filepath = ((char*)base) + sizeof(open_flags);
-  memcpy(filepath, filename, strlen(filename) + 1);
+  memcpy(filepath, filename, strlen(filename));
+  filepath[strlen(filename)] = '\0';
 }
 
 OpenPacket::OpenPacket(void* buf, ssize_t length) : Packet(buf, length) {

@@ -115,7 +115,7 @@ class FileDataPacket : public FilePacket {
     FileDataPacket(void* buf, ssize_t size);
     FileDataPacket(uint32_t id, int flag, int derived_size, uint32_t fd, uint32_t file_id, 
      uint32_t stripe_id, uint32_t chunk_num, uint32_t offset, int32_t count,
-     uint8_t* buf);
+     const uint8_t* buf);
 
     friend std::ostream& operator<<(std::ostream& stream, const FileDataPacket &packet);
 };
@@ -157,7 +157,7 @@ class WriteChunkRequest : public FileDataPacket {
   public:
     WriteChunkRequest(void* buf, ssize_t size);
     WriteChunkRequest(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id, 
-     uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t* buf);
+     uint32_t chunk_num, uint32_t offset, int32_t count, const uint8_t* buf);
 
     friend std::ostream& operator<<(std::ostream& stream, const WriteChunkRequest &req);
 };
@@ -171,7 +171,7 @@ class ReadChunkResponse : public FileDataPacket {
   public:
     ReadChunkResponse(void* buf, ssize_t size);
     ReadChunkResponse(uint32_t id, uint32_t fd, uint32_t file_id, uint32_t stripe_id, 
-     uint32_t chunk_num, uint32_t offset, int32_t count, uint8_t* buf);
+     uint32_t chunk_num, uint32_t offset, int32_t count, const uint8_t* buf);
 
     friend std::ostream& operator<<(std::ostream& stream, const ReadChunkResponse &req);
 };
