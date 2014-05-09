@@ -121,7 +121,7 @@ extern "C" void open_file (const char *pathname, int flags, struct client client
 /*
  *	opens a directory stream corresponding to the directory name.
  */
-extern "C" decafs_dir* open_dir (const char* name);
+extern "C" void open_dir (const char* name, struct client client);
 
 /*
  *	If the process has a lock on the file, complete the read.

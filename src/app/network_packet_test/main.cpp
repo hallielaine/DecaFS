@@ -1,6 +1,7 @@
 #include "network_core/barista_server.h"
 #include "network_core/espresso_client.h"
 #include "../decafs_barista/decafs_barista.h"
+#include "decafs_types/file_types.h"
 
 #include <stdio.h>
 #include <thread>
@@ -41,6 +42,28 @@ extern "C" uint32_t set_node_up (uint32_t node_number) {
 extern "C" void open_file (const char *pathname, int flags, struct client client) {
 
   send_open_result(client, 1); 
+}
+
+extern "C" void open_dir(const char* pathname, struct client client) {
+
+  decafs_dirent* entries = (decafs_dirent*)malloc(3*sizeof(decafs_dirent));
+  entries[0].file_id = 36;
+  entries[0].d_type = 'f';
+  std::string filename = "testtestfileawithalongname";
+  memcpy(entries[0].d_name, filename.c_str(), strlen(filename.c_str())+1);
+
+  entries[1].file_id = 97;
+  entries[1].d_type = 'f';
+  std::string filename2 = "otherfileforlengthtestingofaverylongername";
+  memcpy(entries[1].d_name, filename2.c_str(), strlen(filename2.c_str())+1);
+
+  entries[2].file_id = 97;
+  entries[2].d_type = 'f';
+  std::string filename3 = "otherfileforlengthtestingofaverylongername";
+  memcpy(entries[2].d_name, filename3.c_str(), strlen(filename3.c_str())+1);
+
+  decafs_dir dirents(0, 3, entries); 
+  send_opendir_result(client, &dirents);
 }
 
 extern "C" void read_file (int fd, size_t count, struct client client) {
@@ -125,6 +148,11 @@ int main(int argc, char** argv) {
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   int close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
+  sleep(1);
+
+  // OPENDIR
+  std::cout << "------------- DECAFS OPENDIR TEST ------------" << std::endl;
+  decafs_dir* dirp = client.opendir(".");
   sleep(1);
 
   barista_server->close();

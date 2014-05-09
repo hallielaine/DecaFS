@@ -1,15 +1,14 @@
 #include "open_packet.h"
 
-OpenPacket::OpenPacket(int flags, char* filepath) 
+OpenPacket::OpenPacket(int flags, const char* filename) 
  : Packet(0, OPEN, strlen(filepath) + 1 + sizeof(int32_t)),
- open_flags(flags), filepath(filepath) {
+ open_flags(flags) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
   base[0] = open_flags; 
 
-  char* pathbase = ((char*)base) + sizeof(open_flags);
-  strcpy(pathbase, filepath);
-  pathbase[packet_size - Packet::dataSize() - 5] = '\0';
+  filepath = ((char*)base) + sizeof(open_flags);
+  memcpy(filepath, filename, strlen(filename) + 1);
 }
 
 OpenPacket::OpenPacket(void* buf, ssize_t length) : Packet(buf, length) {

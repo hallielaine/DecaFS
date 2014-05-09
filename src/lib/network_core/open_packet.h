@@ -11,7 +11,7 @@ class OpenPacket : public Packet {
     virtual std::ostream& print(std::ostream&) const;
 
   public:
-    OpenPacket(int flags, char* pathname);
+    OpenPacket(int flags, const char* pathname);
     OpenPacket(void* buf, ssize_t length);
 
     int32_t open_flags;

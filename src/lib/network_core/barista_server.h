@@ -38,8 +38,8 @@ class BaristaServer : public TcpServer {
     std::map<ConnectionToClient*, int> m_espresso_nodes_rev;
     std::map<ConnectionToClient*, struct client> m_decafs_clients;
 
-    void addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc);
-    void addDecafsClient(DecafsClientInit decafs_client, ConnectionToClient* ctc);
+    void addEspressoNode(const EspressoInit& espresso_node, ConnectionToClient* ctc);
+    void addDecafsClient(const DecafsClientInit& decafs_client, ConnectionToClient* ctc);
 
   public:
     static BaristaServer* init(int port); 

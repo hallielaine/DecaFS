@@ -61,7 +61,7 @@ void BaristaServer::clientDisconnected(ConnectionToClient* client) {
   }
 }
 
-void BaristaServer::addEspressoNode(EspressoInit espresso_node, ConnectionToClient* ctc) {
+void BaristaServer::addEspressoNode(const EspressoInit& espresso_node, ConnectionToClient* ctc) {
 
   if (m_pending_clients.count(ctc)) {
     m_pending_clients.erase(ctc);
@@ -72,7 +72,7 @@ void BaristaServer::addEspressoNode(EspressoInit espresso_node, ConnectionToClie
   }
 }
 
-void BaristaServer::addDecafsClient(DecafsClientInit decafs_client, ConnectionToClient* ctc) {
+void BaristaServer::addDecafsClient(const DecafsClientInit& decafs_client, ConnectionToClient* ctc) {
 
   if (m_pending_clients.count(ctc)) {
     m_pending_clients.erase(ctc);
@@ -96,6 +96,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
   buffer_ptr = (char*)malloc(packet_size);
   if (recv(client->sock_fd, buffer_ptr, packet_size, 0) != packet_size) {
     // TODO error expected to read more bytes for a complete Packet message
+    printf("BaristaServer: recv read different length than expected!\n");
   } 
    
   flag = ((uint32_t*)buffer_ptr)[2];
@@ -109,8 +110,7 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       printf("got a OPENDIR packet!\n");
       OpendirPacket op(buffer_ptr, packet_size);
       std::cout << op << std::endl;
-      // TODO call opendir
-      open_dir(op.filepath);
+      open_dir(op.filepath, m_decafs_clients[client]);
       break;
     }
     case (OPEN) :

@@ -14,7 +14,7 @@ class OpendirResponsePacket : public Packet {
   public:
     decafs_dir* dirp;
 
-    OpendirResponsePacket(decafs_dir* dirp);
+    OpendirResponsePacket(const decafs_dir* dirp);
     OpendirResponsePacket(void* buf, ssize_t length);
 
     friend std::ostream& operator<<(std::ostream& stream, const OpendirResponsePacket &packet);

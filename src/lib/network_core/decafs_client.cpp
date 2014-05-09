@@ -52,6 +52,7 @@ decafs_dir* DecafsClient::opendir(const char* path) {
   int length = wait_for_packet(m_socket_number);
 
   char* buffer = (char*)malloc(length);
+  printf("decafs_Client: opendir mallocing %d array\n", length);
   recv(m_socket_number, buffer, length, 0);
 
   int32_t flag = ((uint32_t*)buffer)[2];
