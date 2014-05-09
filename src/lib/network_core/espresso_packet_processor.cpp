@@ -1,6 +1,6 @@
 #include "espresso_packet_processor.h"
 
-Packet* process_read_packet(ReadChunkRequest r) {
+Packet* process_read_packet(const ReadChunkRequest& r) {
 
   ssize_t bytes_read;
   uint8_t buffer[65536];
@@ -12,7 +12,7 @@ Packet* process_read_packet(ReadChunkRequest r) {
    bytes_read, buffer); 
 }
 
-Packet* process_write_packet(WriteChunkRequest r) {
+Packet* process_write_packet(const WriteChunkRequest& r) {
 
   ssize_t bytes_written = write_chunk(r.fd, r.file_id, r.stripe_id, r.chunk_num,
    r.offset, r.data_buffer, r.count);
@@ -21,7 +21,7 @@ Packet* process_write_packet(WriteChunkRequest r) {
    bytes_written);
 }
 
-Packet* process_delete_packet(DeleteChunkRequest r) {
+Packet* process_delete_packet(const DeleteChunkRequest& r) {
 
   // TODO check return val of delete_chunk, -1 error 0 success
   delete_chunk(r.fd, r.file_id, r.stripe_id, r.chunk_num);
