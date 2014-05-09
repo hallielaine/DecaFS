@@ -69,10 +69,9 @@ decafs_dir* DecafsClient::opendir(const char* path) {
 
 int DecafsClient::open(const char* pathname, int flags) {
 
-  char tmppath[256];
-  strncpy(tmppath, pathname, 256);
-  OpenPacket op(flags, tmppath); 
+  OpenPacket op(flags, pathname); 
   // TODO need to check for errors
+  
   sendToServer(op.packet, op.packet_size);
 
   fd_set tmp_set;
@@ -142,19 +141,7 @@ int DecafsClient::close(int fd) {
   // TODO need to check for errors
   sendToServer(cp.packet, cp.packet_size);
 
-  fd_set tmp_set;
-  FD_ZERO(&tmp_set);
-  FD_SET(m_socket_number, &tmp_set);
-  if (select(m_socket_number+1, &tmp_set, NULL, NULL, NULL) < 0) {
-    perror("select");
-  }
-
-  // recv the packet
-  // check for length of packet
-  int32_t packet_size; 
-  if (recv(m_socket_number, (void*)&packet_size, sizeof(packet_size), MSG_PEEK) != sizeof(packet_size)) {
-
-  }
+  int32_t packet_size = wait_for_packet(m_socket_number);
 
   char* buffer = (char*) malloc(packet_size);
   // TODO check for errors
@@ -163,6 +150,7 @@ int DecafsClient::close(int fd) {
   int32_t flag = ((uint32_t*)buffer)[2];
   if (flag != CLOSE_RESPONSE) {
     // error, should only receive response here
+    printf("DecafsClient: expected CLOSE_RESOPNSE packet but got something else!\n");
   }
 
   CloseResponsePacket crp(buffer, packet_size);
