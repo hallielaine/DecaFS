@@ -18,6 +18,10 @@ struct ip_address {
   bool operator ==(const ip_address & other) const {
     return (strcmp (this->addr, other.addr) == 0);
   }
+
+  bool operator !=(const ip_address & other) const {
+    return !operator==(other);
+  }
   
   bool operator <(const ip_address & other) const {
     return (strcmp (this->addr, other.addr) <= 0);
@@ -37,6 +41,10 @@ struct client {
     return (this->ip == other.ip &&
             this->user_id == other.user_id &&
             this->ctc == other.ctc);
+  }
+
+  bool operator !=(const client & other) const {
+    return !operator==(other);
   }
   
   bool operator <(const client & other) const {
