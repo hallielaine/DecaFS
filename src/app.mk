@@ -1,6 +1,6 @@
 include ../../common.mk
 
-LDLIBS := $(addprefix ../../lib/, $(DECAFS_LIBS))
+LDLIBS := $(addprefix ../../lib/, $(DECAFS_LIBS)) $(EXTRA_LIBS)
 
 ifeq ($(CXX),g++)
 	LDLIBS_GROUP := -Wl,--start-group $(LDLIBS) -Wl,--end-group

@@ -9,7 +9,7 @@ else
 endif
 
 #TODO: make code compile with -Werror
-CFLAGS := -g -O1 -MMD -Wall -Wno-unused-parameter
+CFLAGS := -g -O1 -MMD -Wall -Wno-unused-parameter $(EXTRA_CFLAGS)
 LDFLAGS := -pthread
 
 ifeq ($(COVERAGE),yes)
