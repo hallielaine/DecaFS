@@ -9,8 +9,7 @@
 #include "network_core/barista_network_helper.h"
 
 int main(int argc, char** argv) {
-
-  int port = 3322;
+  int port = 3299;
 
   DecafsClient client("192.168.1.100", port, 2);
   client.openConnection();
