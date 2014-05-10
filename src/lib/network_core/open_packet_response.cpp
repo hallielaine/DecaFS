@@ -15,7 +15,7 @@ OpenPacketResponse::OpenPacketResponse(int response) : Packet(0, OPEN_RESPONSE, 
 
 std::ostream& OpenPacketResponse::print(std::ostream& stream) const {
 
-  stream << "OpenPacketRespones" << std::endl;
+  stream << "OpenPacketResponse" << std::endl;
   stream << "\tresponse: " << response << std::endl;
   return Packet::print(stream); 
 }

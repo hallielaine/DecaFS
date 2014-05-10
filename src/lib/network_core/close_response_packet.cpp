@@ -15,7 +15,7 @@ CloseResponsePacket::CloseResponsePacket(int result) : Packet(0, CLOSE_RESPONSE,
 
 std::ostream& CloseResponsePacket::print(std::ostream& stream) const {
 
-  stream << "CloseResponsePacketializationPacket" << std::endl;
+  stream << "CloseResponsePacket" << std::endl;
   stream << "\tresult: " << result << std::endl;
   return Packet::print(stream); 
 }

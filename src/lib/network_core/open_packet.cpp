@@ -1,7 +1,7 @@
 #include "open_packet.h"
 
 OpenPacket::OpenPacket(int flags, const char* filename) 
- : Packet(0, OPEN, strlen(filepath) + 1 + sizeof(int32_t)),
+ : Packet(0, OPEN, strlen(filepath) + 1 + sizeof(open_flags)),
  open_flags(flags) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
@@ -16,16 +16,16 @@ OpenPacket::OpenPacket(void* buf, ssize_t length) : Packet(buf, length) {
 
   uint32_t* base = (uint32_t*)(&(((char*)packet)[Packet::dataSize()]));
   open_flags = base[0];
-  filepath = (char*)(&(((char*)packet)[Packet::dataSize() + sizeof(int32_t)]));
-  filepath[packet_size - Packet::dataSize() - 5] = '\0';
+  filepath = (char*)(&(((char*)packet)[Packet::dataSize() + sizeof(open_flags)]));
+  //filepath[packet_size - Packet::dataSize() - 5] = '\0';
 
-  std::cout << "open packet deserialization:" << std::endl;
-  std::cout << "\tpacket_size: " << packet_size << std::endl;
-  std::cout << "\tdata_size: " << Packet::dataSize() << std::endl;
-  std::cout << "\topen_flags: " << open_flags << std::endl;
+  //std::cout << "open packet deserialization:" << std::endl;
+  //std::cout << "\tpacket_size: " << packet_size << std::endl;
+  //std::cout << "\tdata_size: " << Packet::dataSize() << std::endl;
+  //std::cout << "\topen_flags: " << open_flags << std::endl;
   
 
-  filepath[packet_size - Packet::dataSize() - 5] = '\0';
+  //filepath[packet_size - Packet::dataSize() - 5] = '\0';
 
   //int pathlen = packet_size - Packet::dataSize() - sizeof(open_flags) + 1;
   //filepath = (char*)malloc(pathlen);
