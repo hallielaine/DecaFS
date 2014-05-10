@@ -199,8 +199,8 @@ static int custom_fsyncdir(const char *path, int datasync, struct fuse_file_info
 static void* custom_init(struct fuse_conn_info *conn) {
   // TODO(peter): make these cmdline parameters
   DecafsClient *dc = new DecafsClient("192.168.1.100", 3333, 2);
-  client.openConnection();
-  return client;
+  dc->openConnection();
+  return dc;
 }
 
 static void custom_destroy(void *private_data) {
@@ -217,7 +217,7 @@ static int custom_access(const char *path, int amode) {
 }
 
 static int custom_create(const char *path, mode_t mode, struct fuse_file_info *fi) {
-  return custom_open(path, mode, fi);
+  return custom_open(path, fi);
 }
 
 static int custom_ftruncate(const char *path, off_t length, struct fuse_file_info *fi) {
@@ -262,9 +262,11 @@ static int custom_flock(const char *path, struct fuse_file_info *fi, int op) {
   return -ENOSYS; // not supported
 }
 
+#if 0
 static int custom_fallocate(const char *path, int mode, off_t offset, off_t len, struct fuse_file_info *fi) {
   return -EOPNOTSUPP; // not supported
 }
+#endif
 
 
 static struct fuse_operations custom_operations = {
@@ -311,7 +313,9 @@ static struct fuse_operations custom_operations = {
   .read_buf = custom_read_buf,
 #endif
   .flock = custom_flock,
+#if 0
   .fallocate = custom_fallocate
+#endif
 };
 
 int main(int argc, char *argv[]) {
