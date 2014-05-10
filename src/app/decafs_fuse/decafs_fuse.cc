@@ -1,3 +1,7 @@
+#include "network_core/decafs_client.h"
+
+extern "C" {
+
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
@@ -8,6 +12,8 @@
 #include <fuse.h>
 
 #define CHECK_PATHLEN if (strlen(path) > 255) return (-ENAMETOOLONG);
+#define DECAFS_CLIENT \
+  (reinterpret_cast<DecafsClient*>(fuse_get_context()->private_data))
 
 static int custom_getattr(const char *path, struct stat *sd) {
   CHECK_PATHLEN
@@ -15,6 +21,7 @@ static int custom_getattr(const char *path, struct stat *sd) {
 
   memset(sd, 0, sizeof(struct stat));
 
+  // TODO(peter): read decafs stat source and then do this
   sd->st_mode = S_IFREG | 0777; // or S_IFDIR
   sd->st_nlink = 1;
   sd->st_uid = 0; // root
@@ -42,24 +49,30 @@ static int custom_mknod(const char *path, mode_t mode, dev_t dev) {
 
 static int custom_mkdir(const char *path, mode_t mode) {
   CHECK_PATHLEN
-  // TODO(peter)
+
+  // TODO(peter): do something once directories are a thing
   // EEXIST
+
   return 0;
 }
 
 static int custom_unlink(const char *path) {
   CHECK_PATHLEN
-  // TODO(peter)
+
+  DECAFS_CLIENT->delete_file(path);
   // EISDIR
   // ENOENT
+
   return 0;
 }
 
 static int custom_rmdir(const char *path) {
   CHECK_PATHLEN
-  // TODO(peter)
+
+  // TODO(peter): do something once directories are a thing
   // ENOTEMPTY
   // ENOENT
+
   return 0;
 }
 
@@ -99,18 +112,31 @@ static int custom_truncate(const char *path, off_t length) {
 }
 
 static int custom_open(const char *path, struct fuse_file_info *fi) {
-  // TODO(peter)
+  int fd = DECAFS_CLIENT->open(path, fi->flags);
+  if (fd < 0) {
+    return -EPERM; // TODO(peter): work with decafs errors
+  }
+
+  fi->fh = fd;
   return 0;
 }
 
-static int custom_read(const char *path, char *buf , size_t size, off_t offset, struct fuse_file_info *fi) {
-  // TODO(peter)
-  return 0;
+static int custom_read(const char *path, char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
+  int len = DECAFS_CLIENT->read(fi->fh, buf, size);
+  if (len < 0) {
+    return -EBADF; // TODO(peter): work with decafs errors
+  }
+
+  return len;
 }
 
 static int custom_write(const char *path, const char *buf, size_t size, off_t offset, struct fuse_file_info *fi) {
-  // TODO(peter)
-  return 0;
+  int len = DECAFS_CLIENT->write(fi->fh, buf, size);
+  if (len < 0) {
+    return -EBADF; // TODO(peter): work with decafs errors
+  }
+
+  return len;
 }
 
 static int custom_statfs(const char *path, struct statvfs *sd) {
@@ -122,7 +148,6 @@ static int custom_flush(const char *path, struct fuse_file_info *fi) {
 }
 
 static int custom_release(const char *path, struct fuse_file_info *fi) {
-  // TODO(peter)
   // cleanup private_data for file
   return 0;
 }
@@ -150,17 +175,17 @@ static int custom_removexattr(const char *path, const char *name) {
 }
 
 static int custom_opendir(const char *path, struct fuse_file_info *fi) {
-  // TODO(peter)
+  // TODO(peter): do something once directories are a thing
   return 0;
 }
 
 static int custom_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info *fi) {
-  // TODO(peter)
+  // TODO(peter): do something once directories are a thing
   return 0;
 }
 
 static int custom_releasedir(const char *path, struct fuse_file_info *fi) {
-  // TODO(peter)
+  // TODO(peter): do something once directories are a thing
   // cleanup private_data for dir
   return 0;
 }
@@ -172,28 +197,27 @@ static int custom_fsyncdir(const char *path, int datasync, struct fuse_file_info
 }
 
 static void* custom_init(struct fuse_conn_info *conn) {
-  // TODO(peter)
-  // initialize decafs connection
-  return NULL;
+  // TODO(peter): make these cmdline parameters
+  DecafsClient *dc = new DecafsClient("192.168.1.100", 3333, 2);
+  client.openConnection();
+  return client;
 }
 
 static void custom_destroy(void *private_data) {
-  // TODO(peter)
-  // close decafs connection
+  delete reinterpret_cast<DecafsClient*>(private_data);
 }
 
 static int custom_access(const char *path, int amode) {
   CHECK_PATHLEN
 
-  // TODO(peter)
+  // TODO(peter): use stat
   // ENOENT
 
   return 0;
 }
 
 static int custom_create(const char *path, mode_t mode, struct fuse_file_info *fi) {
-  // TODO(peter)
-  return 0;
+  return custom_open(path, mode, fi);
 }
 
 static int custom_ftruncate(const char *path, off_t length, struct fuse_file_info *fi) {
@@ -292,4 +316,6 @@ static struct fuse_operations custom_operations = {
 
 int main(int argc, char *argv[]) {
   return fuse_main(argc, argv, &custom_operations, NULL);
+}
+
 }
