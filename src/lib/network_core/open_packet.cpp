@@ -1,7 +1,7 @@
 #include "open_packet.h"
 
 OpenPacket::OpenPacket(int flags, const char* filename) 
- : Packet(0, OPEN, strlen(filepath) + 1 + sizeof(open_flags)),
+ : Packet(0, OPEN, strlen(filename) + 1 + sizeof(open_flags)),
  open_flags(flags) {
 
   uint32_t* base = (uint32_t*)(((uint8_t*)packet) + Packet::dataSize());
