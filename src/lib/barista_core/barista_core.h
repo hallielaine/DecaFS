@@ -184,13 +184,13 @@ extern "C" void delete_response_handler (DeleteChunkResponse *delete_response);
  * @return the cursor's new location on success and < 0 on failure
  *          
  */
-extern "C" int file_seek (int fd, uint32_t offset, int whence, struct client client);
+extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client client);
 
 /*
  *	Fills struct stat with file info.
  */
-extern "C" int file_stat (const char *path, struct stat *buf);
-extern "C" int file_fstat (int fd, struct stat *buf);
+extern "C" void file_stat (const char *path, struct stat *buf);
+extern "C" void file_fstat (int fd, struct stat *buf);
 
 /*
  *  Collects information about a mounted filesystem. 
@@ -224,35 +224,18 @@ extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler
 /*
  *	Move an existing chunk to a different Espresso node in the system. 
  */
-extern "C" int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                           uint32_t dest_node, struct client client);
-extern "C" int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+extern "C" void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
                             uint32_t dest_node, struct client client);
+extern "C" void fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                             uint32_t dest_node, struct client client);
 
 /*
  *	Move a chunk’s replica to a different Espresso node in the system. 
  */
-extern "C" int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
-                                   uint32_t chunk_num, uint32_t dest_node,
-                                   struct client client);
-extern "C" int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+extern "C" void move_chunk_replica (const char* pathname, uint32_t stripe_id, 
                                     uint32_t chunk_num, uint32_t dest_node,
                                     struct client client);
-
-/*
- *	creates a directory in the DecaFS instance.
- */
-extern "C" int mk_decafs_dir (const char* dirname);
-
-/*
- *	opens a directory stream corresponding to the directory name.
- */
-extern "C" DIR* open_decafs_dir (const char* name);
-
-/*
- *	returns a pointer to a dirent structure representing the next directory   
- *	entry in the directory stream pointed to by dirp.
- */
-extern "C" struct dirent* read_decafs_dir (DIR *dirp);
-
+extern "C" void fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                                     uint32_t chunk_num, uint32_t dest_node,
+                                     struct client client);
 #endif
