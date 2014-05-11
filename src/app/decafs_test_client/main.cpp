@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
 
   // READ
   std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
-  char testread[100];
-  int bytes_read = client.read(fd, testread, 100);
+  char testread[1000];
+  int bytes_read = client.read(fd, testread, strlen(testwrite));
   std::cout << "read returned: " << bytes_read << std::endl;
   sleep(1);
 
@@ -50,15 +50,52 @@ int main(int argc, char** argv) {
 
   // READ
   std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
-  bytes_read = client.read(fd, testread, 100);
+  bytes_read = client.read(fd, testread, strlen(testwrite));
   std::cout << "read returned: " << bytes_read << std::endl;
-  sleep(10);
-
+  sleep(1);
+ 
   // CLOSE
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
   sleep(1);
+ 
+  /*
+  // OPEN
+  std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
+  fd = client.open("testfile", O_RDWR);
+  std::cout << "open returned: " << fd << std::endl;
+  sleep(1);
 
+  // SEEK
+  std::cout << "------------ DECAFS CLIENT SEEK TEST ----------" << std::endl;
+  int offset = client.lseek(fd, 7, SEEK_SET);
+  std::cout << "seek returned: " << offset << std::endl;
+  sleep(1);
+
+  // WRITE
+  std::cout << "------------ DECAFS CLIENT WRITE TEST ----------" << std::endl;
+  char char_write[] = "A";
+  bytes_written = client.write(fd, char_write, strlen(char_write));
+  std::cout << "write returned: " << bytes_written << std::endl;
+  sleep(1);
+  
+  // SEEK
+  std::cout << "------------ DECAFS CLIENT SEEK TEST ----------" << std::endl;
+  offset = client.lseek(fd, 0, SEEK_SET);
+  std::cout << "seek returned: " << offset << std::endl;
+  sleep(1);
+
+  // READ
+  std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
+  bytes_read = client.read(fd, testread, strlen(testwrite));
+  std::cout << "read returned: " << bytes_read << std::endl;
+  sleep(1);
+
+  // CLOSE
+  std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
+  close = client.close(fd);
+  std::cout << "close returned: " << close << std::endl;
+  */
   return 0;
 }
