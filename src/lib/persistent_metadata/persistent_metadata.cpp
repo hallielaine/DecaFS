@@ -20,8 +20,8 @@ int Persistent_Metadata::get_num_files() {
 
 int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size) {
   int current = 0;
-  //PersistentMap<string, uint32_t>::iterator it;
-  map<string, uint32_t>::iterator it;
+  PersistentMap<string, uint32_t>::iterator it;
+  //map<string, uint32_t>::iterator it;
 
   it = pathname_to_file_id.begin();
 
