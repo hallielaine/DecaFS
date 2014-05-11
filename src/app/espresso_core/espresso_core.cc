@@ -4,26 +4,6 @@ int main(int argc, char** argv) {
 
   handle_cmd_args(argc, argv);
 
-  // TODO: open filesystem data for when you need it
-  // filepath is argv[FILESYSTEM]
-
-  char storage_file[] = ".data_storage";
-  char *file = (char *)malloc(strlen (argv[FILESYSTEM]) +
-                              strlen (storage_file) + 1);
-  strcpy (file, argv[FILESYSTEM]);
-  strcat (file, storage_file);
-
-  printf ("Opening storage file %s\n", file);
-
-  int storage_file_fd;
-  if ((storage_file_fd  = open (file, O_RDWR | O_CREAT,
-                                S_IRUSR | S_IWUSR)) < 0) {
-    perror("Unable to open data storage file.");
-    exit (EXIT_FAILURE);
-  }
-
-  printf ("storage file open (%d)\n", storage_file_fd);
-
   printf("metadata path is: %s\n", argv[METADATA]);
   espresso_global_data_init (argv[METADATA], NODE_STORAGE_SIZE);
 

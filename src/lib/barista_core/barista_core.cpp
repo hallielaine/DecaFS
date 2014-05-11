@@ -298,14 +298,14 @@ void check_read_complete (uint32_t request_id) {
       active_read_requests[request_id].info.chunks_received) {
     int count = 0;
     uint8_t *buffer_offset = active_read_requests[request_id].buf;
-    std::map<struct file_chunk, ReadChunkResponse *> &packet_map = 
+    std::map<struct file_chunk, struct read_buffer*> packet_map = 
         active_read_requests[request_id].response_packets;
-    std::map<struct file_chunk, ReadChunkResponse *>::iterator it = packet_map.begin();
+    std::map<struct file_chunk, struct read_buffer*>::iterator it = packet_map.begin();
     while (it != packet_map.end()) {
-      ReadChunkResponse *cur_packet = it->second;
-      memcpy (buffer_offset, cur_packet->data_buffer, cur_packet->count);
-      buffer_offset += cur_packet->count;
-      count += cur_packet->count;
+      struct read_buffer *cur_packet = it->second;
+      memcpy (buffer_offset, cur_packet->buf, cur_packet->size);
+      buffer_offset += cur_packet->size;
+      count += cur_packet->size;
       it++;
       delete (cur_packet);
     }
@@ -583,8 +583,9 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
                              read_response->chunk_num};
   
   active_read_requests[read_response->id].info.chunks_received++;
-  active_read_requests[read_response->id].response_packets[chunk] = read_response;
-
+  active_read_requests[read_response->id].response_packets[chunk] =
+      new read_buffer (read_response->count, read_response->data_buffer);
+  
   check_read_complete(read_response->id);
 }
 
@@ -745,25 +746,31 @@ extern "C" void delete_response_handler (DeleteChunkResponse *delete_response) {
   check_delete_complete(delete_response->id);
 }
 
-extern "C" int file_seek (int fd, uint32_t offset, int whence, struct client client) {
+extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client client) {
   int cursor_val;
+  printf("(BARISTA): File Seek\n");
+
   if (whence == SEEK_SET) {
     set_file_cursor (fd, 0, client);
   }
   if ((cursor_val = get_file_cursor (fd)) >= 0) {
+    printf("\tattempting to set cursor position to %d\n", cursor_val + offset);
     set_file_cursor (fd, cursor_val + offset, client);
   }
-  return get_file_cursor (fd);
+
+  printf ("\tcursor set to: %d\n\tsending result...\n", get_file_cursor (fd));
+
+  if (send_seek_result (client, get_file_cursor (fd)) < 0) {
+    printf("\tSeek result could not reach client.\n");
+  }
 }
 
-extern "C" int file_stat (const char *path, struct stat *buf) {
+extern "C" void file_stat (const char *path, struct stat *buf) {
 
-  return 0;
 }
 
-extern "C" int file_fstat (int fd, struct stat *buf) {
+extern "C" void file_fstat (int fd, struct stat *buf) {
 
-  return 0;
 }
 
 extern "C" void statfs (char *pathname, struct statvfs * stat) {
@@ -787,43 +794,25 @@ extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler
 
 }
 
-extern "C" int move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
-                           uint32_t dest_node, struct client client) {
-
-  return 0;
-}
-
-extern "C" int fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+extern "C" void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 
                             uint32_t dest_node, struct client client) {
 
-  return 0;
 }
 
-extern "C" int move_chunk_replica (const char* pathname, uint32_t stripe_id, 
-                                   uint32_t chunk_num, uint32_t dest_node,
-                                   struct client client) {
+extern "C" void fmove_chunk (uint32_t file_id, uint32_t stripe_id, uint32_t chunk_num,
+                             uint32_t dest_node, struct client client) {
 
-  return 0;
 }
 
-extern "C" int fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+extern "C" void move_chunk_replica (const char* pathname, uint32_t stripe_id, 
                                     uint32_t chunk_num, uint32_t dest_node,
                                     struct client client) {
 
-  return 0;
 }
 
-extern "C" int mk_decafs_dir (const char* dirname) {
+extern "C" void fmove_chunk_replica (uint32_t file_id, uint32_t stripe_id,
+                                     uint32_t chunk_num, uint32_t dest_node,
+                                     struct client client) {
 
-  return 0;
 }
 
-extern "C" DIR* open_decafs_dir (const char* name) {
-
-  return NULL;
-}
-
-extern "C" struct dirent* read_decafs_dir (DIR *dirp) {
-
-  return NULL;
-}
