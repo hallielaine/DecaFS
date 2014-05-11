@@ -298,14 +298,14 @@ void check_read_complete (uint32_t request_id) {
       active_read_requests[request_id].info.chunks_received) {
     int count = 0;
     uint8_t *buffer_offset = active_read_requests[request_id].buf;
-    std::map<struct file_chunk, ReadChunkResponse *> &packet_map = 
+    std::map<struct file_chunk, struct read_buffer*> packet_map = 
         active_read_requests[request_id].response_packets;
-    std::map<struct file_chunk, ReadChunkResponse *>::iterator it = packet_map.begin();
+    std::map<struct file_chunk, struct read_buffer*>::iterator it = packet_map.begin();
     while (it != packet_map.end()) {
-      ReadChunkResponse *cur_packet = it->second;
-      memcpy (buffer_offset, cur_packet->data_buffer, cur_packet->count);
-      buffer_offset += cur_packet->count;
-      count += cur_packet->count;
+      struct read_buffer *cur_packet = it->second;
+      memcpy (buffer_offset, cur_packet->buf, cur_packet->size);
+      buffer_offset += cur_packet->size;
+      count += cur_packet->size;
       it++;
       delete (cur_packet);
     }
@@ -583,8 +583,9 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
                              read_response->chunk_num};
   
   active_read_requests[read_response->id].info.chunks_received++;
-  active_read_requests[read_response->id].response_packets[chunk] = read_response;
-
+  active_read_requests[read_response->id].response_packets[chunk] =
+      new read_buffer (read_response->count, read_response->data_buffer);
+  
   check_read_complete(read_response->id);
 }
 

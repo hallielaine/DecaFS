@@ -53,11 +53,34 @@ struct request_info {
   }
 };
 
+struct read_buffer {
+  int size;
+  uint8_t *buf;
+
+  read_buffer() : size (0), buf (NULL) {}
+  read_buffer (int size, uint8_t *buf) {
+    if (size > 0) {
+      this->buf = (uint8_t *)malloc(size);
+      memcpy (this->buf, buf, size);
+      this->size = size;
+    }
+    else {
+      this->size = 0;
+      this->buf = NULL;
+    }
+  }
+  ~read_buffer () {
+    if (size > 0) {
+      free(this->buf);
+    }
+  }
+};
+
 struct read_request_info {
   struct request_info info;
   int fd;
   uint8_t *buf;
-  std::map<struct file_chunk, ReadChunkResponse *> response_packets;
+  std::map<struct file_chunk, struct read_buffer*> response_packets;
 
   read_request_info() : info (request_info()), fd (0) {}
   read_request_info (struct client client, uint32_t file_id, int fd,
