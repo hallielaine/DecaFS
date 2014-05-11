@@ -13,7 +13,7 @@ OpendirResponsePacket::OpendirResponsePacket(const decafs_dir* dirents)
   memcpy(dirp->entries, dirents->entries, dirp->total*sizeof(decafs_dirent));
 
   std::cout << "before serialization" << std::endl;
-  std::cout << *this << std::endl;
+  //std::cout << *this << std::endl;
 }
 
 OpendirResponsePacket::OpendirResponsePacket(void* buf, ssize_t length) : Packet(buf, length) {
@@ -39,7 +39,7 @@ std::ostream& OpendirResponsePacket::print(std::ostream &stream) const {
     stream << "\t\tfile_id: " << dirp->entries[i].file_id << std::endl;
     stream << "\t\td_type: " << dirp->entries[i].d_type << std::endl;
     stream << "\t\td_name: ";
-    stream.write(dirp->entries[i].d_name, strlen(dirp->entries[i].d_name) + 5);
+    stream.write(dirp->entries[i].d_name, strlen(dirp->entries[i].d_name));
     stream << std::endl;
   }
   return Packet::print(stream);

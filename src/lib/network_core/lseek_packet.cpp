@@ -15,8 +15,8 @@ LseekPacket::LseekPacket(void* buf, ssize_t length) : Packet(buf, length) {
   uint32_t* base = (uint32_t*)(&(((char*)packet)[Packet::dataSize()]));
 
   fd = base[0];
-  offset = base[2];
-  whence = base[3];
+  offset = base[1];
+  whence = base[2];
 }
 
 std::ostream& LseekPacket::print(std::ostream &stream) const {

@@ -62,13 +62,18 @@ extern "C" void open_dir(const char* pathname, struct client client) {
   std::string filename3 = "otherfileforlengthtestingofaverylongername";
   memcpy(entries[2].d_name, filename3.c_str(), strlen(filename3.c_str())+1);
 
-  decafs_dir dirents(0, 3, entries); 
-  send_opendir_result(client, &dirents);
+  decafs_dir* dirents = new decafs_dir(0, 3, entries); 
+  send_opendir_result(client, dirents);
+
+  delete dirents;
+  free(entries);
 }
 
 extern "C" void read_file (int fd, size_t count, struct client client) {
 
   char fake_buffer[2500];
+  memset(fake_buffer, 48, count);
+
   send_read_result(client, fd, count, fake_buffer);
 }
 

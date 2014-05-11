@@ -6,7 +6,7 @@
 class LseekPacket : public Packet {
 
   private:
-    int dataSize = 3*sizeof(int32_t);
+    static const int dataSize = 3*sizeof(int32_t);
 
   protected:
     virtual std::ostream& print(std::ostream&) const;
