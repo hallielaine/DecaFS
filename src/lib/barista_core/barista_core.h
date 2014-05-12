@@ -216,6 +216,11 @@ extern "C" void file_stat (const char *path, struct stat *buf);
 extern "C" void file_fstat (int fd, struct stat *buf);
 
 /*
+ * Get the storage and replica storage information for a file.
+ */
+extern "C" void file_storage_stat (const char *path);
+
+/*
  *  Collects information about a mounted filesystem. 
  *  path is the pathname of any file within the mounted
  *  filesystem.

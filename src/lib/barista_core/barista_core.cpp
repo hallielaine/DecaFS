@@ -773,7 +773,7 @@ extern "C" void file_fstat (int fd, struct stat *buf) {
 
 }
 
-extern "C" void statfs (char *pathname, struct statvfs * stat) {
+extern "C" void file_storage_stat (const char *path) {
 
 }
 
