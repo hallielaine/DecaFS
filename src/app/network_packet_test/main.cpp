@@ -92,6 +92,12 @@ extern "C" void file_seek(int fd, uint32_t offset, int whence, struct client cli
   send_seek_result(client, 0);
 }
 
+extern "C" void file_storage_stat(const char* filename, struct client client) {
+
+  std::string str("this is a file storage stat response!");
+  send_file_storage_stat_result(client, str.c_str());
+}
+
 // read_response_handler
 extern "C" void read_response_handler (ReadChunkResponse *read_response) {
 
@@ -156,8 +162,14 @@ int main(int argc, char** argv) {
 
   // OPENDIR
   std::cout << "------------- DECAFS OPENDIR TEST ------------" << std::endl;
-  decafs_dir* dirp = client.opendir(".");
+  //decafs_dir* dirp = client.opendir(".");
+  client.opendir(".");
   sleep(1);
+
+  //FILE_STORAGE_STAT
+  std::cout << "------------- DECAFS FILE STORAGE STAT TEST ----------------" << std::endl;
+  client.file_storage_stat("testfile");
+
 
   barista_server->close();
   barista_thread.join();

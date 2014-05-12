@@ -1,7 +1,7 @@
 #include "file_storage_stat_packet.h"
 
 FileStorageStatPacket::FileStorageStatPacket(const char* filepath) 
- : Packet(0, OPENDIR, strlen(filepath) + 1) {
+ : Packet(0, FILE_STORAGE_STAT, strlen(filepath) + 1) {
 
   filename = (char*)(((uint8_t*)packet) + Packet::dataSize());
 

@@ -9,4 +9,5 @@ decafs_client.o: decafs_client.cpp decafs_client.h \
  opendir_packet.h opendir_response_packet.h \
  ../../lib/decafs_types/file_types.h ../../lib/decafs_types/limits.h \
  ../../lib/decafs_types/ip_address.h \
- ../../lib/net_tcp/connection_to_client.h
+ ../../lib/net_tcp/connection_to_client.h file_storage_stat_packet.h \
+ file_storage_stat_response_packet.h

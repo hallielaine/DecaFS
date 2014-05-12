@@ -76,3 +76,9 @@ int send_opendir_result(struct client c, decafs_dir* dirp) {
   OpendirResponsePacket response(dirp);
   return c.ctc->sendToClient(response.packet, response.packet_size);
 }
+
+int send_file_storage_stat_result(struct client c, const char* data) {
+
+  FileStorageStatResponsePacket response(data);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
+}

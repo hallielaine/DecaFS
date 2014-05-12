@@ -4,7 +4,6 @@
 enum packet_flags {
 
    // Initialization Packets
-
    ESPRESSO_INIT,
    DECAFS_CLIENT_INIT,
 
@@ -20,6 +19,7 @@ enum packet_flags {
    MKDIR,
    OPENDIR,
    READDIR,
+   FILE_STORAGE_STAT,
 
    // Barista -> Client
    OPEN_RESPONSE,
@@ -33,6 +33,7 @@ enum packet_flags {
    MKDIR_RESPONSE,
    OPENDIR_RESPONSE,
    READDIR_RESPONSE,
+   FILE_STORAGE_STAT_RESPONSE,
 
    // Barista -> Espresso
    READ_CHUNK,

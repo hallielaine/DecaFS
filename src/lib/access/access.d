@@ -13,6 +13,7 @@ access.o: access.cpp access.h \
  ../../lib/network_core/close_packet.h \
  ../../lib/network_core/lseek_packet.h \
  ../../lib/network_core/opendir_packet.h \
+ ../../lib/network_core/file_storage_stat_packet.h \
  ../../lib/volatile_metadata/volatile_metadata_c_api.h \
  ../../lib/decafs_types/ip_address.h \
  ../../lib/barista_core/barista_core.h ../../lib/decafs_types/limits.h \
@@ -31,4 +32,5 @@ access.o: access.cpp access.h \
  ../../lib/network_core/read_response_packet.h \
  ../../lib/network_core/close_response_packet.h \
  ../../lib/network_core/lseek_response_packet.h \
- ../../lib/network_core/opendir_response_packet.h
+ ../../lib/network_core/opendir_response_packet.h \
+ ../../lib/network_core/file_storage_stat_response_packet.h

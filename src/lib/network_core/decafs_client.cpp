@@ -67,6 +67,27 @@ decafs_dir* DecafsClient::opendir(const char* path) {
   return odrp.dirp;
 }
 
+FileStorageStatResponsePacket* DecafsClient::file_storage_stat(const char* name) {
+
+  FileStorageStatPacket fssp(name);
+  sendToServer(fssp.packet, fssp.packet_size);
+
+  int length = wait_for_packet(m_socket_number);
+
+  char* buffer = (char*)malloc(length);
+  recv(m_socket_number, buffer, length, 0);
+
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != FILE_STORAGE_STAT_RESPONSE) {
+
+  }
+
+  FileStorageStatResponsePacket* fssrp = new FileStorageStatResponsePacket(buffer, length);
+  std::cout << *fssrp << std::endl;
+
+  return fssrp;
+}
+
 int DecafsClient::open(const char* pathname, int flags) {
 
   OpenPacket op(flags, pathname); 

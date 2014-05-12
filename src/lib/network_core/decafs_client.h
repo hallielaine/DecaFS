@@ -29,6 +29,9 @@
 #include "opendir_packet.h"
 #include "opendir_response_packet.h"
 
+#include "file_storage_stat_packet.h"
+#include "file_storage_stat_response_packet.h"
+
 class DecafsClient : public TcpClient {
 
   private:
@@ -53,6 +56,9 @@ class DecafsClient : public TcpClient {
     void statfs(char *pathname, struct statvfs*);
     int mkdir(const char* dirname);
     decafs_dir* opendir(const char* name);
+
+    // NON POSIX MIMICING METHODS
+    FileStorageStatResponsePacket* file_storage_stat(const char* name);
 };
 
 #endif // _ESPRESSO_CLIENT_H_

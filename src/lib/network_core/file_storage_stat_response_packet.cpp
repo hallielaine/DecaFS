@@ -1,7 +1,7 @@
 #include "file_storage_stat_response_packet.h"
 
 FileStorageStatResponsePacket::FileStorageStatResponsePacket(const char* data) 
- : Packet(0, OPENDIR, strlen(data) + 1) {
+ : Packet(0, FILE_STORAGE_STAT_RESPONSE, strlen(data) + 1) {
 
   result = (char*)(((uint8_t*)packet) + Packet::dataSize());
 

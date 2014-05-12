@@ -15,6 +15,7 @@
 #include "close_packet.h"
 #include "lseek_packet.h"
 #include "opendir_packet.h"
+#include "file_storage_stat_packet.h"
 
 #include "net_tcp/tcp_server.h"
 #include "volatile_metadata/volatile_metadata_c_api.h"

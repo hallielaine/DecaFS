@@ -105,6 +105,14 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
   // TODO this should be split into types based on what type of client ctc is
   // ctc possibilities: pending, decafs_client, espresso_node
   switch (flag) {
+    case (FILE_STORAGE_STAT) :
+    {
+      printf("got a FILE_STORAGE_STAT packet!\n");
+      FileStorageStatPacket fssp(buffer_ptr, packet_size);
+      std::cout << fssp << std::endl;
+      file_storage_stat(fssp.filename, m_decafs_clients[client]);
+      break;
+    }
     case (OPENDIR) :
     {
       printf("got a OPENDIR packet!\n");
