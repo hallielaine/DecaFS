@@ -91,10 +91,6 @@ struct decafs_file_stat {
   uint32_t stripe_size; 
   uint32_t chunk_size;
   uint32_t replica_size;
-  uint32_t num_stripes;  /* Number of stripes in the file */
-  uint32_t nodes[MAX_CHUNK]; /* Where each stripe is stored */
-  uint32_t num_replica_chunks; /* Number of replica chunks in the file. */
-  uint32_t replica_chunk_nodes[MAX_CHUNK]; /* Where each replica is stored. */
   struct timeval last_access_time;
 };
 
