@@ -87,10 +87,9 @@ extern "C" void close_file (int fd, struct client client) {
   send_close_result(client, -1);
 }
 
-extern "C" int file_seek(int fd, uint32_t offset, int whence, struct client client) {
+extern "C" void file_seek(int fd, uint32_t offset, int whence, struct client client) {
 
   send_seek_result(client, 0);
-  return -1; // file_seek should not have a return value
 }
 
 // read_response_handler

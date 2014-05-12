@@ -11,7 +11,7 @@ class OpendirPacket : public Packet {
     virtual std::ostream& print(std::ostream&) const;
 
   public:
-    OpendirPacket(char* pathname);
+    OpendirPacket(const char* pathname);
     OpendirPacket(void* buf, ssize_t length);
 
     char* filepath;

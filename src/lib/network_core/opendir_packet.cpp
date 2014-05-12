@@ -1,12 +1,11 @@
 #include "opendir_packet.h"
 
-OpendirPacket::OpendirPacket(char* filepath) 
- : Packet(0, OPENDIR, strlen(filepath) + 1),
- filepath(filepath) {
+OpendirPacket::OpendirPacket(const char* filename) 
+ : Packet(0, OPENDIR, strlen(filename) + 1) {
 
-  char* base = (char*)(((uint8_t*)packet) + Packet::dataSize());
+  filepath = (char*)(((uint8_t*)packet) + Packet::dataSize());
 
-  memcpy(base, filepath, strlen(filepath) + 1);
+  memcpy(filepath, filename, strlen(filename) + 1);
 }
 
 OpendirPacket::OpendirPacket(void* buf, ssize_t length) : Packet(buf, length) {

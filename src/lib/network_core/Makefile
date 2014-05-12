@@ -17,6 +17,8 @@ OBJS = barista_network_helper.o \
        lseek_packet.o \
        lseek_response_packet.o \
        opendir_packet.o \
-       opendir_response_packet.o
+       opendir_response_packet.o \
+       file_storage_stat_packet.o \
+       file_storage_stat_response_packet.o
 
 include ../../lib.mk
