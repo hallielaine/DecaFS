@@ -536,8 +536,9 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   }
   
   // TODO: make some assertion about max read size here
-  // If we are trying to read past EOF, return 0 bytes read
-  if (file_offset >= (int)stat.size) {
+  // If we are trying to read past EOF or requesting 0 bytes,
+  //   return 0 bytes read
+  if (file_offset >= (int)stat.size || count == 0) {
     if (send_read_result (client, fd, 0, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
@@ -627,6 +628,14 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
   
   if ((file_offset = get_file_cursor (fd)) < 0) {
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
+    return;
+  }
+  
+  // If we are requesting 0 bytes, return 0 bytes written
+  if (count == 0) {
+    if (send_write_result (client, 0, 0) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
     return;

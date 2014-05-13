@@ -178,16 +178,20 @@ uint32_t IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id)
        it != chunks.end(); it++) {
     if (chunk_exists (*it)) {
       int chunk_node = get_node_id (file_id, (*it).stripe_id, (*it).chunk_num);
-      process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
-      chunk_to_node.erase (*it);
-      num_chunks++;
+      if (is_node_up (chunk_node)) {
+        process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
+        chunk_to_node.erase (*it);
+        num_chunks++;
+      }
     }
     if (chunk_replica_exists (*it)) {
       int chunk_node = get_replica_node_id (file_id, (*it).stripe_id,
                                             (*it).chunk_num);
-      process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
-      chunk_to_replica_node.erase (*it);
-      num_chunks++;
+      if (is_node_up (chunk_node)) {
+        process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
+        chunk_to_replica_node.erase (*it);
+        num_chunks++;
+      }
     }
   }
   return num_chunks;

@@ -28,6 +28,12 @@ int main(int argc, char** argv) {
   int bytes_written = client.write(fd, testwrite, strlen(testwrite));
   std::cout << "write returned: " << bytes_written << std::endl;
   sleep(1);
+  
+  // WRITE
+  std::cout << "------------ DECAFS CLIENT WRITE (0) TEST ----------" << std::endl;
+  bytes_written = client.write(fd, testwrite, 0);
+  std::cout << "write returned: " << bytes_written << std::endl;
+  sleep(1);
 
   // READ
   std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
@@ -46,6 +52,12 @@ int main(int argc, char** argv) {
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
   fd = client.open(filename, O_RDWR);
   std::cout << "open returned: " << fd << std::endl;
+  sleep(1);
+  
+  // READ
+  std::cout << "------------ DECAFS CLIENT READ (0) TEST ----------" << std::endl;
+  bytes_read = client.read(fd, testread, 0);
+  std::cout << "read returned: " << bytes_read << std::endl;
   sleep(1);
 
   // READ
@@ -100,6 +112,16 @@ int main(int argc, char** argv) {
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
+
+  // FILE STORAGE STAT
+  std::cout << "------------ DECAFS CLIENT FILE STORAGE STAT TEST ----------" << std::endl;
+  client.file_storage_stat(filename);
+  sleep(1);
+
+  // DELETE
+  std::cout << "------------ DECAFS CLIENT DELETE TEST ----------" << std::endl;
+  client.delete_file(filename);
+  sleep(1);
 
   // FILE STORAGE STAT
   std::cout << "------------ DECAFS CLIENT FILE STORAGE STAT TEST ----------" << std::endl;
