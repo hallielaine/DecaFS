@@ -47,8 +47,8 @@ extern "C" uint32_t process_delete_file (uint32_t request_id, uint32_t file_id) 
   return io_manager.process_delete_file (request_id, file_id);
 }
 
-extern "C" char * process_file_storage_stat (char *pathname) {
-  return io_manager.process_file_storage_stat (pathname);
+extern "C" char * process_file_storage_stat (struct decafs_file_stat file_info) {
+  return io_manager.process_file_storage_stat (file_info);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
@@ -778,8 +778,18 @@ extern "C" void file_fstat (int fd, struct stat *buf) {
 }
 
 extern "C" void file_storage_stat (const char *path, struct client client) {
+  struct decafs_file_stat file_info;
+  
+  // If the file doesn't exist
+  if ((decafs_file_sstat ((char *)path, &file_info, client)) < 0) {
+    if (send_file_storage_stat_result (client, "File not found.") < 0) {
+      printf("\tFile Storage Stat Result could not reach client.\n");
+    }
+    return;
+  }
+  
   if (send_file_storage_stat_result(
-          client, process_file_storage_stat ((char *)path))
+          client, process_file_storage_stat (file_info))
           < 0) {
     printf("\tFile Storage Stat Result could not reach client.\n");
   }

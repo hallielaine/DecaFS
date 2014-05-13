@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "decafs_types/limits.h"
@@ -100,7 +101,7 @@ class IO_Manager {
     /*
      * Get information about the storage locations of chunks within a file.
      */
-    char * process_file_storage_stat (char *pathname);
+    char * process_file_storage_stat (struct decafs_file_stat file_info);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.
