@@ -92,7 +92,7 @@ void IO_Manager::process_write_stripe (uint32_t request_id,
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id, write_result;
 
-  assert ((count - offset) <= stripe_size);
+  assert (((int)count - offset) <= (int)stripe_size);
   printf ("\n(BARISTA) Process Write Stripe\n");
   
   get_first_chunk (&chunk_id, chunk_size, &chunk_offset, offset);
