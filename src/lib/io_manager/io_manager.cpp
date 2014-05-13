@@ -196,50 +196,52 @@ uint32_t IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id)
 char * IO_Manager::process_file_storage_stat (struct decafs_file_stat file_info) {
   stringstream storage_info;
   std::vector<struct file_chunk> chunks = get_all_chunks (file_info.file_id); 
-  uint32_t node_id;
   int last_stripe = -1;
   bool first_stripe = true;
 
   // Print basic file information
-  storage_info << "{\n\t\"file_id\": ";
+  storage_info << "{\n  \"file_id\": ";
   storage_info << file_info.file_id;
-  storage_info << "\n\t\"stripe_size\": ";
+  storage_info << "\n  \"stripe_size\": ";
   storage_info << file_info.stripe_size;
-  storage_info << "\n\t\"chunk_size\": ";
+  storage_info << "\n  \"chunk_size\": ";
   storage_info << file_info.chunk_size;
-  storage_info << "\n\t\"stripes\": [";
+  storage_info << "\n  \"stripes\": [";
 
   for (std::vector<struct file_chunk>::iterator it = chunks.begin();
        it != chunks.end(); it++) {
     if (chunk_exists (*it)) {
-      node_id = chunk_to_node[*it];
       if ((int)(*it).stripe_id > last_stripe) {
         last_stripe = (*it).stripe_id;
         if (first_stripe) {
           first_stripe = false;
         }
         else {
-          storage_info << "\n\t\t\t]\n\t\t}";
+          storage_info << "\n      ]\n    }";
         }
-        storage_info << "\n\t\t{\n\t\t\t\"stripe_id\": ";
+        storage_info << "\n    {\n      \"stripe_id\": ";
         storage_info << last_stripe;
-        storage_info << "\n\t\t\t\"chunks\": [";
+        storage_info << "\n      \"chunks\": [";
       }
-      storage_info << "\n\t\t\t\t{";
-      storage_info << "\n\t\t\t\t\t\"chunk_num\": ";
+      storage_info << "\n        {";
+      storage_info << "\n          \"chunk_num\": ";
       storage_info << (*it).chunk_num;
-      storage_info << "\n\t\t\t\t\t\"node\": ";
-      storage_info << node_id;
-      storage_info << "\n\t\t\t\t}";
+      storage_info << "\n          \"node\": ";
+      storage_info << chunk_to_node[*it];
+      if (chunk_replica_exists (*it)) {
+        storage_info << "\n          \"replica_node\": ";
+        storage_info << chunk_to_replica_node[*it];
+      }
+      storage_info << "\n        }";
     }
   }
 
   // end json
   if (!first_stripe) {
-    storage_info << "\n\t\t\t]\n\t\t}";
+    storage_info << "\n      ]\n    }";
   }
 
-  storage_info << "\n\t]\n}\n";
+  storage_info << "\n  ]\n}\n";
 
   return strdup(storage_info.str().c_str());
 }

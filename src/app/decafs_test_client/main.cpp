@@ -59,7 +59,8 @@ int main(int argc, char** argv) {
   close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
   sleep(1);
- 
+
+  /*
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
   fd = client.open(filename, O_RDWR);
@@ -95,6 +96,7 @@ int main(int argc, char** argv) {
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
+  */
 
   // FILE STORAGE STAT
   std::cout << "------------ DECAFS CLIENT FILE STORAGE STAT TEST ----------" << std::endl;
