@@ -55,8 +55,10 @@ struct file_instance {
   }
   
   bool operator <(const file_instance &other) const {
-    return ((this->client_id < other.client_id) ? true :
-                (this->file_id < other.file_id) ? true : false);
+    if (this->client_id != other.client_id) {
+      return this->client_id < other.client_id;
+    }
+    return (this->file_id < other.file_id);
   }
 };
 
@@ -74,11 +76,14 @@ struct file_chunk {
             this->chunk_num == other.chunk_num);
   }
   
-  bool operator <(const file_chunk &other) const {
-    return ((this->file_id < other.file_id) ? true :
-               (this->stripe_id < other.stripe_id) ? true :
-                   (this->chunk_num < other.chunk_num) ? 
-                      true : false);
+  friend bool operator <(const file_chunk &left, const file_chunk &right) {
+    if (left.file_id != right.file_id) {
+      return left.file_id < right.file_id;
+    }
+    if (left.stripe_id != right.stripe_id) {
+      return left.file_id < right.stripe_id;
+    }
+    return left.chunk_num < right.chunk_num;
   }
 };
 

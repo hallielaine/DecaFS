@@ -96,9 +96,10 @@ struct write_request {
   uint32_t replica_request_id;
 
   bool operator <(const write_request &other) const {
-    return ((this->request_id < other.request_id) ? true :
-                (this->replica_request_id < other.replica_request_id) ? 
-                 true : false);
+    if (this->request_id != other.request_id) {
+      return this->request_id < other.request_id;
+    }
+    return (this->replica_request_id < other.replica_request_id);
   }
 };
 
