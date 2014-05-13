@@ -10,7 +10,7 @@
 
 int main(int argc, char** argv) {
   int port = 3299;
-
+  char filename[] = "testfile";
   DecafsClient client("192.168.1.100", port, 2);
   client.openConnection();
 
@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
-  int fd = client.open("testfile", O_RDWR);
+  int fd = client.open(filename, O_RDWR);
   std::cout << "open returned: " << fd << std::endl;
   sleep(1);
 
@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
   
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
-  fd = client.open("testfile", O_RDWR);
+  fd = client.open(filename, O_RDWR);
   std::cout << "open returned: " << fd << std::endl;
   sleep(1);
 
@@ -60,13 +60,12 @@ int main(int argc, char** argv) {
   std::cout << "close returned: " << close << std::endl;
   sleep(1);
  
-  /*
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
-  fd = client.open("testfile", O_RDWR);
+  fd = client.open(filename, O_RDWR);
   std::cout << "open returned: " << fd << std::endl;
   sleep(1);
-
+  
   // SEEK
   std::cout << "------------ DECAFS CLIENT SEEK TEST ----------" << std::endl;
   int offset = client.lseek(fd, 7, SEEK_SET);
@@ -91,11 +90,16 @@ int main(int argc, char** argv) {
   bytes_read = client.read(fd, testread, strlen(testwrite));
   std::cout << "read returned: " << bytes_read << std::endl;
   sleep(1);
-
+  
   // CLOSE
   std::cout << "------------ DECAFS CLIENT CLOSE TEST ----------" << std::endl;
   close = client.close(fd);
   std::cout << "close returned: " << close << std::endl;
-  */
+
+  // FILE STORAGE STAT
+  std::cout << "------------ DECAFS CLIENT FILE STORAGE STAT TEST ----------" << std::endl;
+  client.file_storage_stat(filename);
+  sleep(1);
+  
   return 0;
 }
