@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <cstring>
+#include <limits>
 #include <list>
 #include <map>
 #include <mutex>

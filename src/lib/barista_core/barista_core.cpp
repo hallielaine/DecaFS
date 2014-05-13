@@ -754,9 +754,18 @@ extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client cl
   int cursor_val;
   printf("(BARISTA): File Seek\n");
 
+  if (whence == SEEK_END) {
+    set_file_cursor (fd, numeric_limits<uint32_t>::max(), client);
+    if (send_seek_result (client, get_file_cursor (fd)) < 0) {
+      printf("\tSeek result could not reach client.\n");
+    }
+    return;
+  }
+
   if (whence == SEEK_SET) {
     set_file_cursor (fd, 0, client);
   }
+
   if ((cursor_val = get_file_cursor (fd)) >= 0) {
     printf("\tattempting to set cursor position to %d\n", cursor_val + offset);
     set_file_cursor (fd, cursor_val + offset, client);

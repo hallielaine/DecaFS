@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <limits>
+
 #include "decafs_types/limits.h"
 #include "decafs_types/file_types.h"
 #include "decafs_types/messages.h"
@@ -204,8 +206,9 @@ extern "C" void delete_response_handler (DeleteChunkResponse *delete_response);
  * whence:
  *   SEEK_SET move to offset from the beginning of the file
  *   SEEK_CUR move to offset from the current location of the fd
+ *   SEEK_END move to end of file
  *
- * @return the cursor's new location on success and < 0 on failure
+ * client will receive the cursor's new location on success and < 0 on failure
  *          
  */
 extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client client);
