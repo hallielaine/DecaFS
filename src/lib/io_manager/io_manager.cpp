@@ -21,7 +21,7 @@ uint32_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
   uint32_t chunk_id, bytes_read = 0, read_size = 0, num_chunks = 0;
   int chunk_offset, chunk_result, node_id;
   
-  assert ((count - offset) <= stripe_size);
+  assert (((int)count - offset) <= (int)stripe_size);
   
   printf ("\n(BARISTA) Process Read Stripe\n");
 
