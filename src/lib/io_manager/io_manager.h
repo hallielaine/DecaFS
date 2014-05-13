@@ -96,6 +96,11 @@ class IO_Manager {
      *   @return the number of chunks that participated in the delete
      */
     uint32_t process_delete_file (uint32_t request_id, uint32_t file_id);
+    
+    /*
+     * Get information about the storage locations of chunks within a file.
+     */
+    char * process_file_storage_stat (char *pathname);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.

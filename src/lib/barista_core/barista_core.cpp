@@ -47,6 +47,10 @@ extern "C" uint32_t process_delete_file (uint32_t request_id, uint32_t file_id) 
   return io_manager.process_delete_file (request_id, file_id);
 }
 
+extern "C" char * process_file_storage_stat (char *pathname) {
+  return io_manager.process_file_storage_stat (pathname);
+}
+
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
                             uint32_t chunk_num, uint32_t node_id) {
   return io_manager.set_node_id (file_id, stripe_id, chunk_num, node_id);
@@ -774,7 +778,11 @@ extern "C" void file_fstat (int fd, struct stat *buf) {
 }
 
 extern "C" void file_storage_stat (const char *path, struct client client) {
-
+  if (send_file_storage_stat_result(
+          client, process_file_storage_stat ((char *)path))
+          < 0) {
+    printf("\tFile Storage Stat Result could not reach client.\n");
+  }
 }
 
 extern "C" void register_monitor_module (void (*monitor_module), 

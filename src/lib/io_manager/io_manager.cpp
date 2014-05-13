@@ -192,6 +192,11 @@ uint32_t IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id)
   }
   return num_chunks;
 }
+    
+char * IO_Manager::process_file_storage_stat (char *pathname) {
+  std::string file_info = "test!";
+  return strdup(file_info.c_str());
+}
 
 int IO_Manager::set_node_id (uint32_t file_id, uint32_t stripe_id,
                              uint32_t chunk_num, uint32_t node_id) {
