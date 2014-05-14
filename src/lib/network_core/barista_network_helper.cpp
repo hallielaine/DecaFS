@@ -82,3 +82,9 @@ int send_file_storage_stat_result(struct client c, const char* data) {
   FileStorageStatResponsePacket response(data);
   return c.ctc->sendToClient(response.packet, response.packet_size);
 }
+
+int send_mkdir_result(struct client c, int result) {
+
+  MkdirResponsePacket response(result);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
+}

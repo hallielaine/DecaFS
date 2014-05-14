@@ -26,6 +26,7 @@ barista_server.o: barista_server.cpp barista_server.h network_packets.h \
  ../../lib/network_core/lseek_response_packet.h \
  ../../lib/network_core/opendir_response_packet.h \
  ../../lib/network_core/file_storage_stat_response_packet.h \
+ ../../lib/network_core/mkdir_response_packet.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/persistent_metadata/persistent_metadata.h \
  ../../lib/volatile_metadata/volatile_metadata.h \

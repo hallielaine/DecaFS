@@ -3,9 +3,10 @@
 // -------------------- NetworkPacket --------------------------
 
 // serialization
-Packet::Packet(int32_t id, uint32_t flag, int derived_size) : id(id), flag(flag) {
+Packet::Packet(int32_t id, uint32_t flag, int derived_size) : id(id), flag(flag), 
+  packet_size(derived_size + header_size) {
 
-  packet_size = header_size + derived_size;
+  //packet_size = header_size + derived_size;
   packet = (char*)malloc(packet_size);
 
   std::cout << "Packet Created: size: " <<  packet_size << std::endl;
@@ -19,7 +20,7 @@ Packet::Packet(int32_t id, uint32_t flag, int derived_size) : id(id), flag(flag)
 
 // deserialization
 Packet::Packet(void* buf, ssize_t size) :
-  packet_size(size), packet(buf) {
+  packet(buf), packet_size(size) {
 
   packet_size = ((uint32_t*)buf)[0];
   id = ((int32_t*)buf)[1];

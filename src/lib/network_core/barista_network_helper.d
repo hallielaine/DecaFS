@@ -25,4 +25,4 @@ barista_network_helper.o: barista_network_helper.cpp \
  ../../lib/monitored_strategy/monitored_strategy.h open_packet_response.h \
  write_response_packet.h read_response_packet.h close_response_packet.h \
  lseek_response_packet.h opendir_response_packet.h \
- file_storage_stat_response_packet.h
+ file_storage_stat_response_packet.h mkdir_response_packet.h

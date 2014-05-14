@@ -69,6 +69,11 @@ extern "C" void open_dir(const char* pathname, struct client client) {
   free(entries);
 }
 
+extern "C" void make_dir(const char* pathname, mode_t mode, struct client client) {
+
+  send_mkdir_result(client, 0);
+}
+
 extern "C" void read_file (int fd, size_t count, struct client client) {
 
   char fake_buffer[2500];
@@ -126,6 +131,12 @@ int main(int argc, char** argv) {
   DecafsClient client("localhost", port, 2);
   client.openConnection();
 
+  sleep(1);
+
+  // MKDIR
+  std::cout << "------------ MKDIR DECAFS CLIENT TEST ---------" << std::endl;
+  int res = client.mkdir("testfile", 0);
+  std::cout << "mkdir returned: " << res << std::endl;
   sleep(1);
 
   // OPEN

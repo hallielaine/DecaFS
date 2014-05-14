@@ -32,6 +32,9 @@
 #include "file_storage_stat_packet.h"
 #include "file_storage_stat_response_packet.h"
 
+#include "mkdir_packet.h"
+#include "mkdir_response_packet.h"
+
 class DecafsClient : public TcpClient {
 
   private:
@@ -54,7 +57,7 @@ class DecafsClient : public TcpClient {
     int file_stat(const char* path, struct stat *buf);
     int file_fstat(int fd, struct stat *buf);
     void statfs(char *pathname, struct statvfs*);
-    int mkdir(const char* dirname);
+    int mkdir(const char* dirname, mode_t mode);
     decafs_dir* opendir(const char* name);
 
     // NON POSIX MIMICING METHODS

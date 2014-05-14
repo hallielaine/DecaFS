@@ -633,6 +633,10 @@ extern "C" void read_response_handler (ReadChunkResponse *read_response) {
   check_read_complete(read_response->id);
 }
 
+extern "C" void make_dir(const char* pathname, mode_t mode, struct client client) {
+  // TODO
+}
+
 extern "C" void write_file (int fd, const void *buf, size_t count, struct client client) {
   struct file_instance inst;
   struct decafs_file_stat stat;

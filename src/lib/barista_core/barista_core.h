@@ -167,6 +167,11 @@ extern "C" void read_file (int fd, size_t count, struct client client);
 extern "C" void read_response_handler (ReadChunkResponse *read_response);
 
 /*
+ * TODO 
+ */
+extern "C" void make_dir(const char* pathname, mode_t mode, struct client client);
+
+/*
  *	If the process has an exclusive lock on the file, complete the
  *	write.
  *	Translate write requests into chunks of requests to Espresso

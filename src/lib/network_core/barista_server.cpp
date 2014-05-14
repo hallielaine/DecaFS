@@ -118,7 +118,8 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       printf("got a MKDIR packet!\n");
       MkdirPacket mdp(buffer_ptr, packet_size);
       std::cout << mdp << std::endl;
-      
+      make_dir(mdp.filepath, mdp.mode, m_decafs_clients[client]); 
+      break;
     }
     case (OPENDIR) :
     {

@@ -13,7 +13,7 @@
 class Packet {
 
   private:
-    static const int header_size = 3*sizeof(uint32_t); // packet_size, seq_num and flag
+    static const int header_size = 3*sizeof(uint32_t); // packet_size, id and flag
 
   protected:
     // returns how much of the packet buffer is filled by this class
@@ -22,11 +22,11 @@ class Packet {
 
   public:
 
-    int packet_size;
     void *packet;
 
     uint32_t id;
     uint32_t flag;
+    uint32_t packet_size;
 
     Packet(int32_t id, uint32_t flag, int derived_size);
     Packet(void* buf, ssize_t count);
