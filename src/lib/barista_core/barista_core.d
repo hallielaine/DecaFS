@@ -23,6 +23,7 @@ barista_core.o: barista_core.cpp barista_core.h \
  ../../lib/network_core/opendir_packet.h \
  ../../lib/network_core/file_storage_stat_packet.h \
  ../../lib/network_core/mkdir_packet.h \
+ ../../lib/network_core/remove_packet.h \
  ../../lib/barista_core/barista_core.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \
@@ -32,6 +33,7 @@ barista_core.o: barista_core.cpp barista_core.h \
  ../../lib/network_core/opendir_response_packet.h \
  ../../lib/network_core/file_storage_stat_response_packet.h \
  ../../lib/network_core/mkdir_response_packet.h \
+ ../../lib/network_core/remove_response_packet.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/persistent_metadata/persistent_metadata.h \
  ../../lib/volatile_metadata/volatile_metadata.h \

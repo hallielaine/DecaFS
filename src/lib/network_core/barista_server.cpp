@@ -121,6 +121,14 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       make_dir(mdp.filepath, mdp.mode, m_decafs_clients[client]); 
       break;
     }
+    case (REMOVE) :
+    {
+      printf("got a REMOVE packet!\n");
+      RemovePacket rp(buffer_ptr, packet_size);
+      std::cout << rp << std::endl;
+      delete_file(rp.filepath, m_decafs_clients[client]);
+      break;
+    }
     case (OPENDIR) :
     {
       printf("got a OPENDIR packet!\n");

@@ -35,6 +35,9 @@
 #include "mkdir_packet.h"
 #include "mkdir_response_packet.h"
 
+#include "remove_packet.h"
+#include "remove_response_packet.h"
+
 class DecafsClient : public TcpClient {
 
   private:
@@ -52,7 +55,7 @@ class DecafsClient : public TcpClient {
     ssize_t write(int fd, void* buf, ssize_t count);
     int close(int fd);
     off_t lseek(int fd, off_t offset, int whence);
-    void delete_file(char* pathname);
+    int remove(const char* pathname);
     void sync();
     int file_stat(const char* path, struct stat *buf);
     int file_fstat(int fd, struct stat *buf);

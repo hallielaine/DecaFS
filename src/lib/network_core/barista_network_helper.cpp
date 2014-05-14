@@ -66,9 +66,10 @@ int send_seek_result(struct client c, int result) {
   return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
-int send_delete_result(struct client c, int fd, int result) {
+int send_remove_result(struct client c, int result) {
 
-  return -1;
+  RemoveResponsePacket response(result);
+  return c.ctc->sendToClient(response.packet, response.packet_size);
 }
 
 int send_opendir_result(struct client c, decafs_dir* dirp) {

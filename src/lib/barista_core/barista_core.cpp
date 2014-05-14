@@ -406,7 +406,9 @@ void check_delete_complete (uint32_t request_id) {
     uint32_t file_id = active_delete_requests[request_id].file_id;
     struct client client = active_delete_requests[request_id].client;
 
-    if (send_delete_result (client, 0, 0) < 0) {
+    // TODO halli check if this change is correct
+    // old call if (send_delete_result (client, 0, 0) < 0) {
+    if (send_remove_result (client, 0) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
     
@@ -771,14 +773,20 @@ extern "C" void delete_file (char *pathname, struct client client) {
   
   // If the file doesn't exist
   if ((decafs_file_sstat (pathname, &file_info, client)) < 0) {
-    if (send_delete_result (client, 0, FILE_NOT_FOUND) < 0) {
+    // TODO halli check if this change is correct
+    // old call
+    //if (send_delete_result (client, 0, FILE_NOT_FOUND) < 0) {
+    if (send_remove_result (client, FILE_NOT_FOUND) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
     return;
   }
   
   if (get_exclusive_lock (client, file_info.file_id) < 0) {
-    if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
+    // TODO halli check if this change is correct
+    // old call
+    //if (send_delete_result (client, 0, FILE_IN_USE) < 0) {
+    if (send_remove_result (client, FILE_IN_USE) < 0) {
       printf ("\tDelete result could not reach client.\n");
     }
     return;

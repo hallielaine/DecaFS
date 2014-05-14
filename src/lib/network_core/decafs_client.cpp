@@ -296,9 +296,26 @@ void DecafsClient::handleMessageFromServer(int socket) {
     }
 }
 
-void DecafsClient::delete_file(char* pathname) {
+int DecafsClient::remove(const char* pathname) {
 
-  printf("DecafsClient: delete_file not implemented!\n");
+  RemovePacket rp(pathname);
+  sendToServer(rp.packet, rp.packet_size);
+
+  int32_t packet_size = wait_for_packet(m_socket_number);
+
+  char* buffer = (char*) malloc(packet_size);
+  // TODO check for errors
+  recv(m_socket_number, buffer, packet_size, 0);
+ 
+  int32_t flag = ((uint32_t*)buffer)[2];
+  if (flag != REMOVE_RESPONSE) {
+    // error, should only receive response here
+    printf("DecafsClient: expected REMOVE_RESOPNSE packet but got something else!\n");
+  }
+
+  RemoveResponsePacket rrp(buffer, packet_size);
+  std::cout << rrp << std::endl;
+  return rrp.result;
 }
 
 void DecafsClient::sync() {

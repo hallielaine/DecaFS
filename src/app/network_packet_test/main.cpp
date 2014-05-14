@@ -69,6 +69,11 @@ extern "C" void open_dir(const char* pathname, struct client client) {
   free(entries);
 }
 
+extern "C" void delete_file(char* pathname, struct client client) {
+
+  send_remove_result(client, 0);
+}
+
 extern "C" void make_dir(const char* pathname, mode_t mode, struct client client) {
 
   send_mkdir_result(client, 0);
@@ -132,19 +137,25 @@ int main(int argc, char** argv) {
   client.openConnection();
 
   sleep(1);
+/*
+  // REMOVE
+  std::cout << "------------ REMOVE DECAFS CLIENT TEST -------------" << std::endl;
+  int rm_res = client.remove("testfile");
+  std::cout << "remove returned: " << rm_res << std::endl;
+  sleep(1);
 
   // MKDIR
   std::cout << "------------ MKDIR DECAFS CLIENT TEST ---------" << std::endl;
   int res = client.mkdir("testfile", 0);
   std::cout << "mkdir returned: " << res << std::endl;
   sleep(1);
-
+*/
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
   int fd = client.open("testfile", O_RDONLY);
   std::cout << "open returned: " << fd << std::endl;
   sleep(1);
-
+/*
   // WRITE
   std::cout << "------------ DECAFS CLIENT WRITE TEST ----------" << std::endl;
   char testwrite[] = "testing network write.";
@@ -157,7 +168,7 @@ int main(int argc, char** argv) {
   int seek_result = client.lseek(fd, 0, SEEK_SET);
   std::cout << "lseek returned: " << seek_result << std::endl;  
   sleep(1);
-
+*/
   // READ
   std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
   char testread[100];

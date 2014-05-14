@@ -17,6 +17,7 @@
 #include "opendir_response_packet.h"
 #include "file_storage_stat_response_packet.h"
 #include "mkdir_response_packet.h"
+#include "remove_response_packet.h"
 
 // pulled from network_core module architecture
 // modified to suit a non-blocking model
@@ -41,7 +42,7 @@ int send_open_result(struct client c, int result);
 int send_read_result(struct client c, int fd, ssize_t count, void* buf);
 int send_write_result(struct client c, int fd, ssize_t count);
 int send_close_result(struct client c, int result);
-int send_delete_result(struct client c, int fd, int result);
+int send_remove_result(struct client c, int result);
 int send_seek_result(struct client c, int result);
 int send_opendir_result(struct client c, decafs_dir* dirp); 
 int send_file_storage_stat_result(struct client c, const char* data);

@@ -22,6 +22,7 @@ io_manager.o: io_manager.cpp io_manager.h ../../lib/decafs_types/limits.h \
  ../../lib/network_core/opendir_packet.h \
  ../../lib/network_core/file_storage_stat_packet.h \
  ../../lib/network_core/mkdir_packet.h \
+ ../../lib/network_core/remove_packet.h \
  ../../lib/barista_core/barista_core.h ../../lib/decafs_types/messages.h \
  ../../lib/io_manager/io_manager.h \
  ../../lib/io_manager/io_manager_c_api.h \
@@ -38,4 +39,5 @@ io_manager.o: io_manager.cpp io_manager.h ../../lib/decafs_types/limits.h \
  ../../lib/network_core/lseek_response_packet.h \
  ../../lib/network_core/opendir_response_packet.h \
  ../../lib/network_core/file_storage_stat_response_packet.h \
- ../../lib/network_core/mkdir_response_packet.h
+ ../../lib/network_core/mkdir_response_packet.h \
+ ../../lib/network_core/remove_response_packet.h
