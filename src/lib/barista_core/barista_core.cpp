@@ -269,28 +269,31 @@ extern "C" uint32_t get_new_request_id () {
 // ------------------------Monitored Strategy Functions-------------------------
 extern "C" void register_monitor_module (void (*monitor_module)(), 
                                          struct timeval timeout) {
+  printf ("(BARISTA): Registering monitor...\n");
   monitor = monitor_module;
   // TODO: timeout
 }
 
 extern "C" void register_node_failure_handler (void (*failure_handler)(uint32_t node_number)) {
-  if (node_failure_handler != NULL) {
-    node_failure_handler = failure_handler;
-  }
+  printf ("(BARISTA): Registering node failure handler...\n");
+  node_failure_handler = failure_handler;
 }
 
 extern "C" void register_node_up_handler (void (*up_handler)(uint32_t node_number)) {
-  if (node_up_handler != NULL) {
-    node_up_handler = up_handler;
-  }
+  printf ("(BARISTA): Registering node up handler...\n");
+  node_up_handler = up_handler;
 }
 
 extern "C" void run_node_failure_handler (uint32_t node_number) {
-  node_failure_handler (node_number);
+  if (node_failure_handler != NULL) {
+    node_failure_handler (node_number);
+  }
 }
 
 extern "C" void run_node_up_handler (uint32_t node_number) {
-  node_up_handler (node_number);
+  if (node_up_handler != NULL) {
+    node_up_handler (node_number);
+  }
 }
 
 // ------------------------Helper Functions-------------------------
