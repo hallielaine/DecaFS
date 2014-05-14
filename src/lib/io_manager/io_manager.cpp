@@ -21,7 +21,7 @@ uint32_t IO_Manager::process_read_stripe (uint32_t request_id, uint32_t file_id,
   uint32_t chunk_id, bytes_read = 0, read_size = 0, num_chunks = 0;
   int chunk_offset, chunk_result, node_id;
   
-  assert ((count - offset) <= stripe_size);
+  assert (((int)count - offset) <= (int)stripe_size);
   
   printf ("\n(BARISTA) Process Read Stripe\n");
 
@@ -92,7 +92,7 @@ void IO_Manager::process_write_stripe (uint32_t request_id,
   uint32_t chunk_id, bytes_written = 0, write_size = 0;
   int chunk_offset, node_id, replica_node_id, write_result;
 
-  assert ((count - offset) <= stripe_size);
+  assert (((int)count - offset) <= (int)stripe_size);
   printf ("\n(BARISTA) Process Write Stripe\n");
   
   get_first_chunk (&chunk_id, chunk_size, &chunk_offset, offset);
@@ -178,19 +178,76 @@ uint32_t IO_Manager::process_delete_file (uint32_t request_id, uint32_t file_id)
        it != chunks.end(); it++) {
     if (chunk_exists (*it)) {
       int chunk_node = get_node_id (file_id, (*it).stripe_id, (*it).chunk_num);
-      process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
-      chunk_to_node.erase (*it);
-      num_chunks++;
+      if (is_node_up (chunk_node)) {
+        process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
+        chunk_to_node.erase (*it);
+        num_chunks++;
+      }
     }
     if (chunk_replica_exists (*it)) {
       int chunk_node = get_replica_node_id (file_id, (*it).stripe_id,
                                             (*it).chunk_num);
-      process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
-      chunk_to_replica_node.erase (*it);
-      num_chunks++;
+      if (is_node_up (chunk_node)) {
+        process_delete_chunk (request_id, file_id, chunk_node, (*it).stripe_id, (*it).chunk_num);
+        chunk_to_replica_node.erase (*it);
+        num_chunks++;
+      }
     }
   }
   return num_chunks;
+}
+    
+char * IO_Manager::process_file_storage_stat (struct decafs_file_stat file_info) {
+  stringstream storage_info;
+  std::vector<struct file_chunk> chunks = get_all_chunks (file_info.file_id); 
+  int last_stripe = -1;
+  bool first_stripe = true;
+
+  // Print basic file information
+  storage_info << "{\n  \"file_id\": ";
+  storage_info << file_info.file_id;
+  storage_info << "\n  \"stripe_size\": ";
+  storage_info << file_info.stripe_size;
+  storage_info << "\n  \"chunk_size\": ";
+  storage_info << file_info.chunk_size;
+  storage_info << "\n  \"stripes\": [";
+
+  for (std::vector<struct file_chunk>::iterator it = chunks.begin();
+       it != chunks.end(); it++) {
+    if (chunk_exists (*it)) {
+      if ((int)(*it).stripe_id > last_stripe) {
+        last_stripe = (*it).stripe_id;
+        if (first_stripe) {
+          first_stripe = false;
+        }
+        else {
+          storage_info << "\n      ]\n    }";
+        }
+        storage_info << "\n    {\n      \"stripe_id\": ";
+        storage_info << last_stripe;
+        storage_info << "\n      \"chunks\": [";
+      }
+      storage_info << "\n        {";
+      storage_info << "\n          \"chunk_num\": ";
+      storage_info << (*it).chunk_num;
+      storage_info << "\n          \"node\": ";
+      storage_info << chunk_to_node[*it];
+      if (chunk_replica_exists (*it)) {
+        storage_info << "\n          \"replica_node\": ";
+        storage_info << chunk_to_replica_node[*it];
+      }
+      storage_info << "\n        }";
+    }
+  }
+
+  // end json
+  if (!first_stripe) {
+    storage_info << "\n      ]\n    }";
+  }
+
+  storage_info << "\n  ]\n}\n";
+
+  return strdup(storage_info.str().c_str());
 }
 
 int IO_Manager::set_node_id (uint32_t file_id, uint32_t stripe_id,

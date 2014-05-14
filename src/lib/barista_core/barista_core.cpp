@@ -7,9 +7,15 @@
 #define NUM_ESPRESSOS 4
 #define PORT 5
 
+// Modules
 IO_Manager io_manager;
 Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
+
+// Monitoring Functions
+void (*monitor)() = NULL;
+void (*node_failure_handler)(uint32_t) = NULL;
+void (*node_up_handler)(uint32_t) = NULL;
 
 std::map<uint32_t, struct read_request_info> active_read_requests;
 
@@ -45,6 +51,10 @@ extern "C" void process_write_stripe (uint32_t request_id, uint32_t replica_requ
 
 extern "C" uint32_t process_delete_file (uint32_t request_id, uint32_t file_id) {
   return io_manager.process_delete_file (request_id, file_id);
+}
+
+extern "C" char * process_file_storage_stat (struct decafs_file_stat file_info) {
+  return io_manager.process_file_storage_stat (file_info);
 }
 
 extern "C" int set_node_id (uint32_t file_id, uint32_t stripe_id,
@@ -255,6 +265,37 @@ extern "C" struct file_instance get_file_info (uint32_t fd) {
 extern "C" uint32_t get_new_request_id () {
   return volatile_metadata.get_new_request_id ();
 }
+
+// ------------------------Monitored Strategy Functions-------------------------
+extern "C" void register_monitor_module (void (*monitor_module)(), 
+                                         struct timeval timeout) {
+  printf ("(BARISTA): Registering monitor...\n");
+  monitor = monitor_module;
+  // TODO: timeout
+}
+
+extern "C" void register_node_failure_handler (void (*failure_handler)(uint32_t node_number)) {
+  printf ("(BARISTA): Registering node failure handler...\n");
+  node_failure_handler = failure_handler;
+}
+
+extern "C" void register_node_up_handler (void (*up_handler)(uint32_t node_number)) {
+  printf ("(BARISTA): Registering node up handler...\n");
+  node_up_handler = up_handler;
+}
+
+extern "C" void run_node_failure_handler (uint32_t node_number) {
+  if (node_failure_handler != NULL) {
+    node_failure_handler (node_number);
+  }
+}
+
+extern "C" void run_node_up_handler (uint32_t node_number) {
+  if (node_up_handler != NULL) {
+    node_up_handler (node_number);
+  }
+}
+
 // ------------------------Helper Functions-------------------------
 /*
  * Determines the first stripe and stripe offset required for processing based
@@ -402,6 +443,8 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
   }
  
   set_num_espressos (atoi(argv[NUM_ESPRESSOS]));
+  
+  strategy_startup();
 }
 
 extern "C" const char *get_size_error_message (const char *type, const char *value) {
@@ -532,8 +575,9 @@ extern "C" void read_file (int fd, size_t count, struct client client) {
   }
   
   // TODO: make some assertion about max read size here
-  // If we are trying to read past EOF, return 0 bytes read
-  if (file_offset >= (int)stat.size) {
+  // If we are trying to read past EOF or requesting 0 bytes,
+  //   return 0 bytes read
+  if (file_offset >= (int)stat.size || count == 0) {
     if (send_read_result (client, fd, 0, NULL) < 0) {
       printf ("\tRead result could not reach client.\n");
     }
@@ -623,6 +667,14 @@ extern "C" void write_file (int fd, const void *buf, size_t count, struct client
   
   if ((file_offset = get_file_cursor (fd)) < 0) {
     if (send_write_result (client, 0, FILE_NOT_OPEN_FOR_WRITE) < 0) {
+      printf ("\tWrite result could not reach client.\n");
+    }
+    return;
+  }
+  
+  // If we are requesting 0 bytes, return 0 bytes written
+  if (count == 0) {
+    if (send_write_result (client, 0, 0) < 0) {
       printf ("\tWrite result could not reach client.\n");
     }
     return;
@@ -750,9 +802,18 @@ extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client cl
   int cursor_val;
   printf("(BARISTA): File Seek\n");
 
+  if (whence == SEEK_END) {
+    set_file_cursor (fd, numeric_limits<uint32_t>::max(), client);
+    if (send_seek_result (client, get_file_cursor (fd)) < 0) {
+      printf("\tSeek result could not reach client.\n");
+    }
+    return;
+  }
+
   if (whence == SEEK_SET) {
     set_file_cursor (fd, 0, client);
   }
+
   if ((cursor_val = get_file_cursor (fd)) >= 0) {
     printf("\tattempting to set cursor position to %d\n", cursor_val + offset);
     set_file_cursor (fd, cursor_val + offset, client);
@@ -774,24 +835,21 @@ extern "C" void file_fstat (int fd, struct stat *buf) {
 }
 
 extern "C" void file_storage_stat (const char *path, struct client client) {
-
-}
-
-extern "C" void register_monitor_module (void (*monitor_module), 
-                                         struct timeval timeout) {
-
-}
-
-extern "C" void register_node_failure_handler (void (*failure_handler)) {
-
-}
-
-extern "C" void register_chunk_metadata_handler (void (*metadata_handler)) {
-
-}
-
-extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
-
+  struct decafs_file_stat file_info;
+  
+  // If the file doesn't exist
+  if ((decafs_file_sstat ((char *)path, &file_info, client)) < 0) {
+    if (send_file_storage_stat_result (client, "File not found.") < 0) {
+      printf("\tFile Storage Stat Result could not reach client.\n");
+    }
+    return;
+  }
+  
+  if (send_file_storage_stat_result(
+          client, process_file_storage_stat (file_info))
+          < 0) {
+    printf("\tFile Storage Stat Result could not reach client.\n");
+  }
 }
 
 extern "C" void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 

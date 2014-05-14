@@ -50,6 +50,11 @@ extern "C" void process_write_stripe (uint32_t request_id, uint32_t replica_requ
 extern "C" uint32_t process_delete_file (uint32_t request_id, uint32_t file_id);
 
 /*
+ * Get information about the storage locations of chunks within a file.
+ */
+extern "C" char * process_file_storage_stat (struct file_storage_stat file_info);
+
+/*
  *	Set the storage location (node id) for a given chunk of a file.
  *   @return the node id
  */

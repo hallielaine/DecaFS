@@ -59,6 +59,7 @@ uint32_t Volatile_Metadata::set_node_down (uint32_t node_number) {
   if (up_nodes_contains (node_number)) {
     printf ("(BARISTA) Setting node %d to DOWN\n", node_number);
     up_nodes.remove (node_number);
+    run_node_failure_handler (node_number);
     return V_META_SUCCESS;
   }
   return NODE_NUMBER_NOT_FOUND;
@@ -68,6 +69,7 @@ uint32_t Volatile_Metadata::set_node_up (uint32_t node_number) {
   if (!up_nodes_contains (node_number)) {
     printf ("(BARISTA) Setting node %d to UP\n", node_number);
     up_nodes.push_back (node_number);
+    run_node_up_handler (node_number);
     return V_META_SUCCESS;
   }
   return NODE_ALREADY_UP;

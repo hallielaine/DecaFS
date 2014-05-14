@@ -6,13 +6,14 @@
 #include <stdlib.h>
 
 #include <string>
+#include <sstream>
 #include <vector>
 
 #include "decafs_types/limits.h"
 #include "decafs_types/file_types.h"
 #include "persistent_stl/persistent_map.h"
-#include "persistent_metadata/persistent_metadata.h"
-#include "volatile_metadata/volatile_metadata.h"
+#include "persistent_metadata/persistent_metadata_c_api.h"
+#include "volatile_metadata/volatile_metadata_c_api.h"
 #include "distribution_strategy/distribution_strategy.h"
 #include "replication_strategy/replication_strategy.h"
 #include "access/access.h"
@@ -96,6 +97,11 @@ class IO_Manager {
      *   @return the number of chunks that participated in the delete
      */
     uint32_t process_delete_file (uint32_t request_id, uint32_t file_id);
+    
+    /*
+     * Get information about the storage locations of chunks within a file.
+     */
+    char * process_file_storage_stat (struct decafs_file_stat file_info);
 
     /*
      *	Set the storage location (node id) for a given chunk of a file.

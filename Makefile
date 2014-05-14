@@ -12,12 +12,13 @@ lib_io_manager := src/lib/io_manager
 lib_distribution_strategy := src/lib/distribution_strategy
 lib_replication_strategy := src/lib/replication_strategy
 lib_barista_core := src/lib/barista_core
+lib_monitored_strategy := src/lib/monitored_strategy
 
 libraries := $(lib_network) $(lib_espresso_storage) $(lib_decafs_types)\
              $(lib_access) $(lib_locking) $(lib_persistent_metadata) \
              $(lib_volatile_metadata) $(lib_distribution_strategy) \
              $(lib_replication_strategy) $(lib_io_manager) \
-             $(lib_barista_core) $(lib_nettcp)
+             $(lib_barista_core) $(lib_nettcp) $(lib_monitored_strategy)
 
 decafs_barista := src/app/decafs_barista
 decafs_espresso := src/app/espresso_core

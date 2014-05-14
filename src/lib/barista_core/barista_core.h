@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <limits>
+
 #include "decafs_types/limits.h"
 #include "decafs_types/file_types.h"
 #include "decafs_types/messages.h"
@@ -29,6 +31,9 @@
 
 #include "access/access.h"
 #include "locking_strategy/locking_strategy.h"
+
+#include "monitored_strategy/monitored_strategy.h"
+#include "monitored_strategy/monitored_strategy_c_api.h"
 
 #define FILE_IN_USE -1
 #define FILE_NOT_OPEN_FOR_WRITE -2
@@ -96,9 +101,10 @@ struct write_request {
   uint32_t replica_request_id;
 
   bool operator <(const write_request &other) const {
-    return ((this->request_id < other.request_id) ? true :
-                (this->replica_request_id < other.replica_request_id) ? 
-                 true : false);
+    if (this->request_id != other.request_id) {
+      return this->request_id < other.request_id;
+    }
+    return (this->replica_request_id < other.replica_request_id);
   }
 };
 
@@ -203,8 +209,9 @@ extern "C" void delete_response_handler (DeleteChunkResponse *delete_response);
  * whence:
  *   SEEK_SET move to offset from the beginning of the file
  *   SEEK_CUR move to offset from the current location of the fd
+ *   SEEK_END move to end of file
  *
- * @return the cursor's new location on success and < 0 on failure
+ * client will receive the cursor's new location on success and < 0 on failure
  *          
  */
 extern "C" void file_seek (int fd, uint32_t offset, int whence, struct client client);
@@ -226,28 +233,6 @@ extern "C" void file_storage_stat (const char *path, struct client client);
  *  filesystem.
  */
 extern "C" void statfs (char *pathname, struct statvfs * stat);
-
-/*
- *	Register a module to be called with a specific timeout, 
- *	repeatedly throughout DecaFS execution.
- */
-extern "C" void register_monitor_module (void (*monitor_module), 
-                                         struct timeval timeout);
-/*
- *	Register a function to be called on node failure.
- */
-extern "C" void register_node_failure_handler (void (*failure_handler));
-
-/*
- *	Register a function to be called on startup to recover chunk metadata.
- */
-extern "C" void register_chunk_metadata_handler (void (*metadata_handler));
-
-/*
- *	Register a function to be called on startup to recover chunk replica
- *	metadata.
- */
-extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler));
 
 /*
  *	Move an existing chunk to a different Espresso node in the system. 
