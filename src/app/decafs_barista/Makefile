@@ -12,6 +12,7 @@ DECAFS_LIBS := network_core/libnetcore.a \
                distribution_strategy/libdistribution_strategy.a \
                replication_strategy/libreplication_strategy.a \
                io_manager/libio_manager.a \
+               monitored_strategy/libmonitored_strategy.a \
                barista_core/libbarista_core.a
 
 include ../../app.mk

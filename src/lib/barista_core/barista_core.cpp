@@ -7,9 +7,15 @@
 #define NUM_ESPRESSOS 4
 #define PORT 5
 
+// Modules
 IO_Manager io_manager;
 Persistent_Metadata persistent_metadata;
 Volatile_Metadata volatile_metadata;
+
+// Monitoring Functions
+void (*monitor)() = NULL;
+void (*node_failure_handler)(uint32_t) = NULL;
+void (*node_up_handler)(uint32_t) = NULL;
 
 std::map<uint32_t, struct read_request_info> active_read_requests;
 
@@ -259,6 +265,34 @@ extern "C" struct file_instance get_file_info (uint32_t fd) {
 extern "C" uint32_t get_new_request_id () {
   return volatile_metadata.get_new_request_id ();
 }
+
+// ------------------------Monitored Strategy Functions-------------------------
+extern "C" void register_monitor_module (void (*monitor_module)(), 
+                                         struct timeval timeout) {
+  monitor = monitor_module;
+  // TODO: timeout
+}
+
+extern "C" void register_node_failure_handler (void (*failure_handler)(uint32_t node_number)) {
+  if (node_failure_handler != NULL) {
+    node_failure_handler = failure_handler;
+  }
+}
+
+extern "C" void register_node_up_handler (void (*up_handler)(uint32_t node_number)) {
+  if (node_up_handler != NULL) {
+    node_up_handler = up_handler;
+  }
+}
+
+extern "C" void run_node_failure_handler (uint32_t node_number) {
+  node_failure_handler (node_number);
+}
+
+extern "C" void run_node_up_handler (uint32_t node_number) {
+  node_up_handler (node_number);
+}
+
 // ------------------------Helper Functions-------------------------
 /*
  * Determines the first stripe and stripe offset required for processing based
@@ -406,6 +440,8 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
   }
  
   set_num_espressos (atoi(argv[NUM_ESPRESSOS]));
+  
+  strategy_startup();
 }
 
 extern "C" const char *get_size_error_message (const char *type, const char *value) {
@@ -811,23 +847,6 @@ extern "C" void file_storage_stat (const char *path, struct client client) {
           < 0) {
     printf("\tFile Storage Stat Result could not reach client.\n");
   }
-}
-
-extern "C" void register_monitor_module (void (*monitor_module), 
-                                         struct timeval timeout) {
-
-}
-
-extern "C" void register_node_failure_handler (void (*failure_handler)) {
-
-}
-
-extern "C" void register_chunk_metadata_handler (void (*metadata_handler)) {
-
-}
-
-extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler)) {
-
 }
 
 extern "C" void move_chunk (const char* pathname, uint32_t stripe_id, uint32_t chunk_num, 

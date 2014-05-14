@@ -32,6 +32,9 @@
 #include "access/access.h"
 #include "locking_strategy/locking_strategy.h"
 
+#include "monitored_strategy/monitored_strategy.h"
+#include "monitored_strategy/monitored_strategy_c_api.h"
+
 #define FILE_IN_USE -1
 #define FILE_NOT_OPEN_FOR_WRITE -2
 #define FILE_NOT_OPEN_FOR_READ -3
@@ -230,28 +233,6 @@ extern "C" void file_storage_stat (const char *path, struct client client);
  *  filesystem.
  */
 extern "C" void statfs (char *pathname, struct statvfs * stat);
-
-/*
- *	Register a module to be called with a specific timeout, 
- *	repeatedly throughout DecaFS execution.
- */
-extern "C" void register_monitor_module (void (*monitor_module), 
-                                         struct timeval timeout);
-/*
- *	Register a function to be called on node failure.
- */
-extern "C" void register_node_failure_handler (void (*failure_handler));
-
-/*
- *	Register a function to be called on startup to recover chunk metadata.
- */
-extern "C" void register_chunk_metadata_handler (void (*metadata_handler));
-
-/*
- *	Register a function to be called on startup to recover chunk replica
- *	metadata.
- */
-extern "C" void register_chunk_replica_metadata_handler (void (*metadata_handler));
 
 /*
  *	Move an existing chunk to a different Espresso node in the system. 

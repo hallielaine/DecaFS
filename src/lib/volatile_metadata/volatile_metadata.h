@@ -17,6 +17,7 @@
 #include "decafs_types/limits.h"
 #include "net_tcp/connection_to_client.h"
 #include "persistent_metadata/persistent_metadata_c_api.h"
+#include "monitored_strategy/monitored_strategy_c_api.h"
 
 #define V_META_SUCCESS 0
 
