@@ -113,6 +113,13 @@ void BaristaServer::handleMessageFromClient(ConnectionToClient* client) {
       file_storage_stat(fssp.filename, m_decafs_clients[client]);
       break;
     }
+    case (MKDIR) :
+    {
+      printf("got a MKDIR packet!\n");
+      MkdirPacket mdp(buffer_ptr, packet_size);
+      std::cout << mdp << std::endl;
+      
+    }
     case (OPENDIR) :
     {
       printf("got a OPENDIR packet!\n");

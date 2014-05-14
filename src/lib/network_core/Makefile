@@ -19,6 +19,8 @@ OBJS = barista_network_helper.o \
        opendir_packet.o \
        opendir_response_packet.o \
        file_storage_stat_packet.o \
-       file_storage_stat_response_packet.o
+       file_storage_stat_response_packet.o \
+       mkdir_packet.o \
+       mkdir_response_packet.o
 
 include ../../lib.mk

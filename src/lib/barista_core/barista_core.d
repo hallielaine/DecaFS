@@ -24,6 +24,7 @@ barista_core.o: barista_core.cpp barista_core.h \
  ../../lib/network_core/lseek_packet.h \
  ../../lib/network_core/opendir_packet.h \
  ../../lib/network_core/file_storage_stat_packet.h \
+ ../../lib/network_core/mkdir_packet.h \
  ../../lib/barista_core/barista_core.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \

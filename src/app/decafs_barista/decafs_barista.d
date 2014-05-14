@@ -25,6 +25,7 @@ decafs_barista.o: decafs_barista.cpp decafs_barista.h \
  ../../lib/network_core/lseek_packet.h \
  ../../lib/network_core/opendir_packet.h \
  ../../lib/network_core/file_storage_stat_packet.h \
+ ../../lib/network_core/mkdir_packet.h \
  ../../lib/network_core/open_packet_response.h \
  ../../lib/network_core/write_response_packet.h \
  ../../lib/network_core/read_response_packet.h \
