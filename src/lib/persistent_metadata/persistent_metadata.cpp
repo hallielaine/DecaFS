@@ -10,8 +10,8 @@ void Persistent_Metadata::init(char *metadata_path) {
                            string (path_metadata_filename);
   string metadata_file = string (metadata_path) + 
                          string (persistent_metadata_filename);
-  //pathname_to_file_id.open(pathname_to_file.c_str());
-  //metadata.open(metadata_file.c_str());
+  pathname_to_file_id.open(pathname_to_file.c_str());
+  metadata.open(metadata_file.c_str());
 }
 
 int Persistent_Metadata::get_num_files() {
@@ -20,8 +20,8 @@ int Persistent_Metadata::get_num_files() {
 
 int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size) {
   int current = 0;
-  //PersistentMap<string, uint32_t>::iterator it;
-  map<string, uint32_t>::iterator it;
+  PersistentMap<string, uint32_t>::iterator it;
+  //map<string, uint32_t>::iterator it;
 
   it = pathname_to_file_id.begin();
 
