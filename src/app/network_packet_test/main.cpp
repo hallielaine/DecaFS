@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
   client.openConnection();
 
   sleep(1);
-/*
+
   // REMOVE
   std::cout << "------------ REMOVE DECAFS CLIENT TEST -------------" << std::endl;
   int rm_res = client.remove("testfile");
@@ -149,13 +149,13 @@ int main(int argc, char** argv) {
   int res = client.mkdir("testfile", 0);
   std::cout << "mkdir returned: " << res << std::endl;
   sleep(1);
-*/
+
   // OPEN
   std::cout << "------------ DECAFS CLIENT OPEN TEST ----------" << std::endl;
   int fd = client.open("testfile", O_RDONLY);
   std::cout << "open returned: " << fd << std::endl;
   sleep(1);
-/*
+
   // WRITE
   std::cout << "------------ DECAFS CLIENT WRITE TEST ----------" << std::endl;
   char testwrite[] = "testing network write.";
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
   int seek_result = client.lseek(fd, 0, SEEK_SET);
   std::cout << "lseek returned: " << seek_result << std::endl;  
   sleep(1);
-*/
+
   // READ
   std::cout << "------------ DECAFS CLIENT READ TEST ----------" << std::endl;
   char testread[100];
@@ -190,10 +190,13 @@ int main(int argc, char** argv) {
 
   //FILE_STORAGE_STAT
   std::cout << "------------- DECAFS FILE STORAGE STAT TEST ----------------" << std::endl;
-  client.file_storage_stat("testfile");
-
+  FileStorageStatResponsePacket* fssrp = client.file_storage_stat("testfile");
+  std::cout << *fssrp << std::endl;
+  delete fssrp;
 
   barista_server->close();
+  BaristaServer::shutdown();
+
   barista_thread.join();
   espresso_thread.join();
 

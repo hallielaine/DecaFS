@@ -14,6 +14,14 @@ BaristaServer* BaristaServer::init(int port) {
   return bs;
 }
 
+void BaristaServer::shutdown() {
+
+  if (bs) {
+    delete bs;
+    bs = NULL;
+  }
+}
+
 BaristaServer* BaristaServer::get() {
 
   return bs;

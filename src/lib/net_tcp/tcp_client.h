@@ -34,6 +34,7 @@ class TcpClient {
 
   public:
     TcpClient(std::string host, unsigned short port);
+    virtual ~TcpClient();
 
     void closeConnection();
     virtual void connectionClosed() = 0;

@@ -22,6 +22,10 @@ TcpServer::TcpServer(unsigned short port) :
   FD_SET(m_socket_number, &m_server_set);
 }
 
+TcpServer::~TcpServer() {
+
+}
+
 void TcpServer::close() {
   //TODO
   m_open = false;

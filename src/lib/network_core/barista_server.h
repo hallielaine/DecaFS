@@ -47,6 +47,7 @@ class BaristaServer : public TcpServer {
   public:
     static BaristaServer* init(int port); 
     static BaristaServer* get();
+    static void shutdown();
 
     void clientConnected(ConnectionToClient* client);
     void clientDisconnected(ConnectionToClient* client);

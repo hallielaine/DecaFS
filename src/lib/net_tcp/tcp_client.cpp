@@ -23,6 +23,10 @@ TcpClient::TcpClient(std::string hostname, unsigned short port) :
 
 }
 
+TcpClient::~TcpClient() {
+
+}
+
 void TcpClient::closeConnection() {
 
   ::close(m_socket_number);

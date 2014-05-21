@@ -45,6 +45,7 @@ class TcpServer {
 
    public:
       TcpServer(unsigned short port);
+      virtual ~TcpServer();
 
       virtual void clientConnected(ConnectionToClient* client) = 0;
       virtual void clientDisconnected(ConnectionToClient* client) = 0;
