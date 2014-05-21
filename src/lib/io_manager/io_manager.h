@@ -32,10 +32,10 @@ using namespace std;
 class IO_Manager {
   private:
     // Variables
-    //PersistentMap<struct file_chunk, int> chunk_to_node;
-    //PersistentMap<struct file_chunk, int> chunk_to_replica_node;
-    map<struct file_chunk, int> chunk_to_node;
-    map<struct file_chunk, int> chunk_to_replica_node;
+    PersistentMap<struct file_chunk, int> chunk_to_node;
+    PersistentMap<struct file_chunk, int> chunk_to_replica_node;
+    //map<struct file_chunk, int> chunk_to_node;
+    //map<struct file_chunk, int> chunk_to_replica_node;
 
     const char *node_metadata_filename = "io_manager_node_metadata.dat";
     const char *replica_metadata_filename = "io_manager_replica_metadata.dat";

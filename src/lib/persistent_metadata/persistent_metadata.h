@@ -56,10 +56,10 @@ struct persistent_metadata_info {
 class Persistent_Metadata {
   private:
     // Variables
-    //PersistentMap<string, uint32_t> pathname_to_file_id;
-    //PersistentMap<uint32_t, struct persistent_metadata_info> metadata;
-    map<string, uint32_t> pathname_to_file_id;
-    map<uint32_t, struct persistent_metadata_info> metadata;
+    PersistentMap<string, uint32_t> pathname_to_file_id;
+    PersistentMap<uint32_t, struct persistent_metadata_info> metadata;
+    //map<string, uint32_t> pathname_to_file_id;
+    //map<uint32_t, struct persistent_metadata_info> metadata;
 
     const char *path_metadata_filename = ".file_id_to_pathname_metadata.dat";
     const char *persistent_metadata_filename = ".persistent_metadata.dat";
