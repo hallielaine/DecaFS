@@ -3,6 +3,8 @@
 
 #include <sys/time.h>
 
+#include <string>
+
 #include <stdint.h>
 
 #include "limits.h"
@@ -33,6 +35,35 @@ struct decafs_dirent {
     memcpy(d_name, name, strlen(name) + 1);
   }
 };
+
+/*
+ * File metadata information.
+ */
+struct persistent_metadata_info {
+  uint32_t file_id;
+  uint32_t size;
+  uint32_t stripe_size;
+  uint32_t chunk_size;
+  uint32_t replica_size;
+  std::string pathname;
+  struct timeval last_access_time;
+
+  persistent_metadata_info () : file_id (0), size (0), stripe_size (0),
+                                chunk_size (0), replica_size (0) {}
+  persistent_metadata_info (uint32_t file_id, uint32_t size,
+                            uint32_t stripe_size, uint32_t chunk_size,
+                            uint32_t replica_size, std::string pathname,
+                            struct timeval last_access_time) {
+    this->file_id = file_id;
+    this->size = size;
+    this->stripe_size = stripe_size;
+    this->chunk_size = chunk_size;
+    this->replica_size = replica_size;
+    this->pathname = pathname;
+    this->last_access_time = last_access_time;
+  }
+};
+
 
 /*
  * Stores information about a specific instance of an open file in

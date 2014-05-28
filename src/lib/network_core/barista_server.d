@@ -30,6 +30,7 @@ barista_server.o: barista_server.cpp barista_server.h network_packets.h \
  ../../lib/network_core/remove_response_packet.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/persistent_metadata/persistent_metadata.h \
+ ../../lib/persistent_metadata/persistent_metadata_impl.h \
  ../../lib/volatile_metadata/volatile_metadata.h \
  ../../lib/monitored_strategy/monitored_strategy_c_api.h \
  ../../lib/network_core/network_packets.h \

@@ -18,6 +18,7 @@ barista_network_helper.o: barista_network_helper.cpp \
  ../../lib/network_core/barista_network_helper.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/persistent_metadata/persistent_metadata.h \
+ ../../lib/persistent_metadata/persistent_metadata_impl.h \
  ../../lib/volatile_metadata/volatile_metadata.h \
  ../../lib/monitored_strategy/monitored_strategy_c_api.h \
  ../../lib/network_core/network_packets.h \

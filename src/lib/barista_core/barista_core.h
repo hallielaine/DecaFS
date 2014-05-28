@@ -21,6 +21,7 @@
 #include "io_manager/io_manager_c_api.h"
 
 #include "persistent_metadata/persistent_metadata.h"
+#include "persistent_metadata/persistent_metadata_impl.h"
 #include "persistent_metadata/persistent_metadata_c_api.h"
 
 #include "volatile_metadata/volatile_metadata.h"

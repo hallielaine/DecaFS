@@ -1,11 +1,10 @@
+#include "persistent_metadata_impl.h"
 
-#include "persistent_metadata.h"
-
-Persistent_Metadata::Persistent_Metadata() {
+Persistent_Metadata_Impl::Persistent_Metadata_Impl() {
   next_file_id = ID_NOT_SET;
 }
 
-void Persistent_Metadata::init(char *metadata_path) {
+void Persistent_Metadata_Impl::init(char *metadata_path) {
   string pathname_to_file = string (metadata_path) + 
                            string (path_metadata_filename);
   string metadata_file = string (metadata_path) + 
@@ -14,11 +13,11 @@ void Persistent_Metadata::init(char *metadata_path) {
   metadata.open(metadata_file.c_str());
 }
 
-int Persistent_Metadata::get_num_files() {
+int Persistent_Metadata_Impl::get_num_files() {
   return metadata.size();
 }
 
-int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size) {
+int Persistent_Metadata_Impl::get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size) {
   int current = 0;
   PersistentMap<string, uint32_t>::iterator it;
   //map<string, uint32_t>::iterator it;
@@ -33,14 +32,14 @@ int Persistent_Metadata::get_filenames (char *filenames[MAX_FILENAME_LENGTH], in
   return current;
 }
 
-int Persistent_Metadata::decafs_file_sstat (char *pathname, struct decafs_file_stat *buf) {
+int Persistent_Metadata_Impl::decafs_file_sstat (char *pathname, struct decafs_file_stat *buf) {
   if (pathname_exists (pathname)) {
     return decafs_file_stat (pathname_to_file_id[string(pathname)], buf);
   }
   return FILE_NOT_FOUND;
 }
 
-int Persistent_Metadata::decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf) {
+int Persistent_Metadata_Impl::decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf) {
   if (metadata_contains (file_id)) {
     struct persistent_metadata_info info = metadata[file_id];
     buf->file_id = info.file_id;
@@ -59,12 +58,12 @@ int Persistent_Metadata::decafs_file_stat (uint32_t file_id, struct decafs_file_
   return FILE_NOT_FOUND;
 }
 
-int Persistent_Metadata::decafs_stat (char *pathname, struct statvfs *buf) {
+int Persistent_Metadata_Impl::decafs_stat (char *pathname, struct statvfs *buf) {
   // TODO
   return 0;
 }
 
-int Persistent_Metadata::set_access_time (file_instance inst, struct timeval time) {
+int Persistent_Metadata_Impl::set_access_time (file_instance inst, struct timeval time) {
   if (metadata_contains (inst.file_id)) {
     metadata[inst.file_id].last_access_time = time;
     return P_META_SUCCESS;
@@ -72,7 +71,7 @@ int Persistent_Metadata::set_access_time (file_instance inst, struct timeval tim
   return FILE_NOT_FOUND;
 }
     
-int Persistent_Metadata::add_file (char *pathname, uint32_t stripe_size,
+int Persistent_Metadata_Impl::add_file (char *pathname, uint32_t stripe_size,
                                    uint32_t chunk_size, uint32_t replica_size, struct timeval time) {
   if (pathname_exists (pathname)) {
     return FILE_EXISTS;
@@ -105,7 +104,7 @@ int Persistent_Metadata::add_file (char *pathname, uint32_t stripe_size,
   return file_id;
 }
 
-int Persistent_Metadata::delete_file_contents (uint32_t file_id) {
+int Persistent_Metadata_Impl::delete_file_contents (uint32_t file_id) {
   if (metadata_contains (file_id)) {
     pathname_to_file_id.erase (metadata[file_id].pathname);
     metadata.erase (file_id);
@@ -114,7 +113,7 @@ int Persistent_Metadata::delete_file_contents (uint32_t file_id) {
   return FILE_NOT_FOUND;
 }
 
-int Persistent_Metadata::update_file_size (uint32_t file_id, int size_delta) {
+int Persistent_Metadata_Impl::update_file_size (uint32_t file_id, int size_delta) {
   if (metadata_contains (file_id)) {
     struct persistent_metadata_info *info = &(metadata[file_id]);
     
@@ -129,16 +128,16 @@ int Persistent_Metadata::update_file_size (uint32_t file_id, int size_delta) {
   return FILE_NOT_FOUND;
 }
      
-bool Persistent_Metadata::metadata_contains (uint32_t id) {
+bool Persistent_Metadata_Impl::metadata_contains (uint32_t id) {
   return (metadata.find (id) != metadata.end());
 }
 
-bool Persistent_Metadata::pathname_exists (char *pathname) {
+bool Persistent_Metadata_Impl::pathname_exists (char *pathname) {
   return (pathname_to_file_id.find (string(pathname)) !=
           pathname_to_file_id.end());
 }
     
-uint32_t Persistent_Metadata::get_new_file_id() {
+uint32_t Persistent_Metadata_Impl::get_new_file_id() {
   uint32_t new_file_id;
   
   file_id_mutex.lock();

@@ -27,6 +27,7 @@ io_manager.o: io_manager.cpp io_manager.h ../../lib/decafs_types/limits.h \
  ../../lib/io_manager/io_manager.h \
  ../../lib/io_manager/io_manager_c_api.h \
  ../../lib/persistent_metadata/persistent_metadata.h \
+ ../../lib/persistent_metadata/persistent_metadata_impl.h \
  ../../lib/volatile_metadata/volatile_metadata.h \
  ../../lib/monitored_strategy/monitored_strategy_c_api.h \
  ../../lib/network_core/network_packets.h \

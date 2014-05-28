@@ -11,7 +11,7 @@
 int main(int argc, char** argv) {
   int port = 3899;
   char filename[] = "testfile";
-  DecafsClient client("192.168.1.100", port, 2);
+  DecafsClient client("10.0.0.100", port, 2);
   client.openConnection();
 
   sleep(1);
@@ -118,15 +118,16 @@ int main(int argc, char** argv) {
   client.file_storage_stat(filename);
   sleep(1);
 
+  /*
   // DELETE
   std::cout << "------------ DECAFS CLIENT DELETE TEST ----------" << std::endl;
-  client.delete_file(filename);
+  client.remove_file(filename);
   sleep(1);
 
   // FILE STORAGE STAT
   std::cout << "------------ DECAFS CLIENT FILE STORAGE STAT TEST ----------" << std::endl;
   client.file_storage_stat(filename);
   sleep(1);
-  
+  */
   return 0;
 }

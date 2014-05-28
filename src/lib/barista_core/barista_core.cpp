@@ -9,7 +9,7 @@
 
 // Modules
 IO_Manager io_manager;
-Persistent_Metadata persistent_metadata;
+Persistent_Metadata *persistent_metadata = new Persistent_Metadata_Impl();
 Volatile_Metadata volatile_metadata;
 
 // Monitoring Functions
@@ -102,7 +102,7 @@ extern "C" int get_num_files (struct client client) {
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.get_num_files();
+  res = persistent_metadata->get_num_files();
   release_metadata_lock (client);
   return res;
 }
@@ -113,7 +113,7 @@ extern "C" int get_filenames (char *filenames[MAX_FILENAME_LENGTH], int size,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.get_filenames(filenames, size);
+  res = persistent_metadata->get_filenames(filenames, size);
   release_metadata_lock (client);
   return res;
 }
@@ -124,7 +124,7 @@ extern "C" int decafs_file_sstat (char *pathname, struct decafs_file_stat *buf,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.decafs_file_sstat (pathname, buf);
+  res = persistent_metadata->decafs_file_sstat (pathname, buf);
   release_metadata_lock (client);
   return res;
 }
@@ -135,7 +135,7 @@ extern "C" int decafs_file_stat (uint32_t file_id, struct decafs_file_stat *buf,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.decafs_file_stat (file_id, buf);
+  res = persistent_metadata->decafs_file_stat (file_id, buf);
   release_metadata_lock (client);
   return res;
 }
@@ -146,7 +146,7 @@ extern "C" int decafs_stat (char *pathname, struct statvfs *buf,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.decafs_stat (pathname, buf);
+  res = persistent_metadata->decafs_stat (pathname, buf);
   release_metadata_lock (client);
   return res;
 }
@@ -157,7 +157,7 @@ extern "C" int set_access_time (file_instance inst, struct timeval time,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.set_access_time (inst, time);
+  res = persistent_metadata->set_access_time (inst, time);
   release_metadata_lock (client);
   return res;
 }
@@ -170,7 +170,7 @@ extern "C" int add_file (char *pathname,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.add_file (pathname, stripe_size,
+  res = persistent_metadata->add_file (pathname, stripe_size,
                                       chunk_size, replica_size, time);
   release_metadata_lock (client);
   return res;
@@ -181,7 +181,7 @@ extern "C" int delete_file_contents (uint32_t file_id, struct client client) {
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.delete_file_contents (file_id);
+  res = persistent_metadata->delete_file_contents (file_id);
   release_metadata_lock (client);
   return res;
 }
@@ -192,7 +192,7 @@ extern "C" int update_file_size (uint32_t file_id, int size_delta,
   if (get_metadata_lock (client) < 0) {
     return NO_METADATA_LOCK;
   }
-  res = persistent_metadata.update_file_size (file_id, size_delta);
+  res = persistent_metadata->update_file_size (file_id, size_delta);
   release_metadata_lock (client);
   return res;
 }
@@ -432,7 +432,7 @@ extern "C" void barista_core_init (int argc, char *argv[]) {
   }
 
   io_manager.init (argv[METADATA]);
-  persistent_metadata.init (argv[METADATA]);
+  persistent_metadata->init (argv[METADATA]);
 
   ret = set_stripe_size (atoi(argv[STRIPE_SIZE]));
   if (ret < 0) {
