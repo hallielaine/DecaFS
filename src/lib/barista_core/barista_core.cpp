@@ -9,8 +9,15 @@
 
 // Modules
 IO_Manager io_manager;
-Persistent_Metadata *persistent_metadata = new Persistent_Metadata_Impl();
+Persistent_Metadata *persistent_metadata = Persistent_Metadata::get_instance();
 Volatile_Metadata volatile_metadata;
+
+// Test Accessors
+#ifdef MOCK_PERSISTENT_METADATA
+Persistent_Metadata* get_persistent_metadata() {
+  return persistent_metadata;
+}
+#endif
 
 // Monitoring Functions
 void (*monitor)() = NULL;

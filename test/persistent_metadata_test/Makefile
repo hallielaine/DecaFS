@@ -1,4 +1,4 @@
-GTEST_DIR := ../gtest
+GTEST_DIR := ../gmock/gtest
 USER_DIR := ../../src/lib/persistent_metadata
 
 CXX := g++ -std=c++11

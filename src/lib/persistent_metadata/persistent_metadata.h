@@ -18,6 +18,8 @@ using namespace std;
 class Persistent_Metadata {
   public:
     virtual ~Persistent_Metadata() {}
+    
+    static Persistent_Metadata* get_instance();
 
     virtual void init (char *metadata_path) = 0;
     
