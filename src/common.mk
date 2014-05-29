@@ -24,7 +24,9 @@ ifeq ($(CXX),clang++)
 	CXXFLAGS += -flto -Wunreachable-code
 endif
 
-INCLUDES := -I../../lib/ -I../../../test/gmock/include
+INCLUDES := -I../../lib/ -I../../../test/gmock/include \
+            -I../../../test/gtest/include
+
 OUTFILE := $(BIN)$(LIB)
 
 .PHONY: default clean
