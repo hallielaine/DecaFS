@@ -102,7 +102,6 @@ TEST (Volatile_Metadata, GetActiveNodes) {
   EXPECT_EQ (2, nodes.active_node_count);
   EXPECT_EQ (ESPRESSO_1_NODE_NUM, nodes.node_numbers[0]);
   EXPECT_EQ (ESPRESSO_2_NODE_NUM, nodes.node_numbers[1]);
-  EXPECT_EQ (0, nodes.node_numbers[2]);
 }
 
 TEST (Volatile_Metadata, NodeDown) {
