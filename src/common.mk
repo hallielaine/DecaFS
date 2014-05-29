@@ -9,7 +9,7 @@ else
 endif
 
 #TODO: make code compile with -Werror
-CFLAGS := -g -O1 -MMD -Wall -Wno-unused-parameter $(EXTRA_CFLAGS)
+CFLAGS := -g -O3 -MMD -Wall -Wno-unused-parameter $(EXTRA_CFLAGS)
 LDFLAGS := -pthread
 
 ifeq ($(COVERAGE),yes)
@@ -24,7 +24,7 @@ ifeq ($(CXX),clang++)
 	CXXFLAGS += -flto -Wunreachable-code
 endif
 
-INCLUDES := -I../../lib/
+INCLUDES := -I../../lib/ -I../../../test/gmock/include
 OUTFILE := $(BIN)$(LIB)
 
 .PHONY: default clean
